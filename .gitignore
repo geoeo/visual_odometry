@@ -3,3 +3,5 @@
 .idea/*
 output/*
 Cargo.lock
+cmake-build-debug/
+.DS_Store
