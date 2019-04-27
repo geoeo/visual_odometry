@@ -1,0 +1,8 @@
+[package]
+name = "visual_odometry"
+version = "0.1.0"
+authors = ["Marc Haubenstock <marchaubenstock@Marcs-MacBook-Pro.local>"]
+edition = "2018"
+
+[dependencies]
+image = "*"
