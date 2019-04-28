@@ -13,7 +13,7 @@ fn main() {
     let file_out_path = "output/gradient_test.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().grayscale().to_rgb();
-    let kernel = select_filter(ImageFilter::Sobel,GradientDirection::X);
+    let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
 
     let gradient_image = filter3x3(&image,&kernel);
 
