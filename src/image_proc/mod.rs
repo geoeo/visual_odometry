@@ -1,7 +1,7 @@
 pub mod filters;
+pub mod frame;
 
-use filters::types::{ImageFilter, GradientDirection};
-
+pub use filters::types::{ImageFilter, GradientDirection};
 
 pub fn select_filter(filter_type: ImageFilter, gradient_direction: GradientDirection) -> [f32;9]  {
     return match (filter_type, gradient_direction) {
