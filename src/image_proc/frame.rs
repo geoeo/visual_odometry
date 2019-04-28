@@ -1,28 +1,17 @@
 extern crate image;
 
 use image::GrayImage;
+use super::filters::types::{ImageFilter, GradientDirection};
 
-use super::filters::types::{ImageFilter,GradientDirection};
-
-pub struct GrayFrame {
-    buffer: GrayImage
-}
-
-impl GrayFrame {
-    pub fn new(buffer: GrayImage) -> GrayFrame {
-        GrayFrame{buffer}
-    }
-}
-
-pub struct GradientFrame {
+pub struct GrayImageFrame {
     buffer: GrayImage,
     filter: ImageFilter,
     direction: GradientDirection
 }
 
-impl GradientFrame {
-    pub fn new(buffer: GrayImage, filter: ImageFilter, direction: GradientDirection) -> GradientFrame {
-        GradientFrame {buffer, filter, direction}
+impl GrayImageFrame {
+    pub fn new(buffer: GrayImage, filter: ImageFilter, direction: GradientDirection) -> GrayImageFrame {
+        GrayImageFrame {buffer, filter, direction}
     }
 }
 

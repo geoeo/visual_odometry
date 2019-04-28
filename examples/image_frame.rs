@@ -6,7 +6,7 @@ use std::path::Path;
 use image::imageops::filter3x3;
 use visual_odometry::image_proc::select_filter;
 use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
-use visual_odometry::image_proc::frame::{GrayFrame,GradientFrame};
+use visual_odometry::image_proc::frame::GrayImageFrame;
 
 fn main() {
 
@@ -16,6 +16,6 @@ fn main() {
     let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
     let gradient_image = filter3x3(&image,&kernel);
 
-    let _frame = GrayFrame::new(image);
-    let _gradient_frame = GradientFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+    let _frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
+    let _gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
 }
