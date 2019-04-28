@@ -12,3 +12,5 @@ pub fn select_filter(filter_type: ImageFilter, gradient_direction: GradientDirec
         (_,_) => panic!("Invalid (filter, direction) combination!: ({:?}, {:?})", filter_type, gradient_direction)
     };
 }
+
+//TODO: Write methods for normalizing an image using nalgebra

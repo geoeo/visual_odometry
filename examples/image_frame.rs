@@ -16,6 +16,10 @@ fn main() {
     let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
     let gradient_image = filter3x3(&image,&kernel);
 
-    let _frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
+    let frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
     let _gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+
+    let frame_as_vec_view = frame.get_buffer().as_flat_samples();
+
+
 }

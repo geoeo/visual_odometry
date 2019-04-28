@@ -4,37 +4,34 @@ extern crate visual_odometry;
 use std::path::Path;
 
 use image::imageops::filter3x3;
+use image::flat::NormalForm;
 use visual_odometry::image_proc::select_filter;
 use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
 use visual_odometry::image_proc::frame::GrayImageFrame;
 
 #[test]
-fn valid() {
+fn image_is_row_major() {
 
     let image_path = "images/ferris.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
     let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
-
     let gradient_image = filter3x3(&image,&kernel);
 
-    let _frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
-    let _gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
-    assert!(true)
+    let frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
+    let gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+
+    assert!(frame.get_buffer().sample_layout().is_normal(NormalForm::RowMajorPacked));
+    assert_eq!(frame.get_buffer().sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
+
+    assert!(gradient_frame.get_buffer().sample_layout().is_normal(NormalForm::RowMajorPacked));
+    assert_eq!(gradient_frame.get_buffer().sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
 }
 
 #[test]
 #[should_panic]
 fn filter_for_no_gradient() {
-
-    let image_path = "images/ferris.png";
-
-    let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
-    let kernel = select_filter(ImageFilter::None,GradientDirection::None);
-    let gradient_image = filter3x3(&image,&kernel);
-
-    let _frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
-    let _gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+    let _kernel = select_filter(ImageFilter::None,GradientDirection::None);
 }
 
 
