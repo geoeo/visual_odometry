@@ -7,7 +7,7 @@ use image::imageops::filter3x3;
 use image::flat::NormalForm;
 use visual_odometry::image_proc::select_filter;
 use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
-use visual_odometry::image_proc::frame::GrayImageFrame;
+use visual_odometry::image_proc::frame::Frame;
 
 #[test]
 fn image_is_row_major() {

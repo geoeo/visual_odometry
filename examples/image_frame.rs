@@ -3,7 +3,7 @@ extern crate visual_odometry;
 
 use std::path::Path;
 
-use visual_odometry::image_proc::frame::GrayImageFrame;
+use visual_odometry::image_proc::frame::Frame;
 use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
 
 fn main() {
@@ -15,7 +15,7 @@ fn main() {
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
     image.save(gray_image_path).unwrap();
 
-    let frame = GrayImageFrame::from_image(image,ImageFilter::None,GradientDirection::None);
+    let frame = Frame::from_image(image, ImageFilter::None, GradientDirection::None);
     let new_image= frame.to_image();
 
     new_image.save(converted_file_out_path).unwrap();

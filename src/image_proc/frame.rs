@@ -7,25 +7,25 @@ use na::{Dynamic, DMatrix, VecStorage};
 use super::filters::types::{ImageFilter, GradientDirection};
 use self::image::{DynamicImage};
 
-type ImageMat = f32;
+type MatrixData = f64;
 
-pub struct GrayImageFrame {
-    buffer: DMatrix<ImageMat>,
+pub struct Frame {
+    buffer: DMatrix<MatrixData>,
     filter: ImageFilter,
     direction: GradientDirection
 }
 
-impl GrayImageFrame {
-    pub fn new(buffer: DMatrix<ImageMat>, filter: ImageFilter, direction: GradientDirection) -> GrayImageFrame {
-        GrayImageFrame {buffer, filter, direction}
+impl Frame {
+    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter, direction: GradientDirection) -> Frame {
+        Frame {buffer, filter, direction}
     }
 
-    pub fn from_image(image : GrayImage,filter: ImageFilter, direction: GradientDirection) -> GrayImageFrame {
+    pub fn from_image(image : GrayImage,filter: ImageFilter, direction: GradientDirection) -> Frame {
         let buffer = image_to_matrix(&image);
-        GrayImageFrame{buffer, filter, direction}
+        Frame {buffer, filter, direction}
     }
 
-    pub fn get_buffer(&self) -> &DMatrix<ImageMat> {
+    pub fn get_buffer(&self) -> &DMatrix<MatrixData> {
         return &self.buffer;
     }
 
@@ -44,22 +44,22 @@ impl GrayImageFrame {
 }
 
 // https://en.wikipedia.org/wiki/Normalization_(image_processing)
-fn normalize_to_gray(value : ImageMat, min : ImageMat, max :ImageMat) -> u8 {
-    let range = 255 as ImageMat;
+fn normalize_to_gray(value : MatrixData, min : MatrixData, max : MatrixData) -> u8 {
+    let range = 255 as MatrixData;
     return ((value - min) * (range / (max - min)) + min) as u8;
 }
 
-pub fn image_to_matrix(gray_image : &GrayImage) -> DMatrix<ImageMat> {
+pub fn image_to_matrix(gray_image : &GrayImage) -> DMatrix<MatrixData> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
     let (width,height) = gray_image.dimensions();
     let size = (width*height) as usize;
-    let mut vec_column_major : Vec<ImageMat> = Vec::with_capacity(size);
+    let mut vec_column_major : Vec<MatrixData> = Vec::with_capacity(size);
     for x in 0..width {
         for y in 0..height {
             let pixel = gray_image.get_pixel(x,y);
             let pixel_value = pixel.data[0];
-            vec_column_major.push(pixel_value as ImageMat);
+            vec_column_major.push(pixel_value as MatrixData);
         }
     }
     let nrows = Dynamic::new(height as usize);
@@ -68,11 +68,11 @@ pub fn image_to_matrix(gray_image : &GrayImage) -> DMatrix<ImageMat> {
     return DMatrix::from_data(vec_storage);
 }
 
-pub fn matrix_to_image(matrix: &DMatrix<ImageMat>) -> GrayImage {
+pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
     let (rows,cols) = matrix.shape();
     let min = matrix.min();
     // if max is in u8 range, use the full range
-    let max = if matrix.max() < (256 as ImageMat) {(255 as ImageMat)} else {matrix.max()};
+    let max = if matrix.max() < (256 as MatrixData) {(255 as MatrixData)} else {matrix.max()};
     let mut gray_image = DynamicImage::new_luma8(cols as u32,rows as u32).to_luma();
     for c in 0..cols {
         for r in 0..rows {
