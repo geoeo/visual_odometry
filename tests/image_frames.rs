@@ -18,14 +18,11 @@ fn image_is_row_major() {
     let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
     let gradient_image = filter3x3(&image,&kernel);
 
-    let frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
-    let gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+    assert!(image.sample_layout().is_normal(NormalForm::RowMajorPacked));
+    assert_eq!(image.sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
 
-    assert!(frame.get_buffer().sample_layout().is_normal(NormalForm::RowMajorPacked));
-    assert_eq!(frame.get_buffer().sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
-
-    assert!(gradient_frame.get_buffer().sample_layout().is_normal(NormalForm::RowMajorPacked));
-    assert_eq!(gradient_frame.get_buffer().sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
+    assert!(gradient_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
+    assert_eq!(gradient_image.sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
 }
 
 #[test]

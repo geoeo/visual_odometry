@@ -3,23 +3,22 @@ extern crate visual_odometry;
 
 use std::path::Path;
 
-use image::imageops::filter3x3;
-use visual_odometry::image_proc::select_filter;
-use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
 use visual_odometry::image_proc::frame::GrayImageFrame;
+use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
 
 fn main() {
 
-    let image_path = "images/ferris.png";
+    let image_path = "images/blocks.jpg";
+    let gray_image_path = "output/blocks_gray_scale.png";
+    let converted_file_out_path = "output/blocks_converted.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
-    let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
-    let gradient_image = filter3x3(&image,&kernel);
+    image.save(gray_image_path).unwrap();
 
-    let frame = GrayImageFrame::new(image, ImageFilter::None, GradientDirection::None);
-    let _gradient_frame = GrayImageFrame::new(gradient_image,ImageFilter::Scharr,GradientDirection::X);
+    let frame = GrayImageFrame::from_image(image,ImageFilter::None,GradientDirection::None);
+    let new_image= frame.to_image();
 
-    let frame_as_vec_view = frame.get_buffer().as_flat_samples();
+    new_image.save(converted_file_out_path).unwrap();
 
 
 }
