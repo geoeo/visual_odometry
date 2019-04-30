@@ -79,16 +79,16 @@ pub fn generator_yaw_neg() -> Matrix3x4<MatrixData> {
                           0.0, 0.0, 0.0, 0.0);
 }
 
-pub fn exp(v : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>) {
-    let u = Vector3::from(v.fixed_rows::<na::U3>(0));
-    let w = Vector3::from(v.fixed_rows::<na::U3>(3));
+pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>) {
+    let u = Vector3::from(v_lie.fixed_rows::<na::U3>(0));
+    let w = Vector3::from(v_lie.fixed_rows::<na::U3>(3));
 
     let w_t = w.transpose();
     let w_x = skew_symmetric(w);
     let w_x_squared = w_x*w_x;
-    let theta_squared_mat = w_t*w;
-    let theta_squared = *theta_squared_mat.index(0);
-    let theta = theta_squared.sqrt();
+    let theta_squared = w_t*w;
+    let theta_squared_val = *theta_squared.index(0);
+    let theta = theta_squared_val.sqrt();
 
     let mut a : MatrixData = 0.0;
     let mut b : MatrixData = 0.0;
@@ -100,18 +100,18 @@ pub fn exp(v : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>
     }
 
     //TODO: use Taylor Expansion for Cos when theta_sqred is small
-    if theta_squared != 0.0 {
-        b = (1.0 - theta.cos()) / theta_squared;
-        c = (1.0 - a) / theta_squared;
+    if theta_squared_val != 0.0 {
+        b = (1.0 - theta.cos()) / theta_squared_val;
+        c = (1.0 - a) / theta_squared_val;
     }
 
     //TODO: when calls in const become available refactor identity()
-    let rot_new_mat = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
-    let v_mat = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
+    let so3_new = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
+    let v : Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
 
-    let t = v_mat*u;
+    let t = v*u;
 
-    return (rot_new_mat, t)
+    return (so3_new, t)
 }
 
 /*
