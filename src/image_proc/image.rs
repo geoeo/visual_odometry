@@ -19,7 +19,7 @@ impl Image {
     }
 
     pub fn from_image(image: GrayImage, filter: ImageFilter) -> Image {
-        let buffer = image_to_matrix(&image);
+        let buffer = image_to_matrix(image);
         Image { buffer, filter }
     }
 
@@ -43,7 +43,7 @@ fn normalize_to_gray(value: MatrixData, min: MatrixData, max: MatrixData) -> u8 
     return ((value - min) * (range / (max - min)) + min) as u8;
 }
 
-pub fn image_to_matrix(gray_image: &GrayImage) -> DMatrix<MatrixData> {
+pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
     let (width, height) = gray_image.dimensions();
