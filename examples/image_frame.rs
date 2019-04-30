@@ -20,5 +20,4 @@ fn main() {
 
     new_image.save(converted_file_out_path).unwrap();
 
-
 }

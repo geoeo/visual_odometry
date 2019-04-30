@@ -2,7 +2,8 @@ extern crate nalgebra as na;
 extern crate visual_odometry;
 
 use na::DMatrix;
-use visual_odometry::numerics::{z_standardise, MatrixData};
+use visual_odometry::numerics::MatrixData;
+use visual_odometry::numerics::matrix_ops::z_standardise;
 
 #[test]
 fn z_standardization() {
