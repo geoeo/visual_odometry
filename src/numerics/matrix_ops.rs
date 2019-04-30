@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::DMatrix;
+use na::{DMatrix,Vector3, Matrix3};
 use super::MatrixData;
 
 pub fn column_major_index(c : usize, r : usize, height: usize) -> usize {
@@ -19,4 +19,13 @@ pub fn z_standardise(matrix : &mut DMatrix<MatrixData>) -> &mut DMatrix<MatrixDa
         *elem = (*elem - mean)/std_dev;
     }
     return matrix;
+}
+
+pub fn skew_symmetric(v: Vector3<MatrixData>) -> Matrix3<MatrixData> {
+    let a = *v.index(0);
+    let b = *v.index(1);
+    let c = *v.index(2);
+    return Matrix3::<MatrixData>::new(0.0, -c, b,
+                                      c, 0.0, -a,
+                                      -b, a, 0.0);
 }

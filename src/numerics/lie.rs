@@ -1,7 +1,8 @@
 extern crate nalgebra as na;
 
-use na::{Matrix3x4,Matrix6x1, Matrix3, Matrix4x1};
+use na::{Matrix3x4,Vector6, Matrix3, Vector3};
 use super::MatrixData;
+use super::matrix_ops::{skew_symmetric};
 
 pub fn generator_x() -> Matrix3x4<MatrixData> {
     return Matrix3x4::new(0.0, 0.0, 0.0, 1.0,
@@ -77,44 +78,41 @@ pub fn generator_yaw_neg() -> Matrix3x4<MatrixData> {
                           -1.0, 0.0, 0.0, 0.0,
                           0.0, 0.0, 0.0, 0.0);
 }
-/*
-def exp(w, twist_size):
-w_angle = w[3:twist_size]
-w_angle_transpose = np.transpose(w_angle)
-w_x = Utils.skew_symmetric(w[3], w[4], w[5])
-w_x_squared = np.matmul(w_x, w_x)
 
-# closed form solution for exponential map
-theta_sqred = np.matmul(w_angle_transpose, w_angle)[0][0]
-theta = math.sqrt(theta_sqred)
+pub fn exp(v : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>) {
+    let u = Vector3::from(v.fixed_rows::<na::U3>(0));
+    let w = Vector3::from(v.fixed_rows::<na::U3>(3));
 
-A = 0
-B = 0
-C = 0
+    let w_t = w.transpose();
+    let w_x = skew_symmetric(w);
+    let w_x_squared = w_x*w_x;
+    let theta_squared_mat = w_t*w;
+    let theta_squared = *theta_squared_mat.index(0);
+    let theta = theta_squared.sqrt();
 
-//TODO: use Taylor Expansion when theta_sqred is small
-if not theta == 0:
-A = math.sin(theta) / theta
+    let mut a : MatrixData = 0.0;
+    let mut b : MatrixData = 0.0;
+    let mut c : MatrixData = 0.0;
 
-if not theta_sqred == 0:
-B = (1 - math.cos(theta)) / theta_sqred
-C = (1 - A) / theta_sqred
+    //TODO: use Taylor Expansion for Sin when theta_sqred is small
+    if theta != 0.0 {
+        a = theta.sin() / theta;
+    }
 
-u = np.array([w[0], w[1], w[2]]).reshape((3, 1))
+    //TODO: use Taylor Expansion for Cos when theta_sqred is small
+    if theta_squared != 0.0 {
+        b = (1.0 - theta.cos()) / theta_squared;
+        c = (1.0 - a) / theta_squared;
+    }
 
-R_new = I_3 + np.multiply(A, w_x) + np.multiply(B, w_x_squared)
-V = I_3 + np.multiply(B, w_x) + np.multiply(C, w_x_squared)
+    //TODO: when calls in const become available refactor identity()
+    let rot_new_mat = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
+    let v_mat = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
 
-t_new = np.matmul(V, u)
+    let t = v_mat*u;
 
-return R_new, t_new
-*/
-
-//TODO:
-pub fn exp(w : Matrix6x1<MatrixData>) -> (Matrix3<MatrixData>, Matrix4x1<MatrixData>) {
-    return (Matrix3::zeros(), Matrix4x1::zeros())
+    return (rot_new_mat, t)
 }
-
 
 /*
 def ln(R, t,twist_size):
@@ -162,3 +160,7 @@ w[2] = u[2]
 
 return w
 */
+
+pub fn ln(rot_mat : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
+    return Vector6::<MatrixData>::zeros();
+}
