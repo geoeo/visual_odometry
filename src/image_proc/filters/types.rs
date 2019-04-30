@@ -1,15 +1,9 @@
-#[repr(u8)]
+#[repr(u16)]
 #[derive(Debug,Copy,Clone)]
 pub enum ImageFilter {
     None,
-    Sobel,
-    Scharr
-}
-
-#[repr(u8)]
-#[derive(Debug,Copy,Clone)]
-pub enum GradientDirection {
-    None,
-    X,
-    Y
+    SobelX,
+    SobelY,
+    ScharrX,
+    ScharrY
 }

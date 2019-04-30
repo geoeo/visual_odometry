@@ -1,14 +1,14 @@
 pub mod filters;
-pub mod frame;
+pub mod image;
 
-pub use filters::types::{ImageFilter, GradientDirection};
+pub use filters::types::ImageFilter;
 
-pub fn select_filter(filter_type: ImageFilter, gradient_direction: GradientDirection) -> [f32;9]  {
-    return match (filter_type, gradient_direction) {
-        (ImageFilter::Sobel, GradientDirection::X) => filters::HORIZONTAL_SOBEL,
-        (ImageFilter:: Sobel, GradientDirection::Y) => filters::VERTICAL_SOBEL,
-        (ImageFilter:: Scharr, GradientDirection::X) => filters::HORIZONTAL_SCHARR,
-        (ImageFilter:: Scharr, GradientDirection::Y) => filters::VERTICAL_SCHARR,
-        (_,_) => panic!("Invalid (filter, direction) combination!: ({:?}, {:?})", filter_type, gradient_direction)
+pub fn select_filter(filter_type: ImageFilter) -> [f32;9]  {
+    return match filter_type {
+        ImageFilter::SobelX => filters::HORIZONTAL_SOBEL,
+        ImageFilter::SobelY => filters::VERTICAL_SOBEL,
+        ImageFilter::ScharrX => filters::HORIZONTAL_SCHARR,
+        ImageFilter::ScharrY => filters::VERTICAL_SCHARR,
+        ImageFilter::None => panic!("Invalid filter!: {:?}", filter_type)
     };
 }

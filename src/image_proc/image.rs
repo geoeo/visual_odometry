@@ -4,24 +4,23 @@ extern crate nalgebra as na;
 use image::GrayImage;
 use image::flat::NormalForm;
 use na::{Dynamic, DMatrix, VecStorage};
-use super::filters::types::{ImageFilter, GradientDirection};
+use super::filters::types::ImageFilter;
 use self::image::DynamicImage;
 use crate::numerics::MatrixData;
 
-pub struct Frame {
+pub struct Image {
     buffer: DMatrix<MatrixData>,
-    filter: ImageFilter,
-    direction: GradientDirection,
+    filter: ImageFilter
 }
 
-impl Frame {
-    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter, direction: GradientDirection) -> Frame {
-        Frame { buffer, filter, direction }
+impl Image {
+    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter) -> Image {
+        Image { buffer, filter }
     }
 
-    pub fn from_image(image: GrayImage, filter: ImageFilter, direction: GradientDirection) -> Frame {
+    pub fn from_image(image: GrayImage, filter: ImageFilter) -> Image {
         let buffer = image_to_matrix(&image);
-        Frame { buffer, filter, direction }
+        Image { buffer, filter }
     }
 
     pub fn get_buffer(&self) -> &DMatrix<MatrixData> {
@@ -31,10 +30,6 @@ impl Frame {
     pub fn get_filter(&self) -> ImageFilter
     {
         return self.filter;
-    }
-
-    pub fn get_direction(&self) -> GradientDirection {
-        return self.direction;
     }
 
     pub fn to_image(&self) -> GrayImage {

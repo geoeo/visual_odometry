@@ -5,7 +5,7 @@ use std::path::Path;
 
 use image::imageops::filter3x3;
 use visual_odometry::image_proc::select_filter;
-use visual_odometry::image_proc::filters::types::{ImageFilter, GradientDirection};
+use visual_odometry::image_proc::filters::types::ImageFilter;
 
 fn main() {
 
@@ -13,7 +13,7 @@ fn main() {
     let file_out_path = "output/gradient_test.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().grayscale().to_luma();
-    let kernel = select_filter(ImageFilter::Scharr,GradientDirection::X);
+    let kernel = select_filter(ImageFilter::ScharrX);
 
     let gradient_image = filter3x3(&image,&kernel);
 
