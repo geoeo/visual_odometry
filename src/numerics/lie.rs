@@ -112,65 +112,18 @@ pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixD
     return (so3_new, t)
 }
 
-/*
-def ln(R, t,twist_size):
-w = np.zeros((twist_size,1),dtype=matrix_data_type)
+pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
 
-trace = np.trace(R)
-theta = math.acos((trace-1.0)/2.0)
-theta_sqred = math.pow(theta,2.0)
-
-R_transpose = np.transpose(R)
-ln_R = I_3
-
-//TODO: use Taylor Expansion when theta is small
-if not theta == 0:
-ln_R = (theta/(2*math.sin(theta)))*(R-R_transpose)
-
-w[3] = ln_R[2,1]
-w[4] = ln_R[0,2]
-w[5] = ln_R[1,0]
-
-w_x = Utils.skew_symmetric(w[3], w[4], w[5])
-w_x_squared = np.matmul(w_x, w_x)
-
-A = 0
-B = 0
-coeff = 0
-
-//TODO: use Taylor Expansion when theta_sqred is small
-if not theta == 0:
-A = math.sin(theta) / theta
-
-if not theta_sqred == 0:
-B = (1 - math.cos(theta)) / theta_sqred
-
-if not (theta == 0 or theta_sqred == 0):
-coeff = (1.0/(theta_sqred))*(1.0 - (A/(2.0*B)))
-
-V_inv = I_3 + np.multiply(0.5,w_x) + np.multiply(coeff,w_x_squared)
-
-u = np.matmul(V_inv,t)
-
-w[0] = u[0]
-w[1] = u[1]
-w[2] = u[2]
-
-return w
-*/
-
-pub fn ln(rot : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
-
-    let trace = rot.trace();
+    let trace = so3.trace();
     let theta = ((trace - 1.0)/2.0).cos();
     let theta_squared = theta*theta;
 
-    let rot_t = rot.transpose();
+    let so3_t = so3.transpose();
 
     //TODO: use Taylor Expansion when theta is small
     let ln_r =
         if theta != 0.0 {
-            (theta / (2.0 * theta.sin())) * (rot - rot_t)
+            (theta / (2.0 * theta.sin())) * (so3 - so3_t)
         } else {
             Matrix3::<MatrixData>::identity()
         };
