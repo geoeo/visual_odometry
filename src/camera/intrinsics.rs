@@ -5,8 +5,8 @@ use crate::MatrixData;
 
 #[allow(non_snake_case)]
 pub struct Intrinsics {
-    K: Matrix3x4<MatrixData>,
-    K_inv: Matrix3<MatrixData>,
+    pub K: Matrix3x4<MatrixData>,
+    pub K_inv: Matrix3<MatrixData>,
 }
 
 #[allow(non_snake_case)]

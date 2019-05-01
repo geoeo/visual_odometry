@@ -82,7 +82,7 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
     for c in 0..cols {
         for r in 0..rows {
             let val = *matrix.index((r, c));
-            let pixel = gray_image.get_pixel_mut(c as u32, r as u32);
+            let mut pixel = gray_image.get_pixel_mut(c as u32, r as u32);
             pixel.data[0] = normalize_to_gray(val, min, max);
         }
     }
