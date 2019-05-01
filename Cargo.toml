@@ -7,3 +7,4 @@ edition = "2018"
 [dependencies]
 image = "*"
 nalgebra = "0.18.0"
+approx = "0.3.2"

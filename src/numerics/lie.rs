@@ -115,7 +115,7 @@ pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixD
 pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
 
     let trace = so3.trace();
-    let theta = ((trace - 1.0)/2.0).cos();
+    let theta = ((trace - 1.0)/2.0).acos();
     let theta_squared = theta*theta;
 
     let so3_t = so3.transpose();
@@ -147,7 +147,7 @@ pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
         (1.0/theta_squared)*(1.0 - (a/(2.0*b)))
     } else { 0.0 };
 
-    let v_inv = Matrix3::<MatrixData>::identity() + 0.5*w_x + coeff*w_x_squared;
+    let v_inv = Matrix3::<MatrixData>::identity() - 0.5*w_x + coeff*w_x_squared;
 
     let u = v_inv*t;
 
