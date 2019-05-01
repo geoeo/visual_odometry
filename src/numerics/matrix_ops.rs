@@ -11,14 +11,13 @@ pub fn row_major_index(c : usize, r : usize, cols: usize) -> usize {
     return r*cols + c;
 }
 
-pub fn z_standardise(matrix : &mut DMatrix<MatrixData>) -> &mut DMatrix<MatrixData> {
+pub fn z_standardise(matrix : &mut DMatrix<MatrixData>) -> () {
     let mean = matrix.mean();
     let std_dev = matrix.variance().sqrt();
     let matrix_itr = matrix.iter_mut();
     for elem in matrix_itr {
         *elem = (*elem - mean)/std_dev;
     }
-    return matrix;
 }
 
 pub fn skew_symmetric(a : MatrixData, b : MatrixData, c : MatrixData) -> Matrix3<MatrixData> {

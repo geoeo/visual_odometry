@@ -20,9 +20,9 @@ fn z_standardization() {
     let gt = DMatrix::from_vec(2,2, gt_vec);
 
     let mut mat = DMatrix::from_vec(2,2, vec);
-    let res = z_standardise(&mut mat);
+    z_standardise(&mut mat);
 
-    assert_eq!(*res,gt);
+    assert_eq!(mat,gt);
 
 }
 
