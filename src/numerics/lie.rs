@@ -105,8 +105,8 @@ pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixD
     } else { 0.0 };
 
     //TODO: when calls in const become available refactor identity()
-    let SO3_new = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
-    let V : Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
+    let SO3_new = Matrix3::<MatrixData>::identity() + a*W_x + b*W_x_squared;
+    let V : Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b*W_x + c*W_x_squared;
 
     let t = V*u;
 
@@ -125,7 +125,7 @@ pub fn ln(SO3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
     //TODO: use Taylor Expansion when theta is small
     let ln_r =
         if theta != 0.0 {
-            (theta / (2.0 * theta.sin())) * (so3 - so3_t)
+            (theta / (2.0 * theta.sin())) * (SO3 - SO3_t)
         } else {
             Matrix3::<MatrixData>::identity()
         };
@@ -149,7 +149,7 @@ pub fn ln(SO3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
         (1.0/theta_squared)*(1.0 - (a/(2.0*b)))
     } else { 0.0 };
 
-    let V_inv = Matrix3::<MatrixData>::identity() - 0.5*w_x + coeff*w_x_squared;
+    let V_inv = Matrix3::<MatrixData>::identity() - 0.5*W_x + coeff*W_x_squared;
 
     let u = V_inv*t;
 
