@@ -3,10 +3,10 @@ extern crate nalgebra as na;
 extern crate visual_odometry;
 
 use approx::assert_relative_eq;
-use na::{Vector6, DMatrix, Vector3, Matrix3};
+use na::{Vector6, DMatrix, Vector3, Matrix3,Matrix4};
 use visual_odometry::numerics::MatrixData;
-use visual_odometry::numerics::matrix_ops::z_standardise;
-use visual_odometry::numerics::lie::{exp,ln,};
+use visual_odometry::numerics::matrix_ops::{z_standardise, parts_from_isometry, isometry_from_parts};
+use visual_odometry::numerics::lie::{exp,ln};
 
 
 #[test]
@@ -47,4 +47,23 @@ fn lie_exponentials() {
     assert_relative_eq!(t_new_3, t_3, epsilon = 0.000000001);
     assert_relative_eq!(so3_new_3, Matrix3::<MatrixData>::identity(), epsilon = 0.000000001);
 
+}
+
+#[test]
+fn isometry() {
+    let so3 = Matrix3::<MatrixData>::new(0.5, 0.0, 0.5,
+                                         0.4, 0.2, 0.4,
+                                         0.1, 0.8, 0.1);
+    let t = Vector3::<MatrixData>::new(4.0, 100.0, -25.4);
+    let se3 = Matrix4::<MatrixData>::new(0.5, 0.0, 0.5, 4.0,
+                                         0.4, 0.2, 0.4, 100.0,
+                                         0.1, 0.8, 0.1, -25.4,
+                                         0.0, 0.0, 0.0, 1.0);
+
+    let (so3_new, t_new) = parts_from_isometry(se3);
+    let se3_new = isometry_from_parts(so3,t);
+
+    assert_eq!(so3_new, so3);
+    assert_eq!(t_new, t);
+    assert_eq!(se3_new, se3);
 }
