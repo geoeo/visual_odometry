@@ -79,13 +79,14 @@ pub fn generator_yaw_neg() -> Matrix3x4<MatrixData> {
                           0.0, 0.0, 0.0, 0.0);
 }
 
+#[allow(non_snake_case)]
 pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>) {
     let u = Vector3::from(v_lie.fixed_rows::<na::U3>(0));
     let w = Vector3::from(v_lie.fixed_rows::<na::U3>(3));
 
     let w_t = w.transpose();
-    let w_x = skew_symmetric(*w.index(0), *w.index(1), *w.index(2));
-    let w_x_squared = w_x*w_x;
+    let W_x = skew_symmetric(*w.index(0), *w.index(1), *w.index(2));
+    let W_x_squared = W_x*W_x;
     let theta_squared = *(w_t*w).index(0);
     let theta = theta_squared.sqrt();
 
@@ -104,21 +105,22 @@ pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixD
     } else { 0.0 };
 
     //TODO: when calls in const become available refactor identity()
-    let so3_new = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
-    let v : Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
+    let SO3_new = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
+    let V : Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b*w_x + c*w_x_squared;
 
-    let t = v*u;
+    let t = V*u;
 
-    return (so3_new, t)
+    return (SO3_new, t)
 }
 
-pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
+#[allow(non_snake_case)]
+pub fn ln(SO3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
 
-    let trace = so3.trace();
+    let trace = SO3.trace();
     let theta = ((trace - 1.0)/2.0).acos();
     let theta_squared = theta*theta;
 
-    let so3_t = so3.transpose();
+    let SO3_t = SO3.transpose();
 
     //TODO: use Taylor Expansion when theta is small
     let ln_r =
@@ -132,8 +134,8 @@ pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
     let w_4 = *ln_r.index((0,2));
     let w_5 = *ln_r.index((1,0));
 
-    let w_x = skew_symmetric(w_3, w_4, w_5);
-    let w_x_squared = w_x*w_x;
+    let W_x = skew_symmetric(w_3, w_4, w_5);
+    let W_x_squared = W_x*W_x;
 
     let a = if theta != 0.0 {
         theta.sin() / theta
@@ -147,9 +149,9 @@ pub fn ln(so3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
         (1.0/theta_squared)*(1.0 - (a/(2.0*b)))
     } else { 0.0 };
 
-    let v_inv = Matrix3::<MatrixData>::identity() - 0.5*w_x + coeff*w_x_squared;
+    let V_inv = Matrix3::<MatrixData>::identity() - 0.5*w_x + coeff*w_x_squared;
 
-    let u = v_inv*t;
+    let u = V_inv*t;
 
     let w_0 = *u.index(0);
     let w_1 = *u.index(1);
