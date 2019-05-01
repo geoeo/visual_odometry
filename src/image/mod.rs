@@ -1,11 +1,12 @@
-extern crate image;
+pub mod filters;
+
+extern crate image as image;
 extern crate nalgebra as na;
 
-use image::GrayImage;
+use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
 use na::{Dynamic, DMatrix, VecStorage};
-use super::filters::types::ImageFilter;
-use self::image::DynamicImage;
+pub use filters::types::ImageFilter;
 use crate::MatrixData;
 use crate::numerics::matrix_ops::z_standardize;
 
@@ -88,6 +89,12 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
     return gray_image;
 }
 
-
-
-
+pub fn select_filter(filter_type: ImageFilter) -> [f32;9]  {
+    return match filter_type {
+        ImageFilter::SobelX => filters::HORIZONTAL_SOBEL,
+        ImageFilter::SobelY => filters::VERTICAL_SOBEL,
+        ImageFilter::ScharrX => filters::HORIZONTAL_SCHARR,
+        ImageFilter::ScharrY => filters::VERTICAL_SCHARR,
+        ImageFilter::None => panic!("Invalid filter!: {:?}", filter_type)
+    };
+}

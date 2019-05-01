@@ -3,8 +3,8 @@ extern crate visual_odometry;
 
 use std::path::Path;
 
-use visual_odometry::image_proc::image::Image;
-use visual_odometry::image_proc::filters::types::ImageFilter;
+use visual_odometry::image::Image;
+use visual_odometry::image::filters::types::ImageFilter;
 
 fn main() {
 
@@ -16,7 +16,7 @@ fn main() {
     image.save(gray_image_path).unwrap();
 
     let frame = Image::from_image(image, ImageFilter::None, false);
-    let new_image= frame.to_image();
+    let new_image = frame.to_image();
 
     new_image.save(converted_file_out_path).unwrap();
 

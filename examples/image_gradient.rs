@@ -4,8 +4,8 @@ extern crate visual_odometry;
 use std::path::Path;
 
 use image::imageops::filter3x3;
-use visual_odometry::image_proc::select_filter;
-use visual_odometry::image_proc::filters::types::ImageFilter;
+use visual_odometry::image::select_filter;
+use visual_odometry::image::filters::types::ImageFilter;
 
 fn main() {
 

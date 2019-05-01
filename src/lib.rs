@@ -1,4 +1,4 @@
-pub mod image_proc;
+pub mod image;
 pub mod numerics;
 pub mod camera;
 
