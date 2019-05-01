@@ -8,3 +8,7 @@ pub struct Intrinsics {
     K_inv : Matrix3
 }
 
+impl Intrinsics {
+    pub fn new(fx)
+}
+

@@ -6,7 +6,7 @@ use image::flat::NormalForm;
 use na::{Dynamic, DMatrix, VecStorage};
 use super::filters::types::ImageFilter;
 use self::image::DynamicImage;
-use crate::numerics::MatrixData;
+use crate::MatrixData;
 use crate::numerics::matrix_ops::z_standardize;
 
 pub struct Image {
