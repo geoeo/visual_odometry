@@ -1,6 +1,6 @@
 pub mod filters;
 
-extern crate image as image;
+extern crate image;
 extern crate nalgebra as na;
 
 use image::{GrayImage,DynamicImage};
