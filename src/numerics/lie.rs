@@ -84,26 +84,24 @@ pub fn exp(v_lie : Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixD
     let w = Vector3::from(v_lie.fixed_rows::<na::U3>(3));
 
     let w_t = w.transpose();
-    let w_x = skew_symmetric(w);
+    let w_x = skew_symmetric(*w.index(0), *w.index(1), *w.index(2));
     let w_x_squared = w_x*w_x;
-    let theta_squared = w_t*w;
-    let theta_squared_val = *theta_squared.index(0);
-    let theta = theta_squared_val.sqrt();
+    let theta_squared = *(w_t*w).index(0);
+    let theta = theta_squared.sqrt();
 
-    let mut a : MatrixData = 0.0;
-    let mut b : MatrixData = 0.0;
-    let mut c : MatrixData = 0.0;
+    //TODO: use Taylor Expansion when theta is small
+    let a =
+        if theta != 0.0 {
+            theta.sin() / theta
+        } else { 0.0 };
 
-    //TODO: use Taylor Expansion for Sin when theta_sqred is small
-    if theta != 0.0 {
-        a = theta.sin() / theta;
-    }
+    let b = if theta_squared != 0.0 {
+        (1.0 - theta.cos()) / theta_squared
+    } else { 0.0 };
 
-    //TODO: use Taylor Expansion for Cos when theta_sqred is small
-    if theta_squared_val != 0.0 {
-        b = (1.0 - theta.cos()) / theta_squared_val;
-        c = (1.0 - a) / theta_squared_val;
-    }
+    let c = if theta_squared != 0.0 {
+        (1.0 - a) / theta_squared
+    } else { 0.0 };
 
     //TODO: when calls in const become available refactor identity()
     let so3_new = Matrix3::<MatrixData>::identity() + a*w_x + b*w_x_squared;
@@ -161,6 +159,50 @@ w[2] = u[2]
 return w
 */
 
-pub fn ln(rot_mat : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
-    return Vector6::<MatrixData>::zeros();
+pub fn ln(rot : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixData> {
+
+    let trace = rot.trace();
+    let theta = ((trace - 1.0)/2.0).cos();
+    let theta_squared = theta*theta;
+
+    let rot_t = rot.transpose();
+
+    //TODO: use Taylor Expansion when theta is small
+    let ln_r =
+        if theta != 0.0 {
+            (theta / (2.0 * theta.sin())) * (rot - rot_t)
+        } else {
+            Matrix3::<MatrixData>::identity()
+        };
+
+    let w_3 = *ln_r.index((2,1));
+    let w_4 = *ln_r.index((0,2));
+    let w_5 = *ln_r.index((1,0));
+
+    let w_x = skew_symmetric(w_3, w_4, w_5);
+    let w_x_squared = w_x*w_x;
+
+    let a = if theta != 0.0 {
+        theta.sin() / theta
+    } else { 0.0 };
+
+    let b = if theta_squared != 0.0 {
+        (1.0 - theta.cos()) / theta_squared
+    } else { 0.0 };
+
+    let coeff = if theta_squared != 0.0  {
+        (1.0/theta_squared)*(1.0 - (a/(2.0*b)))
+    } else { 0.0 };
+
+    let v_inv = Matrix3::<MatrixData>::identity() + 0.5*w_x + coeff*w_x_squared;
+
+    let u = v_inv*t;
+
+    let w_0 = *u.index(0);
+    let w_1 = *u.index(1);
+    let w_2 = *u.index(2);
+
+    let w = Vector6::<MatrixData>::new(w_0,w_1,w_2,w_3,w_4,w_5);
+
+    return w;
 }
