@@ -5,7 +5,7 @@ extern crate visual_odometry;
 use approx::assert_relative_eq;
 use na::{Vector6, DMatrix, Vector3, Matrix3,Matrix4};
 use visual_odometry::numerics::MatrixData;
-use visual_odometry::numerics::matrix_ops::{z_standardise, parts_from_isometry, isometry_from_parts};
+use visual_odometry::numerics::matrix_ops::{z_standardize, parts_from_isometry, isometry_from_parts};
 use visual_odometry::numerics::lie::{exp,ln};
 
 
@@ -20,7 +20,7 @@ fn z_standardization() {
     let gt = DMatrix::from_vec(2,2, gt_vec);
 
     let mut mat = DMatrix::from_vec(2,2, vec);
-    z_standardise(&mut mat);
+    z_standardize(&mut mat);
 
     assert_eq!(mat,gt);
 

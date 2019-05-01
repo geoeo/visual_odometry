@@ -7,7 +7,7 @@ use na::{Dynamic, DMatrix, VecStorage};
 use super::filters::types::ImageFilter;
 use self::image::DynamicImage;
 use crate::numerics::MatrixData;
-use crate::numerics::matrix_ops::z_standardise;
+use crate::numerics::matrix_ops::z_standardize;
 
 pub struct Image {
     buffer: DMatrix<MatrixData>,
@@ -20,12 +20,12 @@ impl Image {
         Image { buffer, filter, is_standardized}
     }
 
-    pub fn from_image(image: GrayImage, filter: ImageFilter, z_standardize : bool) -> Image {
+    pub fn from_image(image: GrayImage, filter: ImageFilter, standardize : bool) -> Image {
         let mut buffer = image_to_matrix(image);
-        if z_standardize {
-            z_standardise(&mut buffer);
+        if standardize {
+            z_standardize(&mut buffer);
         }
-        Image{buffer : buffer, filter, is_standardized : z_standardize}
+        Image{ buffer, filter, is_standardized : standardize}
     }
 
     pub fn get_buffer(&self) -> &DMatrix<MatrixData> {
