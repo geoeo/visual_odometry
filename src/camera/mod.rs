@@ -7,6 +7,8 @@ use intrinsics::Intrinsics;
 use crate::MatrixData;
 use self::na::Vector3;
 
+//TODO: @Invest -> refactor intrinsics into Camera
+
 #[allow(non_snake_case)]
 pub struct Camera {
     intrinsics : Intrinsics
@@ -23,8 +25,8 @@ impl Camera {
     pub fn apply_perspective_projection(&self, world_points: &DMatrix<MatrixData>)
         -> Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>> {
             let mut persp_points = self.intrinsics.K * world_points;
-            let cols = persp_points.ncols();
-            for i in 0..cols {
+            let N = persp_points.ncols();
+            for i in 0..N {
                 let z = *persp_points.index((2, i));
                 *persp_points.index_mut((0, i)) = *persp_points.index((0, i)) / z;
                 *persp_points.index_mut((1, i)) = *persp_points.index((1, i)) / z;

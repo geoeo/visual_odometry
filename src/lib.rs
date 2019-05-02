@@ -3,7 +3,7 @@ use crate::image::Image;
 pub mod image;
 pub mod numerics;
 pub mod camera;
-pub mod jacobian;
+pub mod jacobians;
 
 pub type MatrixData = f64;
 

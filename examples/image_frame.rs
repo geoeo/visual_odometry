@@ -7,7 +7,6 @@ use visual_odometry::image::Image;
 use visual_odometry::image::filters::types::ImageFilter;
 
 fn main() {
-
     let image_name = "depth";
     let image_format = "png";
     let image_path = format!("images/{}.{}",image_name, image_format);
@@ -21,5 +20,4 @@ fn main() {
     let new_image = frame.to_image();
 
     new_image.save(converted_file_out_path).unwrap();
-
 }
