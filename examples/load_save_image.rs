@@ -7,8 +7,10 @@ use image::GenericImageView;
 
 fn main() {
 
-    let image_path = "images/ferris.png";
-    let file_out_path = "output/test";
+    let image_name = "depth";
+    let image_format = "png";
+    let image_path = format!("images/{}.{}",image_name,image_format);
+    let file_out_path = format!("output/{}_load_save",image_name);
 
     let image = image::open(&Path::new(&image_path)).unwrap();
 

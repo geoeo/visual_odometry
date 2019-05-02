@@ -8,9 +8,11 @@ use visual_odometry::image::filters::types::ImageFilter;
 
 fn main() {
 
-    let image_path = "images/blocks.jpg";
-    let gray_image_path = "output/blocks_gray_scale.png";
-    let converted_file_out_path = "output/blocks_converted.png";
+    let image_name = "depth";
+    let image_format = "png";
+    let image_path = format!("images/{}.{}",image_name, image_format);
+    let gray_image_path = format!("output/{}_gray_scale.{}",image_name,image_format);
+    let converted_file_out_path = format!("output/{}_converted.{}",image_name,image_format);
 
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
     image.save(gray_image_path).unwrap();
