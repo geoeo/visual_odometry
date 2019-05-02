@@ -5,7 +5,7 @@ extern crate visual_odometry;
 use approx::assert_relative_eq;
 use na::{Vector6, DMatrix, Vector3, Matrix3,Matrix4};
 use visual_odometry::MatrixData;
-use visual_odometry::numerics::matrix_ops::{z_standardize, parts_from_isometry, isometry_from_parts};
+use visual_odometry::numerics::{z_standardize, parts_from_isometry, isometry_from_parts};
 use visual_odometry::numerics::lie::{exp,ln};
 
 

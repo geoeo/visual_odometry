@@ -8,7 +8,7 @@ use image::flat::NormalForm;
 use na::{Dynamic, DMatrix, VecStorage};
 pub use filters::types::ImageFilter;
 use crate::MatrixData;
-use crate::numerics::matrix_ops::z_standardize;
+use crate::numerics::z_standardize;
 
 pub struct Image {
     buffer: DMatrix<MatrixData>,

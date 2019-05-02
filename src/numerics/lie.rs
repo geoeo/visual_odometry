@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 
 use na::{Matrix3x4,Vector6, Matrix3, Vector3};
 use crate::MatrixData;
-use super::matrix_ops::{skew_symmetric};
+use super::{skew_symmetric};
 
 pub fn generator_x() -> Matrix3x4<MatrixData> {
     return Matrix3x4::new(0.0, 0.0, 0.0, 1.0,
