@@ -43,11 +43,10 @@ fn t_dist_variance_step(residuals: &DVector<MatrixData>,
     let mut variance = variance_prev;
     let N = residuals.ncols();
     for i in 0..N {
-        let idx = (i, 0);
-        if !valid_measurements_reference.index(idx) || !valid_measurements_target.index(idx) {
+        if !valid_measurements_reference.index(i) || !valid_measurements_target.index(i) {
             continue;
         }
-        let res = residuals.index(idx);
+        let res = residuals.index(i);
         let res_sqrd = res * res;
         let denominator = (degrees_of_freedom as MatrixData) + (res_sqrd / variance_prev);
         variance += (numerator / denominator) * res_sqrd;
