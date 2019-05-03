@@ -3,7 +3,7 @@ extern crate nalgebra as na;
 extern crate visual_odometry;
 
 use approx::assert_relative_eq;
-use na::{Matrix,Vector2,Vector4,Matrix2x3,Dynamic,DMatrix, Matrix3x4,U3,U6,DVector, VecStorage};
+use na::{Matrix2x3,DMatrix, Matrix3x4,Matrix3x6};
 use visual_odometry::MatrixData;
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::numerics::lie::*;
@@ -49,5 +49,19 @@ fn lie_jacobian_test() {
                                      &points);
 
     assert_eq!(lie_jacobians.len(),2);
+
+    let j1 = lie_jacobians[0];
+    let j2 = lie_jacobians[1];
+
+    let j1_gt = Matrix3x6::<MatrixData>::new(1.0,0.0,0.0,0.0,1.0,-2.0,
+                                             0.0,1.0,0.0,-1.0,0.0,1.0,
+                                             0.0,0.0,1.0,2.0,-1.0,0.0);
+
+    let j2_gt = Matrix3x6::<MatrixData>::new(1.0,0.0,0.0,0.0,2.0,-1.0,
+                                             0.0,1.0,0.0,-2.0,0.0,2.0,
+                                             0.0,0.0,1.0,1.0,-2.0,0.0);
+
+    assert_eq!(j1,j1_gt);
+    assert_eq!(j2,j2_gt);
 
 }
