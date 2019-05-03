@@ -5,6 +5,8 @@ use crate::MatrixData;
 use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
+//TODO: TEST ALL
+
 pub fn image_jacobian(gradient_x: DMatrix<MatrixData>, gradient_y: DMatrix<MatrixData>, px: usize, py: usize) -> Vector2<MatrixData> {
     let index = (py, px);
     let gx = *gradient_x.index(index);
@@ -38,6 +40,7 @@ pub fn perspective_jacobian(K: &Intrinsics, world_points: &DMatrix<MatrixData>) 
     return Box::new(persp_jacobians);
 }
 
+//TODO: @Investigate -> Boxing might be necessary since Vec is very large
 #[allow(non_snake_case)]
 pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
                     generator_y: Matrix3x4<MatrixData>,
@@ -46,7 +49,7 @@ pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
                     generator_pitch: Matrix3x4<MatrixData>,
                     generator_yaw: Matrix3x4<MatrixData>,
                     Y_est: DMatrix<MatrixData>)
-    -> Box<Vec<Matrix<MatrixData,U6,Dynamic,VecStorage<MatrixData,U6,Dynamic>>>> {
+    -> Vec<Matrix<MatrixData,U6,Dynamic,VecStorage<MatrixData,U6,Dynamic>>> {
     let N = Y_est.ncols();
 
     let G_1_y = generator_x*Y_est.clone();
@@ -81,7 +84,7 @@ pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
 
     }
 
-    return Box::new(G_vec);
+    return G_vec;
 }
 
 fn stack(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
