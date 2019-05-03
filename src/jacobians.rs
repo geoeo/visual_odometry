@@ -1,29 +1,28 @@
 extern crate nalgebra as na;
 
-use na::{Vector2,Matrix2x3,DMatrix, Matrix3x4};
+use na::{Matrix,Vector2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,U3,U6,DVector, VecStorage};
 use crate::MatrixData;
-use crate::image::Image;
 use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
-pub fn image_jacobian(gradient_x : DMatrix<MatrixData>, gradient_y : DMatrix<MatrixData>, px : usize, py : usize) -> Vector2<MatrixData> {
+pub fn image_jacobian(gradient_x: DMatrix<MatrixData>, gradient_y: DMatrix<MatrixData>, px: usize, py: usize) -> Vector2<MatrixData> {
     let index = (py, px);
     let gx = *gradient_x.index(index);
     let gy = *gradient_y.index(index);
-    return Vector2::<MatrixData>::new(gx,gy);
+    return Vector2::<MatrixData>::new(gx, gy);
 }
 
 #[allow(non_snake_case)]
-pub fn perspective_jacobian(K : &Intrinsics, world_points: &DMatrix<MatrixData>) -> Box<Vec<Matrix2x3<MatrixData>>> {
+pub fn perspective_jacobian(K: &Intrinsics, world_points: &DMatrix<MatrixData>) -> Box<Vec<Matrix2x3<MatrixData>>> {
     let N = world_points.ncols();
     let fx = K.fx();
     let fy = K.fy();
-    let mut persp_jacobians : Vec<Matrix2x3<MatrixData>> = Vec::with_capacity(N);
+    let mut persp_jacobians: Vec<Matrix2x3<MatrixData>> = Vec::with_capacity(N);
     for P in world_points.column_iter() {
-        let X = *P.index((0,0));
-        let Y = *P.index((1,0));
-        let Z = *P.index((2,0));
-        let Z_sqrd = Z*Z;
+        let X = *P.index((0, 0));
+        let Y = *P.index((1, 0));
+        let Z = *P.index((2, 0));
+        let Z_sqrd = Z * Z;
 
         let (v00, v11, v02, v12) =
             if Z != 0.0 && Z_sqrd.is_finite() {
@@ -32,10 +31,65 @@ pub fn perspective_jacobian(K : &Intrinsics, world_points: &DMatrix<MatrixData>)
                 (0.0, 0.0, 0.0, 0.0)
             };
 
-        let persp_jacobian = Matrix2x3::<MatrixData>::new(v00,0.0,v02,
+        let persp_jacobian = Matrix2x3::<MatrixData>::new(v00, 0.0, v02,
                                                           0.0, v11, v12);
         persp_jacobians.push(persp_jacobian);
-
     }
     return Box::new(persp_jacobians);
+}
+
+#[allow(non_snake_case)]
+pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
+                    generator_y: Matrix3x4<MatrixData>,
+                    generator_z: Matrix3x4<MatrixData>,
+                    generator_roll: Matrix3x4<MatrixData>,
+                    generator_pitch: Matrix3x4<MatrixData>,
+                    generator_yaw: Matrix3x4<MatrixData>,
+                    Y_est: DMatrix<MatrixData>)
+    -> Box<Vec<Matrix<MatrixData,U6,Dynamic,VecStorage<MatrixData,U6,Dynamic>>>> {
+    let N = Y_est.ncols();
+
+    let G_1_y = generator_x*Y_est.clone();
+    let G_1_y_stacked = stack(G_1_y);
+
+    let G_2_y = generator_y*Y_est.clone();
+    let G_2_y_stacked = stack(G_2_y);
+
+    let G_3_y = generator_z*Y_est.clone();
+    let G_3_y_stacked = stack(G_3_y);
+
+    let G_4_y = generator_roll*Y_est.clone();
+    let G_4_y_stacked = stack(G_4_y);
+
+    let G_5_y = generator_pitch*Y_est.clone();
+    let G_5_y_stacked = stack(G_5_y);
+
+    let G_6_y = generator_yaw*Y_est.clone();
+    let G_6_y_stacked = stack(G_6_y);
+
+    let G = DMatrix::<MatrixData>::from_columns(&[G_1_y_stacked,
+                                                G_2_y_stacked,
+                                                G_3_y_stacked,
+                                                G_4_y_stacked,
+                                                G_5_y_stacked,
+                                                G_6_y_stacked]);
+    let rows = G.nrows();
+    let mut G_vec: Vec<Matrix<MatrixData,U6,Dynamic,VecStorage<MatrixData,U6,Dynamic>>> = Vec::with_capacity(N);
+    for r_start in (0..rows).step_by(6) {
+        let G_sub = G.fixed_rows::<U6>(r_start).clone_owned();
+        G_vec.push(G_sub);
+
+    }
+
+    return Box::new(G_vec);
+}
+
+fn stack(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
+    -> DVector<MatrixData> {
+    let dim = m.nrows()*m.ncols();
+    let mut stacked_vec: Vec<MatrixData>  = Vec::with_capacity(dim);
+    for val in m.iter() {
+        stacked_vec.push(*val);
+    }
+    return DVector::from_vec(stacked_vec);
 }
