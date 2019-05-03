@@ -157,7 +157,7 @@ pub fn ln(SO3 : Matrix3<MatrixData>, t : Vector3<MatrixData>) -> Vector6<MatrixD
     let w_1 = *u.index(1);
     let w_2 = *u.index(2);
 
-    let w = Vector6::<MatrixData>::new(w_0, w_1,w_2, w_3, w_4, w_5);
+    let w = Vector6::<MatrixData>::new(w_0, w_1, w_2, w_3, w_4, w_5);
 
     return w;
 }

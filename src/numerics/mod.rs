@@ -4,12 +4,13 @@ use na::{DMatrix, Matrix3, Vector3, Matrix4, U3, U1};
 use crate::MatrixData;
 
 pub mod lie;
+pub mod weighting;
 
-pub fn column_major_index(c : usize, r : usize, height: usize) -> usize {
-    return c*height + r;
+pub fn column_major_index(r : usize, c : usize, rows: usize) -> usize {
+    return c*rows + r;
 }
 
-pub fn row_major_index(c : usize, r : usize, cols: usize) -> usize {
+pub fn row_major_index(r : usize, c : usize, cols: usize) -> usize {
     return r*cols + c;
 }
 

@@ -5,8 +5,6 @@ use crate::MatrixData;
 use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
-//TODO: TEST ALL
-
 pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<MatrixData>, px: usize, py: usize) -> Vector2<MatrixData> {
     let index = (py, px);
     let gx = *gradient_x.index(index);
@@ -54,22 +52,22 @@ pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
     let N = Y_est.ncols();
 
     let G_1_y = generator_x*Y_est;
-    let G_1_y_stacked = stack(G_1_y);
+    let G_1_y_stacked = stack_columns(G_1_y);
 
     let G_2_y = generator_y*Y_est;
-    let G_2_y_stacked = stack(G_2_y);
+    let G_2_y_stacked = stack_columns(G_2_y);
 
     let G_3_y = generator_z*Y_est;
-    let G_3_y_stacked = stack(G_3_y);
+    let G_3_y_stacked = stack_columns(G_3_y);
 
     let G_4_y = generator_roll*Y_est;
-    let G_4_y_stacked = stack(G_4_y);
+    let G_4_y_stacked = stack_columns(G_4_y);
 
     let G_5_y = generator_pitch*Y_est;
-    let G_5_y_stacked = stack(G_5_y);
+    let G_5_y_stacked = stack_columns(G_5_y);
 
     let G_6_y = generator_yaw*Y_est;
-    let G_6_y_stacked = stack(G_6_y);
+    let G_6_y_stacked = stack_columns(G_6_y);
 
     let G = Matrix::<MatrixData, Dynamic, U6, VecStorage<MatrixData, Dynamic, U6>>::from_columns(&[G_1_y_stacked,
         G_2_y_stacked,
@@ -87,8 +85,8 @@ pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
     return Box::new(G_vec);
 }
 
-fn stack(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
-    -> DVector<MatrixData> {
+fn stack_columns(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
+                 -> DVector<MatrixData> {
     let dim = m.nrows()*m.ncols();
     let mut stacked_vec: Vec<MatrixData>  = Vec::with_capacity(dim);
     for val in m.iter() {
