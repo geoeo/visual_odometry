@@ -15,11 +15,11 @@ impl Intrinsics {
         let K = Matrix3x4::<MatrixData>::new(fx, 0.0, ox, 0.0,
                                              0.0, fy, oy, 0.0,
                                              0.0, 0.0, 1.0, 0.0);
-        let K_inv = Intrinsics::invert(&K);
+        let K_inv = Intrinsics::invert(K);
         Intrinsics { K, K_inv }
     }
 
-    pub fn invert(K: &Matrix3x4<MatrixData>) -> Matrix3<MatrixData> {
+    pub fn invert(K: Matrix3x4<MatrixData>) -> Matrix3<MatrixData> {
         let fx = *K.index((0, 0));
         let fy = *K.index((1, 1));
         let ox = *K.index((0, 2));
