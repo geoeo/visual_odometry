@@ -9,8 +9,8 @@ use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::numerics::lie::*;
 use visual_odometry::jacobians::{perspective_jacobian,lie_jacobian};
 
-#[allow(non_snake_case)]
 #[test]
+#[allow(non_snake_case)]
 fn perspective_jacobian_test(){
     let K = Matrix3x4::<MatrixData>::new(2.0, 0.0, 5.0,0.0,
                                          0.0,1.0,0.5,0.0,
@@ -29,8 +29,8 @@ fn perspective_jacobian_test(){
     assert_eq!(persp_jacobian,jacobian_gt);
 }
 
-#[allow(non_snake_case)]
 #[test]
+#[allow(non_snake_case)]
 fn lie_jacobian_test() {
     let mut P = vec![1.0,2.0,1.0,1.0];
     let mut P2 = vec![2.0,1.0,2.0,1.0];
