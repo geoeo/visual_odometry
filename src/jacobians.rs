@@ -1,20 +1,21 @@
 extern crate nalgebra as na;
 
-use na::{Matrix,Vector2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,Matrix3x6,U3,U6,DVector, VecStorage};
+use na::{Matrix,Matrix1x2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,Matrix3x6,U3,U6,DVector, VecStorage};
 use crate::MatrixData;
 use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
-pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<MatrixData>, px: usize, py: usize) -> Vector2<MatrixData> {
+pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<MatrixData>, px: usize, py: usize) -> Matrix1x2<MatrixData> {
     let index = (py, px);
     let gx = *gradient_x.index(index);
     let gy = *gradient_y.index(index);
-    return Vector2::<MatrixData>::new(gx, gy);
+    return Matrix1x2::<MatrixData>::new(gx, gy);
 }
 
 //TODO: @Investigate -> Boxing might not be necessary since Vec is of known size
 #[allow(non_snake_case)]
-pub fn perspective_jacobian(camera_intrinsics: &Intrinsics, world_points: &DMatrix<MatrixData>) -> Box<Vec<Matrix2x3<MatrixData>>> {
+pub fn perspective_jacobian(camera_intrinsics: &Intrinsics, world_points: &DMatrix<MatrixData>)
+    -> Box<Vec<Matrix2x3<MatrixData>>> {
     let N = world_points.ncols();
     let fx = camera_intrinsics.fx();
     let fy = camera_intrinsics.fy();

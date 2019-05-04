@@ -4,7 +4,7 @@ pub mod intrinsics;
 
 use na::{Matrix,DMatrix, U3, Dynamic, VecStorage};
 use intrinsics::Intrinsics;
-use crate::MatrixData;
+use crate::{MatrixData,NormalizedImageCoordinates};
 use self::na::Vector3;
 
 //TODO: @Invest -> refactor intrinsics into Camera
@@ -23,7 +23,7 @@ impl Camera {
     }
 
     pub fn apply_perspective_projection(&self, world_points: &DMatrix<MatrixData>)
-        -> Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>> {
+        -> NormalizedImageCoordinates {
             let mut persp_points = self.intrinsics.K * world_points;
             let N = persp_points.ncols();
             for i in 0..N {

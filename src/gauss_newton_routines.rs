@@ -1,16 +1,16 @@
 extern crate nalgebra as na;
 
-use na::{DVector,DMatrix,Vector6,Matrix,Matrix6,Matrix3x6,Matrix2x3,U4,VecStorage,Dynamic};
-use crate::MatrixData;
+use na::{DVector,DMatrix,Vector6,Matrix,Matrix6,Matrix3x6,Matrix2x3,U4,U3,VecStorage,Dynamic};
+use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
 use crate::camera::Camera;
 use crate::image::Image;
 use crate::numerics::column_major_index;
+use crate::jacobians::*;
 
 // This is not used in the Gauss-Newton estimation loop
 // As such it is allocating.
 #[allow(non_snake_case)]
-pub fn back_project(residuals: &DVector<MatrixData>,
-                    valid_measurements_reference: &mut DVector<bool>,
+pub fn back_project(valid_measurements_reference: &mut DVector<bool>,
                     valid_measurements_target: &mut DVector<bool>,
                     camera_reference: Camera,
                     depth_image_reference: DMatrix<MatrixData>,
@@ -19,15 +19,15 @@ pub fn back_project(residuals: &DVector<MatrixData>,
                     image_width: usize,
                     image_height: usize,
                     max_depth: MatrixData)
-    -> Matrix<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>> {
+    -> HomogeneousBackProjections {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
             true => 1.0,
             false => -1.0
         };
     let mut P_vec: Vec<MatrixData> = Vec::with_capacity(4*image_width*image_height);
-    for y in 0..image_height {
-        for x in 0..image_width {
+    for x in 0..image_width {
+        for y in 0..image_height {
             let flat_idx = column_major_index(y,x,image_width);
             let idx = (y,x);
             let mut depth_reference = *depth_image_reference.index(idx);
@@ -53,18 +53,18 @@ pub fn back_project(residuals: &DVector<MatrixData>,
         }
     }
 
-    Matrix::<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>::from_vec(P_vec)
+    HomogeneousBackProjections::from_vec(P_vec)
 }
 
 //TODO @Investigate -> Trying stack allocated g and H
 #[allow(non_snake_case)]
-pub fn gauss_newton_step(residuals: &DVector<MatrixData>,
-                         valid_measurements_reference: &mut DVector<bool>,
-                         valid_measurements_target: &mut DVector<bool>,
+pub fn gauss_newton_step(residuals: Box<Vec<MatrixData>>,
+                         valid_measurements_reference: &DVector<bool>,
+                         valid_measurements_target: &DVector<bool>,
                          image_gradient_x_target: &DMatrix<MatrixData>,
                          image_gradient_y_target: &DMatrix<MatrixData>,
-                         J_lie: Box<Vec<Matrix3x6<MatrixData>>>,
-                         J_pi: Box<Vec<Matrix2x3<MatrixData>>>,
+                         J_lie_vec: Box<Vec<Matrix3x6<MatrixData>>>,
+                         J_pi_vec: Box<Vec<Matrix2x3<MatrixData>>>,
                          weights: &DVector<MatrixData>,
                          number_of_valid_measurements: usize,
                          image_width: usize,
@@ -74,8 +74,41 @@ pub fn gauss_newton_step(residuals: &DVector<MatrixData>,
     let mut g = Vector6::<MatrixData>::zeros();
     let mut H = Matrix6::<MatrixData>::zeros();
 
-    (g,H)
+    for x in 0..image_width {
+        for y in 0..image_height {
+            let flat_idx = column_major_index(y,x,image_width);
+            let idx = (y,x);
+            if !*valid_measurements_reference.index(flat_idx) || !*valid_measurements_target.index(flat_idx) {
+                continue;
+            }
+            let J_image = image_jacobian(image_gradient_x_target,image_gradient_y_target,x,y);
+            let J_pi =J_pi_vec[flat_idx];
+            let J_lie = J_lie_vec[flat_idx];
 
+            let J = J_image*J_pi*J_lie;
+            let J_t = J.transpose();
+            let w_i = *weights.index(flat_idx);
+            let residual = residuals[flat_idx];
+
+            g += w_i*(-J_t*residual);
+            H += w_i*(J_t*J);
+        }
+    }
+    (g,H)
 }
 
-//TODO residual
+pub fn compute_residuals(mut residuals: Box<Vec<MatrixData>>,
+                         valid_measurements_reference: &DVector<bool>,
+                         valid_measurements_target: &DVector<bool>,
+                         image_reference:  DMatrix<MatrixData>,
+                         image_target:  DMatrix<MatrixData>,
+                         projection_onto_target: NormalizedImageCoordinates,
+                         image_width: usize,
+                         image_height: usize,
+                         image_range_offset: usize )
+    -> Box<Vec<MatrixData>> {
+
+
+    residuals
+
+}
