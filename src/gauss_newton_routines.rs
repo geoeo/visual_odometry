@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{DVector,DMatrix,Vector6,Matrix,Matrix6,Matrix3x6,Matrix2x3,U4,U3,VecStorage,Dynamic};
+use na::{DVector,DMatrix,Vector6,Matrix6,Matrix3x6,Matrix2x3};
 use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
 use crate::camera::Camera;
 use crate::image::Image;
