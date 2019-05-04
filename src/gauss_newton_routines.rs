@@ -51,8 +51,7 @@ pub fn back_project(residuals: &DVector<MatrixData>,
         }
     }
 
-    let back_projections = Matrix::<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>::from_vec(P_vec);
-    return back_projections;
+    return Matrix::<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>::from_vec(P_vec);
 }
 
 //TODO gauss_newton_step
