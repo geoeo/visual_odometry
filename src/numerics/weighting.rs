@@ -8,19 +8,18 @@ pub fn t_dist_variance(residuals: &DVector<MatrixData>,
                        valid_measurements_target: &DVector<bool>,
                        number_of_valid_measurements: usize,
                        degrees_of_freedom: usize,
-                       variance_prev: MatrixData,
                        variance_min: MatrixData,
                        eps: MatrixData,
-                       max_it : usize) -> MatrixData {
+                       max_it: usize) -> MatrixData {
     let mut variance = variance_min;
     let mut variance_prev = variance_min;
-    for i in 0..max_it {
-        let variance = t_dist_variance_step(residuals,
-                                            valid_measurements_reference,
-                                            valid_measurements_target,
-                                            number_of_valid_measurements,
-                                            degrees_of_freedom,
-                                            variance_prev);
+    for _ in 0..max_it {
+        variance = t_dist_variance_step(residuals,
+                                        valid_measurements_reference,
+                                        valid_measurements_target,
+                                        number_of_valid_measurements,
+                                        degrees_of_freedom,
+                                        variance_prev);
         if (variance_prev - variance).abs() < eps || variance == 0.0 || variance.is_infinite() || variance.is_nan() {
             break;
         }

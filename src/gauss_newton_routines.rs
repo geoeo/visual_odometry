@@ -3,7 +3,6 @@ extern crate nalgebra as na;
 use na::{DVector,DMatrix,Vector6,Matrix6,Matrix3x6,Matrix2x3};
 use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
 use crate::camera::Camera;
-use crate::image::Image;
 use crate::numerics::column_major_index;
 use crate::jacobians::*;
 
@@ -13,9 +12,8 @@ use crate::jacobians::*;
 pub fn back_project(valid_measurements_reference: &mut DVector<bool>,
                     valid_measurements_target: &mut DVector<bool>,
                     camera_reference: Camera,
-                    depth_image_reference: DMatrix<MatrixData>,
-                    depth_image_target: DMatrix<MatrixData>,
-                    number_of_valid_measurements: usize,
+                    depth_image_reference: &DMatrix<MatrixData>,
+                    depth_image_target: &DMatrix<MatrixData>,
                     image_width: usize,
                     image_height: usize,
                     max_depth: MatrixData)
@@ -66,7 +64,6 @@ pub fn gauss_newton_step(residuals: Box<Vec<MatrixData>>,
                          J_lie_vec: Box<Vec<Matrix3x6<MatrixData>>>,
                          J_pi_vec: Box<Vec<Matrix2x3<MatrixData>>>,
                          weights: &DVector<MatrixData>,
-                         number_of_valid_measurements: usize,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize)
@@ -74,10 +71,9 @@ pub fn gauss_newton_step(residuals: Box<Vec<MatrixData>>,
     let mut g = Vector6::<MatrixData>::zeros();
     let mut H = Matrix6::<MatrixData>::zeros();
 
-    for x in 0..image_width {
-        for y in 0..image_height {
+    for x in image_range_offset..(image_width-image_range_offset) {
+        for y in image_range_offset..(image_height-image_range_offset) {
             let flat_idx = column_major_index(y,x,image_width);
-            let idx = (y,x);
             if !*valid_measurements_reference.index(flat_idx) || !*valid_measurements_target.index(flat_idx) {
                 continue;
             }
@@ -98,17 +94,36 @@ pub fn gauss_newton_step(residuals: Box<Vec<MatrixData>>,
 }
 
 pub fn compute_residuals(mut residuals: Box<Vec<MatrixData>>,
-                         valid_measurements_reference: &DVector<bool>,
-                         valid_measurements_target: &DVector<bool>,
-                         image_reference:  DMatrix<MatrixData>,
-                         image_target:  DMatrix<MatrixData>,
+                         valid_measurements_reference: &mut DVector<bool>,
+                         valid_measurements_target: &mut DVector<bool>,
+                         image_reference:  &DMatrix<MatrixData>,
+                         image_target:  &DMatrix<MatrixData>,
                          projection_onto_target: NormalizedImageCoordinates,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize )
     -> Box<Vec<MatrixData>> {
 
+    for x in image_range_offset..(image_width-image_range_offset) {
+        for y in image_range_offset..(image_height-image_range_offset) {
+            let flat_index = column_major_index(y,x,image_width);
+            let idx_reference = (y,x);
+            residuals[flat_index] = 0.0;
+            if !*valid_measurements_reference.index(flat_index) || !*valid_measurements_target.index(flat_index) {
+                continue;
+            }
+            let x_idx_target = (*projection_onto_target.index((0,flat_index))).floor() as usize;
+            let y_idx_target = (*projection_onto_target.index((1,flat_index))).floor() as usize;
+            let idx_target = (y_idx_target, x_idx_target);
+            if !((image_range_offset < y) && (y < image_height - image_range_offset) &&
+                (image_range_offset < x) && (x < image_width - image_range_offset)) {
+                *valid_measurements_reference.index_mut(idx_reference) = false;
+                continue;
+            }
+            valid_measurements_reference[flat_index] = true;
+            residuals[flat_index] = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+        }
+    }
 
     residuals
-
 }

@@ -12,6 +12,7 @@ pub mod gauss_newton_routines;
 pub type MatrixData = f64; //Rename this to Float?
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
 pub type NormalizedImageCoordinates = Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>;
+// Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
 pub type HomogeneousBackProjections = Matrix<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>;
 
 pub struct Frame {

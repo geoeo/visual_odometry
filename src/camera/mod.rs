@@ -2,7 +2,7 @@ extern crate nalgebra as na;
 
 pub mod intrinsics;
 
-use na::{Matrix,DMatrix, U3, Dynamic, VecStorage};
+use na::DMatrix;
 use intrinsics::Intrinsics;
 use crate::{MatrixData,NormalizedImageCoordinates};
 use self::na::Vector3;
