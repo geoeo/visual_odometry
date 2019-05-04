@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{Matrix,U3,U4,Dynamic,VecStorage};
+use na::{Matrix,Matrix4,U3,U4,Dynamic,Vector6,VecStorage};
 use crate::image::Image;
 
 pub mod image;
@@ -20,4 +20,21 @@ pub struct Frame {
     depth : Image,
     gradient_x : Option<Image>,
     gradient_y : Option<Image>
+}
+
+#[allow(non_snake_case)]
+pub fn solve(reference: Frame,
+             target: Frame,
+             max_its: usize,
+             eps: MatrixData,
+             alpha_step: MatrixData,
+             max_depth: MatrixData,
+             var_eps: MatrixData,
+             var_min: MatrixData,
+             image_range_offset: usize)
+    -> (Matrix4<MatrixData>, Vector6<MatrixData>) {
+    let mut lie = Vector6::<MatrixData>::zeros();
+    let mut SE3 = Matrix4::<MatrixData>::zeros();
+
+    (SE3, lie)
 }
