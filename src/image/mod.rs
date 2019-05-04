@@ -11,9 +11,9 @@ use crate::MatrixData;
 use crate::numerics::z_standardize;
 
 pub struct Image {
-    buffer: DMatrix<MatrixData>,
-    filter: ImageFilter,
-    is_standardized : bool
+    pub buffer: DMatrix<MatrixData>,
+    pub filter: ImageFilter,
+    pub is_standardized : bool
 }
 
 impl Image {
@@ -28,17 +28,6 @@ impl Image {
         }
         Image{ buffer, filter, is_standardized : standardize}
     }
-
-    pub fn get_buffer(&self) -> &DMatrix<MatrixData> {
-        return &self.buffer;
-    }
-
-    pub fn get_filter(&self) -> ImageFilter
-    {
-        return self.filter;
-    }
-
-    pub fn is_standardized(&self) -> bool {return self.is_standardized;}
 
     pub fn to_image(&self) -> GrayImage {
         return matrix_to_image(&self.buffer);

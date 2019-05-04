@@ -2,8 +2,6 @@ extern crate nalgebra as na;
 
 use crate::MatrixData;
 use nalgebra::DVector;
-use std::env::var;
-
 
 pub fn t_dist_variance(residuals: &DVector<MatrixData>,
                        valid_measurements_reference: &DVector<bool>,

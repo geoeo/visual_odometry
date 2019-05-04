@@ -11,7 +11,7 @@ use self::na::Vector3;
 
 #[allow(non_snake_case)]
 pub struct Camera {
-    intrinsics : Intrinsics
+    pub intrinsics : Intrinsics
     //SE3 : Matrix4<MatrixData>
 }
 
@@ -35,8 +35,8 @@ impl Camera {
         return persp_points;
     }
 
-    pub fn back_project_pixel(&self, u : MatrixData, v : MatrixData, Z : MatrixData) -> Vector3<MatrixData> {
-        let nic = Vector3::<MatrixData>::new(u,v,1.0);
+    pub fn back_project_pixel(&self, x : MatrixData, y : MatrixData, Z : MatrixData) -> Vector3<MatrixData> {
+        let nic = Vector3::<MatrixData>::new(x,y,1.0);
         let X = self.intrinsics.K_inv*nic;
         return Z*X;
     }
