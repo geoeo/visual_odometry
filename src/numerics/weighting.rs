@@ -27,7 +27,7 @@ pub fn t_dist_variance(residuals: &DVector<MatrixData>,
         variance_prev = variance;
     };
 
-    return variance;
+    variance
 }
 
 #[allow(non_snake_case)]
@@ -49,7 +49,6 @@ fn t_dist_variance_step(residuals: &DVector<MatrixData>,
         let denominator = (degrees_of_freedom as MatrixData) + (res_sqrd / variance_prev);
         variance += (numerator / denominator) * res_sqrd;
     }
-    variance /= number_of_valid_measurements as MatrixData;
-    return variance;
+    variance / (number_of_valid_measurements as MatrixData)
 }
 

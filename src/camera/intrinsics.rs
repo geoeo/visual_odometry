@@ -29,9 +29,9 @@ impl Intrinsics {
         let ox_inv = -ox / fx;
         let oy_inv = -oy / fy;
 
-        return Matrix3::<MatrixData>::new(fx_inv, 0.0, ox_inv,
-                                          0.0, fy_inv, oy_inv,
-                                          0.0, 0.0, 1.0);
+        Matrix3::<MatrixData>::new(fx_inv, 0.0, ox_inv,
+                                   0.0, fy_inv, oy_inv,
+                                   0.0, 0.0, 1.0)
     }
 
     pub fn fx(&self) -> MatrixData { return *self.K.index((0, 0)); }

@@ -37,7 +37,7 @@ impl Image {
 // https://en.wikipedia.org/wiki/Normalization_(image_processing)
 fn normalize_to_gray(value: MatrixData, min: MatrixData, max: MatrixData) -> u8 {
     let range = 255 as MatrixData; // 255 - 0
-    return ((value - min) * (range / (max - min)) + min) as u8;
+    ((value - min) * (range / (max - min)) + min) as u8
 }
 
 pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
@@ -56,7 +56,7 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     let nrows = Dynamic::new(height as usize);
     let ncols = Dynamic::new(width as usize);
     let vec_storage = VecStorage::new(nrows, ncols, vec_column_major);
-    return DMatrix::from_data(vec_storage);
+    DMatrix::from_data(vec_storage)
 }
 
 pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
@@ -75,7 +75,7 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
             pixel.data[0] = normalize_to_gray(val, min, max);
         }
     }
-    return gray_image;
+    gray_image
 }
 
 pub fn select_filter(filter_type: ImageFilter) -> [f32;9]  {

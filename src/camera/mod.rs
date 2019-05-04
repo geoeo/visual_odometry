@@ -32,13 +32,13 @@ impl Camera {
                 *persp_points.index_mut((1, i)) = *persp_points.index((1, i)) / z;
                 *persp_points.index_mut((2, i)) = 1.0;
         }
-        return persp_points;
+        persp_points
     }
 
     pub fn back_project_pixel(&self, x : MatrixData, y : MatrixData, Z : MatrixData) -> Vector3<MatrixData> {
         let nic = Vector3::<MatrixData>::new(x,y,1.0);
         let X = self.intrinsics.K_inv*nic;
-        return Z*X;
+        Z*X
     }
 
 }

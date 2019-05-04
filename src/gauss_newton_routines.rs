@@ -53,7 +53,7 @@ pub fn back_project(residuals: &DVector<MatrixData>,
         }
     }
 
-    return Matrix::<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>::from_vec(P_vec);
+    Matrix::<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>::from_vec(P_vec)
 }
 
 //TODO @Investigate -> Trying stack allocated g and H
@@ -69,11 +69,12 @@ pub fn gauss_newton_step(residuals: &DVector<MatrixData>,
                          number_of_valid_measurements: usize,
                          image_width: usize,
                          image_height: usize,
-                         image_range_offset: usize) -> (Vector6<MatrixData>,Matrix6<MatrixData>) {
+                         image_range_offset: usize)
+    -> (Vector6<MatrixData>,Matrix6<MatrixData>) {
     let mut g = Vector6::<MatrixData>::zeros();
     let mut H = Matrix6::<MatrixData>::zeros();
 
-    return (g,H);
+    (g,H)
 
 }
 

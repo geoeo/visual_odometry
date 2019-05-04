@@ -36,7 +36,7 @@ pub fn perspective_jacobian(camera_intrinsics: &Intrinsics, world_points: &DMatr
                                                           0.0, v11, v12);
         persp_jacobians.push(persp_jacobian);
     }
-    return Box::new(persp_jacobians);
+    Box::new(persp_jacobians)
 }
 
 //TODO: @Investigate -> Boxing might be necessary since Vec is very large
@@ -82,7 +82,7 @@ pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
         G_vec.push(G_sub);
     }
 
-    return Box::new(G_vec);
+    Box::new(G_vec)
 }
 
 fn stack_columns(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
@@ -92,5 +92,5 @@ fn stack_columns(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, D
     for val in m.iter() {
         stacked_vec.push(*val);
     }
-    return DVector::from_vec(stacked_vec);
+    DVector::from_vec(stacked_vec)
 }
