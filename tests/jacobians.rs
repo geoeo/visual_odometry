@@ -2,8 +2,7 @@ extern crate approx;
 extern crate nalgebra as na;
 extern crate visual_odometry;
 
-use approx::assert_relative_eq;
-use na::{Matrix2x3,DMatrix, Matrix3x4,Matrix3x6};
+use na::{Matrix2x3, Matrix3x4,Matrix3x6};
 use visual_odometry::{MatrixData,HomogeneousBackProjections};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::numerics::lie::*;

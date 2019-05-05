@@ -2,8 +2,7 @@ extern crate approx;
 extern crate nalgebra as na;
 extern crate visual_odometry;
 
-use approx::assert_relative_eq;
-use na::{Matrix2x3, DMatrix, Matrix3x4, Matrix3x6, DVector};
+use na::{DMatrix, Matrix3x4};
 use visual_odometry::MatrixData;
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
@@ -21,13 +20,13 @@ fn back_project_then_project(){
     P.append(&mut P2);
 
     let camera = Camera { intrinsics: Intrinsics {K,K_inv}};
-    let points = DMatrix::<MatrixData>::from_vec(4,2,P);
+    let _points = DMatrix::<MatrixData>::from_vec(4,2,P);
 
     let depth_reference = DMatrix::<MatrixData>::from_vec(2,1,vec![1.0, 2.0]);
     let depth_target = DMatrix::<MatrixData>::from_vec(2,1,vec![1.0, 1.0]); // doesnt matter
     let (back_projections,
-        valid_ref,
-        valid_target)
+        _valid_ref,
+        _valid_target)
         = back_project(camera,
                        &depth_reference,
                        &depth_target,
