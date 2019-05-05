@@ -55,8 +55,20 @@ fn main() {
     let camera = Camera{intrinsics};
 
     println!("starting solve");
-    let (SE3, _lie) = solve(reference_frame,target_frame,camera,1000,0.0000001,1.0,max_depth,0.00001,100000.0,100,0);
+    let (SE3, _lie) = solve(reference_frame,
+                            target_frame,
+                            camera,
+                            1000,
+                            0.0000001,
+                            1.0,
+                            max_depth,
+                            0.00001,
+                            100000.0,
+                            100,
+                            0,
+                            true);
     println!("{}",SE3);
+
 
 
 }

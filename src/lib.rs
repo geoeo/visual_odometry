@@ -41,7 +41,8 @@ pub fn solve(reference: Frame,
              var_eps: MatrixData,
              var_min: MatrixData,
              max_its_var: usize,
-             image_range_offset: usize)
+             image_range_offset: usize,
+             print_runtime_info: bool)
     -> (Matrix4<MatrixData>, Vector6<MatrixData>) {
     let mut lie = Vector6::<MatrixData>::zeros();
     let mut SE3 = Matrix4::<MatrixData>::identity();
@@ -161,14 +162,16 @@ pub fn solve(reference: Frame,
         res_squared_mean = res_sum_squared/number_of_valid_measurements as MatrixData;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
-        //TODO: @Investigate -> Does this impact runtime?
+
         if residual_delta <= eps {
             println!("done, squared mean error: {}, delta: {}, pixel ratio: {}",
                      res_squared_mean,
                      residual_delta,
                      valid_pixel_ratio);
             break;
-        } else {
+        }
+        if print_runtime_info {
+            //TODO: think of a way to buffer this. As it impacts performance
             println!("squared mean error: {}, delta: {}, iterator:  {}, valid_pixel_ratio: {}", res_squared_mean, residual_delta, it, valid_pixel_ratio);
         }
 
