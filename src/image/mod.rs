@@ -6,7 +6,7 @@ extern crate cv;
 
 use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
-use na::{Dynamic, DMatrix, VecStorage};
+use na::DMatrix;
 use cv::mat::Mat;
 pub use filters::types::ImageFilter;
 use crate::MatrixData;
@@ -66,6 +66,7 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     DMatrix::<MatrixData>::from_vec(height as usize,width as usize,vec_column_major)
 }
 
+//TODO: Maybe make this work with u8 or u16
 pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
 
     let height = cv_mat.rows;

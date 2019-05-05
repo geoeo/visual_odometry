@@ -1,8 +1,10 @@
 extern crate image;
+extern crate cv;
 extern crate visual_odometry;
 
-use std::path::Path;
 
+use std::path::Path;
+use cv::Mat;
 use visual_odometry::image::Image;
 use visual_odometry::image::filters::types::ImageFilter;
 use visual_odometry::{Frame, solve};
@@ -27,17 +29,24 @@ fn main() {
     //TODO: @Investigate -> Seems to be a problem when loaded in depth images. Depth images are 16 bit but loaded as 8bit
     //TODO: ----
     let image_1_im_rs = image::open(&Path::new(&image_1_path)).unwrap().to_luma();
-    let depth_1_im_rs = image::open(&Path::new(&depth_1_path)).unwrap().to_luma();
+    let depth_1_im_cv
+        = Mat::from_path(depth_1_path,
+                         cv::imgcodecs::ImageReadMode::AnyDepth)
+        .unwrap_or_else(|_| panic!("Could not read image"));
     let image_2_im_rs = image::open(&Path::new(&image_2_path)).unwrap().to_luma();
-    let depth_2_im_rs = image::open(&Path::new(&depth_2_path)).unwrap().to_luma();
+    let depth_2_im_cv
+        = Mat::from_path(depth_2_path,
+                         cv::imgcodecs::ImageReadMode::AnyDepth)
+        .unwrap_or_else(|_| panic!("Could not read image"));
+
 
     let intensity_1 = Image::from_image(image_1_im_rs.clone(), ImageFilter::None, true);
-    let mut depth_1 = Image::from_image(depth_1_im_rs, ImageFilter::None, false);
+    let mut depth_1 = Image::from_cv_mat(depth_1_im_cv, ImageFilter::None, false);
     let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelX, false);
     let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelY, false);
 
     let intensity_2 = Image::from_image(image_2_im_rs, ImageFilter::None, true);
-    let mut depth_2 = Image::from_image(depth_2_im_rs, ImageFilter::None, false);
+    let mut depth_2 = Image::from_cv_mat(depth_2_im_cv, ImageFilter::None, false);
 
     depth_1.buffer /= 5000.0;
     depth_2.buffer /= 5000.0;
