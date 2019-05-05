@@ -2,10 +2,12 @@ pub mod filters;
 
 extern crate image;
 extern crate nalgebra as na;
+extern crate cv;
 
 use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
 use na::{Dynamic, DMatrix, VecStorage};
+use cv::mat::Mat;
 pub use filters::types::ImageFilter;
 use crate::MatrixData;
 use crate::numerics::z_standardize;
@@ -23,6 +25,14 @@ impl Image {
 
     pub fn from_image(image: GrayImage, filter: ImageFilter, standardize : bool) -> Image {
         let mut buffer = image_to_matrix(image);
+        if standardize {
+            z_standardize(&mut buffer);
+        }
+        Image{ buffer, filter, is_standardized : standardize}
+    }
+
+    pub fn from_cv_mat(image: Mat, filter: ImageFilter, standardize : bool) -> Image {
+        let mut buffer = cv_mat_to_matrix(image);
         if standardize {
             z_standardize(&mut buffer);
         }
@@ -53,10 +63,22 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
             vec_column_major.push(pixel_value as MatrixData);
         }
     }
-    let nrows = Dynamic::new(height as usize);
-    let ncols = Dynamic::new(width as usize);
-    let vec_storage = VecStorage::new(nrows, ncols, vec_column_major);
-    DMatrix::from_data(vec_storage)
+    DMatrix::<MatrixData>::from_vec(height as usize,width as usize,vec_column_major)
+}
+
+pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
+
+    let height = cv_mat.rows;
+    let width = cv_mat.cols;
+    let size = (height*width) as usize;
+    let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
+    for x in 0..width {
+        for y in 0..height {
+            let pixel_value = cv_mat.at2::<u16>(y,x);
+            vec_column_major.push(pixel_value as MatrixData);
+        }
+    }
+    DMatrix::<MatrixData>::from_vec(height as usize,width as usize ,vec_column_major)
 }
 
 pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {

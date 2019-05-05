@@ -24,6 +24,7 @@ fn main() {
 
 
     //TODO: simplify this process
+    //TODO: @Investigate -> Seems to be a problem when loaded in depth images. Depth images are 16 bit but loaded as 8bit
     //TODO: ----
     let image_1_im_rs = image::open(&Path::new(&image_1_path)).unwrap().to_luma();
     let depth_1_im_rs = image::open(&Path::new(&depth_1_path)).unwrap().to_luma();
@@ -41,7 +42,7 @@ fn main() {
     depth_1.buffer /= 5000.0;
     depth_2.buffer /= 5000.0;
 
-    let max_depth = depth_1.buffer.max();
+    let max_depth = depth_1.buffer.amax();
     //TODO: ----
 
     let reference_frame = Frame{intensity:intensity_1, depth: depth_1, gradient_x: Some(gx), gradient_y: Some(gy)};
