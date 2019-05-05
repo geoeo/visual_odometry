@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{Matrix,Matrix4,U3,U4,Dynamic,Vector6,VecStorage};
+use na::{Matrix, Matrix4, U3, U4, Dynamic, Vector6, VecStorage, DVector};
 use crate::image::Image;
 
 pub mod image;
@@ -35,6 +35,17 @@ pub fn solve(reference: Frame,
     -> (Matrix4<MatrixData>, Vector6<MatrixData>) {
     let mut lie = Vector6::<MatrixData>::zeros();
     let mut SE3 = Matrix4::<MatrixData>::zeros();
+
+    let image_width = reference.intensity.buffer.ncols();
+    let image_height = reference.intensity.buffer.nrows();
+    let N = image_width*image_height;
+
+    let init_vec_zeros = vec![0.0 as MatrixData;N];
+    let init_vec_ones = vec![1.0 as MatrixData;N];
+    let mut residuals = DVector::<MatrixData>::from_vec(init_vec_zeros);
+    let mut weights = DVector::<MatrixData>::from_vec(init_vec_ones);
+
+
 
     (SE3, lie)
 }
