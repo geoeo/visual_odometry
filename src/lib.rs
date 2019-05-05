@@ -8,7 +8,7 @@ use crate::image::Image;
 use crate::gauss_newton_routines::{back_project, compute_residuals, gauss_newton_step};
 use crate::camera::Camera;
 use crate::jacobians::{perspective_jacobians, lie_jacobians};
-use crate::numerics::isometry_from_parts;
+use crate::numerics::{isometry_from_parts, parts_from_isometry};
 use crate::numerics::weighting::{t_dist_variance,generate_weights};
 
 pub mod image;
@@ -110,7 +110,7 @@ pub fn solve(reference: Frame,
 
 
         let lie_new = alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
-        let (R_current, t_current) = exp(lie);
+        let (R_current, t_current) = parts_from_isometry(SE3);
         let (R_new, t_new) = exp(lie_new);
 
         let R_est = R_current*R_new;
@@ -161,6 +161,7 @@ pub fn solve(reference: Frame,
         res_squared_mean = res_sum_squared/number_of_valid_measurements as MatrixData;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
+        //TODO: @Investigate -> Does this impact runtime?
         if residual_delta <= eps {
             println!("done, squared mean error: {}, delta: {}, pixel ratio: {}",
                      res_squared_mean,
