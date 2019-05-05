@@ -24,10 +24,10 @@ pub type NormalizedImageCoordinates = Matrix<MatrixData, U3, Dynamic, VecStorage
 pub type HomogeneousBackProjections = Matrix<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>;
 
 pub struct Frame {
-    intensity : Image,
-    depth : Image,
-    gradient_x : Option<Image>,
-    gradient_y : Option<Image>
+    pub intensity : Image,
+    pub depth : Image,
+    pub gradient_x : Option<Image>,
+    pub gradient_y : Option<Image>
 }
 
 #[allow(non_snake_case)]

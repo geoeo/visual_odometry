@@ -79,7 +79,7 @@ pub fn gauss_newton_step(residuals: &Box<Vec<MatrixData>>,
 
     for x in image_range_offset..(image_width-image_range_offset) {
         for y in image_range_offset..(image_height-image_range_offset) {
-            let flat_idx = column_major_index(y,x,image_width);
+            let flat_idx = column_major_index(y,x,image_height);
             if !valid_measurements_reference[flat_idx] || !valid_measurements_target[flat_idx]{
                 continue;
             }
@@ -113,7 +113,7 @@ pub fn compute_residuals(residuals: &mut Box<Vec<MatrixData>>,
 
     for x in image_range_offset..(image_width-image_range_offset) {
         for y in image_range_offset..(image_height-image_range_offset) {
-            let flat_index = column_major_index(y,x,image_width);
+            let flat_index = column_major_index(y,x,image_height);
             let idx_reference = (y,x);
             residuals[flat_index] = 0.0;
             if !valid_measurements_reference[flat_index]|| !valid_measurements_target[flat_index] {
