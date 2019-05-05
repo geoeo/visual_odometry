@@ -1,11 +1,24 @@
 extern crate nalgebra as na;
 
 use crate::MatrixData;
-use nalgebra::DVector;
 
-pub fn t_dist_variance(residuals: &DVector<MatrixData>,
-                       valid_measurements_reference: &DVector<bool>,
-                       valid_measurements_target: &DVector<bool>,
+// @GPU
+pub fn generate_weights(residuals: &Box<Vec<MatrixData>>, weights: &mut Box<Vec<MatrixData>>,  variance: MatrixData, degrees_of_freedom: usize)
+    -> () {
+    let numerator = (degrees_of_freedom + 1) as MatrixData;
+    let number_of_samples = weights.len();
+    for i in 0..number_of_samples {
+        let residual = residuals[i];
+        let temp = residual / variance;
+        let temp_sqrd = temp*temp;
+        let frac = temp_sqrd/variance;
+        weights[i] = numerator / (degrees_of_freedom as MatrixData + frac);
+    }
+}
+
+pub fn t_dist_variance(residuals: &Box<Vec<MatrixData>>,
+                       valid_measurements_reference: &Box<Vec<bool>>,
+                       valid_measurements_target: &Box<Vec<bool>>,
                        number_of_valid_measurements: usize,
                        degrees_of_freedom: usize,
                        variance_min: MatrixData,
@@ -30,20 +43,20 @@ pub fn t_dist_variance(residuals: &DVector<MatrixData>,
 }
 
 #[allow(non_snake_case)]
-fn t_dist_variance_step(residuals: &DVector<MatrixData>,
-                        valid_measurements_reference: &DVector<bool>,
-                        valid_measurements_target: &DVector<bool>,
+fn t_dist_variance_step(residuals: &Box<Vec<MatrixData>>,
+                        valid_measurements_reference: &Box<Vec<bool>>,
+                        valid_measurements_target: &Box<Vec<bool>>,
                         number_of_valid_measurements: usize,
                         degrees_of_freedom: usize,
                         variance_prev: MatrixData) -> MatrixData {
     let numerator = degrees_of_freedom as MatrixData + 1.0;
     let mut variance = variance_prev;
-    let N = residuals.ncols();
+    let N = residuals.len();
     for i in 0..N {
-        if !valid_measurements_reference.index(i) || !valid_measurements_target.index(i) {
+        if !valid_measurements_reference[i] || !valid_measurements_target[i] {
             continue;
         }
-        let res = residuals.index(i);
+        let res = residuals[i];
         let res_sqrd = res * res;
         let denominator = (degrees_of_freedom as MatrixData) + (res_sqrd / variance_prev);
         variance += (numerator / denominator) * res_sqrd;

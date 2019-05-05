@@ -7,4 +7,7 @@ edition = "2018"
 [dependencies]
 image = "*"
 nalgebra = "0.18.0"
+nalgebra-lapack = {version ="0.10.0", default-features=false, features=["accelerate"]}
 approx = "0.3.2"
+
+
