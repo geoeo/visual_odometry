@@ -4,10 +4,10 @@ extern crate visual_odometry;
 
 use approx::assert_relative_eq;
 use na::{Matrix2x3,DMatrix, Matrix3x4,Matrix3x6};
-use visual_odometry::MatrixData;
+use visual_odometry::{MatrixData,HomogeneousBackProjections};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::numerics::lie::*;
-use visual_odometry::jacobians::{perspective_jacobian,lie_jacobian};
+use visual_odometry::jacobians::{perspective_jacobians, lie_jacobians};
 
 #[test]
 #[allow(non_snake_case)]
@@ -20,9 +20,9 @@ fn perspective_jacobian_test(){
 
     let jacobian_gt = Matrix2x3::<MatrixData>::new(1.0, 0.0, -0.5,
                                                    0.0, 0.5, -0.25);
-    let points = DMatrix::<MatrixData>::from_vec(3,1, vec![1.0,1.0,2.0]);
+    let points = HomogeneousBackProjections::from_vec(vec![1.0,1.0,2.0,1.0]);
 
-    let persp_jacobians = perspective_jacobian(&camera_intrinsics,&points);
+    let persp_jacobians = perspective_jacobians(&camera_intrinsics, &points);
 
     let persp_jacobian = persp_jacobians[0];
 
@@ -38,15 +38,15 @@ fn lie_jacobian_test() {
 
     assert_eq!(P.len(),8);
 
-    let points = DMatrix::<MatrixData>::from_vec(4,2,P);
+    let points = HomogeneousBackProjections::from_vec(P);
 
-    let lie_jacobians = lie_jacobian(generator_x(),
-                                     generator_y(),
-                                     generator_z(),
-                                     generator_roll(),
-                                     generator_pitch(),
-                                     generator_yaw(),
-                                     &points);
+    let lie_jacobians = lie_jacobians(generator_x(),
+                                      generator_y(),
+                                      generator_z(),
+                                      generator_roll(),
+                                      generator_pitch(),
+                                      generator_yaw(),
+                                      &points);
 
     assert_eq!(lie_jacobians.len(),2);
 

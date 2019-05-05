@@ -4,12 +4,13 @@ pub mod intrinsics;
 
 use na::DMatrix;
 use intrinsics::Intrinsics;
-use crate::{MatrixData,NormalizedImageCoordinates};
+use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
 use self::na::Vector3;
 
 //TODO: @Invest -> refactor intrinsics into Camera
 
 #[allow(non_snake_case)]
+#[derive(Copy, Clone)]
 pub struct Camera {
     pub intrinsics : Intrinsics
     //SE3 : Matrix4<MatrixData>
@@ -22,7 +23,7 @@ impl Camera {
         Camera {intrinsics}
     }
 
-    pub fn apply_perspective_projection(&self, world_points: &DMatrix<MatrixData>)
+    pub fn apply_perspective_projection(&self, world_points: &HomogeneousBackProjections)
         -> NormalizedImageCoordinates {
             let mut persp_points = self.intrinsics.K * world_points;
             let N = persp_points.ncols();

@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 
 use na::{Matrix,Matrix1x2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,Matrix3x6,U3,U6,DVector, VecStorage};
-use crate::MatrixData;
+use crate::{MatrixData,HomogeneousBackProjections};
 use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
@@ -14,8 +14,8 @@ pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<Mat
 
 //TODO: @Investigate -> Boxing might not be necessary since Vec is of known size
 #[allow(non_snake_case)]
-pub fn perspective_jacobian(camera_intrinsics: &Intrinsics, world_points: &DMatrix<MatrixData>)
-    -> Box<Vec<Matrix2x3<MatrixData>>> {
+pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &HomogeneousBackProjections)
+                             -> Box<Vec<Matrix2x3<MatrixData>>> {
     let N = world_points.ncols();
     let fx = camera_intrinsics.fx();
     let fy = camera_intrinsics.fy();
@@ -42,14 +42,14 @@ pub fn perspective_jacobian(camera_intrinsics: &Intrinsics, world_points: &DMatr
 
 //TODO: @Investigate -> Boxing might be necessary since Vec is very large
 #[allow(non_snake_case)]
-pub fn lie_jacobian(generator_x: Matrix3x4<MatrixData>,
-                    generator_y: Matrix3x4<MatrixData>,
-                    generator_z: Matrix3x4<MatrixData>,
-                    generator_roll: Matrix3x4<MatrixData>,
-                    generator_pitch: Matrix3x4<MatrixData>,
-                    generator_yaw: Matrix3x4<MatrixData>,
-                    Y_est: &DMatrix<MatrixData>)
-    -> Box<Vec<Matrix3x6<MatrixData>>> {
+pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
+                     generator_y: Matrix3x4<MatrixData>,
+                     generator_z: Matrix3x4<MatrixData>,
+                     generator_roll: Matrix3x4<MatrixData>,
+                     generator_pitch: Matrix3x4<MatrixData>,
+                     generator_yaw: Matrix3x4<MatrixData>,
+                     Y_est: &HomogeneousBackProjections)
+                     -> Box<Vec<Matrix3x6<MatrixData>>> {
     let N = Y_est.ncols();
 
     let G_1_y = generator_x*Y_est;

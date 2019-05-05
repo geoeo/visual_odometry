@@ -4,6 +4,7 @@ use na::{Matrix3, Matrix3x4};
 use crate::MatrixData;
 
 #[allow(non_snake_case)]
+#[derive(Copy, Clone)]
 pub struct Intrinsics {
     pub K: Matrix3x4<MatrixData>,
     pub K_inv: Matrix3<MatrixData>,

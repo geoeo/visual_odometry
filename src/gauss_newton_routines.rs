@@ -9,41 +9,45 @@ use crate::jacobians::*;
 // This is not used in the Gauss-Newton estimation loop
 // As such it is allocating.
 #[allow(non_snake_case)]
-pub fn back_project(valid_measurements_reference: &mut DVector<bool>,
-                    valid_measurements_target: &mut DVector<bool>,
-                    camera_reference: Camera,
+pub fn back_project(camera_reference: Camera,
                     depth_image_reference: &DMatrix<MatrixData>,
                     depth_image_target: &DMatrix<MatrixData>,
                     image_width: usize,
                     image_height: usize,
                     max_depth: MatrixData)
-    -> HomogeneousBackProjections {
+                    -> (HomogeneousBackProjections, DVector<bool>, DVector<bool>) {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
             true => 1.0,
             false => -1.0
         };
-    let mut P_vec: Vec<MatrixData> = Vec::with_capacity(4*image_width*image_height);
+    let N = image_width * image_height;
+    let mut P_vec: Vec<MatrixData> = Vec::with_capacity(4 * N);
+    let mut valid_measurements_reference_vec: Vec<bool> = Vec::with_capacity(N);
+    let mut valid_measurements_target_vec: Vec<bool> = Vec::with_capacity(N);
+
     for x in 0..image_width {
         for y in 0..image_height {
-            let flat_idx = column_major_index(y,x,image_width);
-            let idx = (y,x);
+            let flat_idx = column_major_index(y, x, image_width);
+            let idx = (y, x);
             let mut depth_reference = *depth_image_reference.index(idx);
             let depth_target = *depth_image_target.index(idx);
-            *valid_measurements_reference.index_mut(flat_idx) = true;
-            *valid_measurements_target.index_mut(flat_idx) = true;
+            valid_measurements_reference_vec.push(true);
+            valid_measurements_target_vec.push(true);
 
             if depth_reference == 0.0 {
-                depth_reference = depth_direction*max_depth;
-                *valid_measurements_reference.index_mut(flat_idx) = false;
+                depth_reference = depth_direction * max_depth;
+                valid_measurements_reference_vec.pop();
+                valid_measurements_reference_vec.push(false);
             }
             if depth_target == 0.0 {
-                *valid_measurements_target.index_mut(flat_idx) = false;
+                valid_measurements_target_vec.pop();
+                valid_measurements_target_vec.push(false);
             }
 
             let Z = depth_reference;
 
-            let P = camera_reference.back_project_pixel(x as MatrixData,y as MatrixData,Z);
+            let P = camera_reference.back_project_pixel(x as MatrixData, y as MatrixData, Z);
             P_vec.push(*P.index(0));
             P_vec.push(*P.index(1));
             P_vec.push(*P.index(2));
@@ -51,7 +55,10 @@ pub fn back_project(valid_measurements_reference: &mut DVector<bool>,
         }
     }
 
-    HomogeneousBackProjections::from_vec(P_vec)
+    let back_projections = HomogeneousBackProjections::from_vec(P_vec);
+    let valid_measurements_reference = DVector::<bool>::from_vec(valid_measurements_reference_vec);
+    let valid_measurements_target_vec = DVector::<bool>::from_vec(valid_measurements_target_vec);
+    (back_projections, valid_measurements_reference, valid_measurements_target_vec)
 }
 
 //TODO @Investigate -> Trying stack allocated g and H
