@@ -15,7 +15,7 @@ pub fn back_project(camera_reference: Camera,
                     image_width: usize,
                     image_height: usize,
                     max_depth: MatrixData)
-                    -> (HomogeneousBackProjections, DVector<bool>, DVector<bool>) {
+                    -> (HomogeneousBackProjections, Box<Vec<bool>>, Box<Vec<bool>>) {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
             true => 1.0,
@@ -23,8 +23,8 @@ pub fn back_project(camera_reference: Camera,
         };
     let N = image_width * image_height;
     let mut P_vec: Vec<MatrixData> = Vec::with_capacity(4 * N);
-    let mut valid_measurements_reference_vec: Vec<bool> = Vec::with_capacity(N);
-    let mut valid_measurements_target_vec: Vec<bool> = Vec::with_capacity(N);
+    let mut valid_measurements_reference: Vec<bool> = Vec::with_capacity(N);
+    let mut valid_measurements_target: Vec<bool> = Vec::with_capacity(N);
 
     for x in 0..image_width {
         for y in 0..image_height {
@@ -32,17 +32,17 @@ pub fn back_project(camera_reference: Camera,
             let idx = (y, x);
             let mut depth_reference = *depth_image_reference.index(idx);
             let depth_target = *depth_image_target.index(idx);
-            valid_measurements_reference_vec.push(true);
-            valid_measurements_target_vec.push(true);
+            valid_measurements_reference.push(true);
+            valid_measurements_target.push(true);
 
             if depth_reference == 0.0 {
                 depth_reference = depth_direction * max_depth;
-                valid_measurements_reference_vec.pop();
-                valid_measurements_reference_vec.push(false);
+                valid_measurements_reference.pop();
+                valid_measurements_reference.push(false);
             }
             if depth_target == 0.0 {
-                valid_measurements_target_vec.pop();
-                valid_measurements_target_vec.push(false);
+                valid_measurements_target.pop();
+                valid_measurements_target.push(false);
             }
 
             let Z = depth_reference;
@@ -56,9 +56,7 @@ pub fn back_project(camera_reference: Camera,
     }
 
     let back_projections = HomogeneousBackProjections::from_vec(P_vec);
-    let valid_measurements_reference = DVector::<bool>::from_vec(valid_measurements_reference_vec);
-    let valid_measurements_target_vec = DVector::<bool>::from_vec(valid_measurements_target_vec);
-    (back_projections, valid_measurements_reference, valid_measurements_target_vec)
+    (back_projections, Box::new(valid_measurements_reference), Box::new(valid_measurements_target))
 }
 
 //TODO @Investigate -> Trying stack allocated g and H
@@ -101,22 +99,22 @@ pub fn gauss_newton_step(residuals: Box<Vec<MatrixData>>,
 }
 
 pub fn compute_residuals(mut residuals: Box<Vec<MatrixData>>,
-                         valid_measurements_reference: &mut DVector<bool>,
-                         valid_measurements_target: &mut DVector<bool>,
+                         mut valid_measurements_reference: Box<Vec<bool>>,
+                         mut valid_measurements_target: Box<Vec<bool>>,
                          image_reference:  &DMatrix<MatrixData>,
                          image_target:  &DMatrix<MatrixData>,
                          projection_onto_target: NormalizedImageCoordinates,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize )
-    -> Box<Vec<MatrixData>> {
+    -> (Box<Vec<MatrixData>>, Box<Vec<bool>>, Box<Vec<bool>>) {
 
     for x in image_range_offset..(image_width-image_range_offset) {
         for y in image_range_offset..(image_height-image_range_offset) {
             let flat_index = column_major_index(y,x,image_width);
             let idx_reference = (y,x);
             residuals[flat_index] = 0.0;
-            if !*valid_measurements_reference.index(flat_index) || !*valid_measurements_target.index(flat_index) {
+            if !valid_measurements_reference[flat_index]|| !valid_measurements_target[flat_index] {
                 continue;
             }
             let x_idx_target = (*projection_onto_target.index((0,flat_index))).floor() as usize;
@@ -124,7 +122,7 @@ pub fn compute_residuals(mut residuals: Box<Vec<MatrixData>>,
             let idx_target = (y_idx_target, x_idx_target);
             if !((image_range_offset < y) && (y < image_height - image_range_offset) &&
                 (image_range_offset < x) && (x < image_width - image_range_offset)) {
-                *valid_measurements_reference.index_mut(idx_reference) = false;
+                valid_measurements_reference[flat_index] = false;
                 continue;
             }
             valid_measurements_reference[flat_index] = true;
@@ -132,5 +130,5 @@ pub fn compute_residuals(mut residuals: Box<Vec<MatrixData>>,
         }
     }
 
-    residuals
+    (residuals,valid_measurements_reference,valid_measurements_target)
 }
