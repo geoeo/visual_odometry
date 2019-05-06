@@ -42,8 +42,8 @@ fn main() {
 
     let intensity_1 = Image::from_image(image_1_im_rs.clone(), ImageFilter::None, true);
     let mut depth_1 = Image::from_cv_mat(depth_1_im_cv, ImageFilter::None, false);
-    let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelX, false);
-    let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelY, false);
+    let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::ScharrX, false);
+    let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::ScharrY, false);
 
     let intensity_2 = Image::from_image(image_2_im_rs, ImageFilter::None, true);
     let mut depth_2 = Image::from_cv_mat(depth_2_im_cv, ImageFilter::None, false);
@@ -70,7 +70,7 @@ fn main() {
                             camera,
                             1000,
                             0.0000001,
-                            1.0,
+                            900.0,
                             max_depth,
                             0.00001,
                             100000.0,

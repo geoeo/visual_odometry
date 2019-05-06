@@ -172,7 +172,7 @@ pub fn solve(reference: Frame,
         }
         if print_runtime_info {
             //TODO: think of a way to buffer this. As it impacts performance
-            println!("squared mean error: {}, delta: {}, iterator:  {}, valid_pixel_ratio: {}", res_squared_mean, residual_delta, it, valid_pixel_ratio);
+            println!("squared mean error: {}, delta: {}, iterator:  {}, valid_pixel_ratio: {}, variance: {}", res_squared_mean, residual_delta, it, valid_pixel_ratio, variance);
         }
 
     }

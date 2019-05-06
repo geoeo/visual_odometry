@@ -32,17 +32,18 @@ pub fn back_project(camera_reference: Camera,
             let idx = (y, x);
             let mut depth_reference = *depth_image_reference.index(idx);
             let depth_target = *depth_image_target.index(idx);
-            valid_measurements_reference.push(true);
-            valid_measurements_target.push(true);
 
             if depth_reference == 0.0 {
                 depth_reference = depth_direction * max_depth;
-                valid_measurements_reference.pop();
                 valid_measurements_reference.push(false);
+            } else {
+                valid_measurements_reference.push(true);
             }
+
             if depth_target == 0.0 {
-                valid_measurements_target.pop();
                 valid_measurements_target.push(false);
+            } else {
+                valid_measurements_target.push(true);
             }
 
             let Z = depth_reference;
