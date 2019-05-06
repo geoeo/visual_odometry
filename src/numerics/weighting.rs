@@ -6,7 +6,7 @@ use crate::MatrixData;
 pub fn generate_weights(residuals: &Box<Vec<MatrixData>>, weights: &mut Box<Vec<MatrixData>>,  variance: MatrixData, degrees_of_freedom: usize)
     -> () {
     let numerator = (degrees_of_freedom + 1) as MatrixData;
-    let number_of_samples = weights.len();
+    let number_of_samples = residuals.len();
     for i in 0..number_of_samples {
         let residual = residuals[i];
         let temp = residual / variance;

@@ -42,11 +42,14 @@ fn main() {
 
     let intensity_1 = Image::from_image(image_1_im_rs.clone(), ImageFilter::None, true);
     let mut depth_1 = Image::from_cv_mat(depth_1_im_cv, ImageFilter::None, false);
-    let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::ScharrX, false);
-    let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::ScharrY, false);
+    let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelX, false);
+    let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelY, false);
 
-    let intensity_2 = Image::from_image(image_2_im_rs, ImageFilter::None, true);
+    let intensity_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::None, true);
     let mut depth_2 = Image::from_cv_mat(depth_2_im_cv, ImageFilter::None, false);
+    let gx_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::SobelX, false);
+    let gy_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::SobelY, false);
+
 
     depth_1.buffer /= 5000.0;
     depth_2.buffer /= 5000.0;
@@ -55,7 +58,7 @@ fn main() {
     //TODO: ----
 
     let reference_frame = Frame{intensity:intensity_1, depth: depth_1, gradient_x: Some(gx), gradient_y: Some(gy)};
-    let target_frame = Frame{intensity:intensity_2, depth: depth_2, gradient_x: None, gradient_y: None};
+    let target_frame = Frame{intensity:intensity_2, depth: depth_2, gradient_x: Some(gx_2), gradient_y: Some(gy_2)};
 
     let fx = 520.9;
     let fy = 521.0;
@@ -65,18 +68,19 @@ fn main() {
     let camera = Camera{intrinsics};
 
     println!("starting solve");
-    let (SE3, _lie) = solve(reference_frame,
-                            target_frame,
-                            camera,
-                            1000,
-                            0.0000000000001,
-                            1.0,
-                            max_depth,
-                            0.0001,
-                            100000.0,
-                            100,
-                            0,
-                            true);
+    let (SE3, _lie)
+        = solve(reference_frame,
+                target_frame,
+                camera,
+                1000,
+                0.00000001,
+                800.0,
+                max_depth,
+                0.0001,
+                100000.0,
+                100,
+                0,
+                true);
     println!("{}",SE3);
 
 

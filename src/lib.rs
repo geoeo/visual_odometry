@@ -16,6 +16,7 @@ pub mod numerics;
 pub mod camera;
 pub mod jacobians;
 pub mod gauss_newton_routines;
+pub mod io;
 
 pub type MatrixData = f64; //Rename this to Float?
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
@@ -61,9 +62,9 @@ pub fn solve(reference: Frame,
 
     // We want RHS coordiante system. As such, we invert Z and Pitch
     let generator_x = generator_x();
-    let generator_y = generator_y();
+    let generator_y = generator_y_neg();
     let generator_z = generator_z_neg();
-    let generator_roll = generator_roll();
+    let generator_roll = generator_roll_neg();
     let generator_pitch = generator_pitch_neg();
     let generator_yaw = generator_yaw();
 
