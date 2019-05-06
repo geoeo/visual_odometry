@@ -36,15 +36,15 @@ impl Image {
             z_standardize(&mut buffer);
         }
 
-        Image{ buffer, filter, is_standardized : standardize}
+        Image{ buffer, filter, is_standardized : standardize }
     }
 
-    pub fn from_vec_16(height: usize, width: usize, vec_16: &Vec<u16>, filter: ImageFilter, standardize : bool) -> Image {
+    pub fn from_vec_16(height: usize, width: usize, vec_16: &Vec<u16>, standardize : bool) -> Image {
         let mut buffer = vec_16_to_matrix(height, width, vec_16);
         if standardize {
             z_standardize(&mut buffer);
         }
-        Image{ buffer, filter, is_standardized : standardize}
+        Image{ buffer, filter: ImageFilter::None, is_standardized : standardize}
     }
 
     pub fn to_image(&self, encoding: ImageEncoding) -> GrayImage {
@@ -96,7 +96,7 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) ->
     let max
         = match encoding {
         ImageEncoding::U8 => 255,
-        ImageEncoding::U16 => 65280 // 255*256
+        ImageEncoding::U16 => 65535 // 256*256-1
     };
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();

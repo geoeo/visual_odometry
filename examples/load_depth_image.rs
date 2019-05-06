@@ -1,5 +1,5 @@
 use visual_odometry::image::Image;
-use visual_odometry::image::types::{ImageFilter,ImageEncoding};
+use visual_odometry::image::types::ImageEncoding;
 use visual_odometry::io::read_png_16bits_row_major;
 
 fn main() {
@@ -22,7 +22,7 @@ fn main() {
 
 
     //let image_16_cv = Image::from_cv_mat(cv_image_16,ImageFilter::None,false);
-    let image_16 = Image::from_vec_16(height, width, &vec_16,ImageFilter::None,false);
+    let image_16 = Image::from_vec_16(height, width, &vec_16,false);
 
     println!("{:?}",image_16.buffer.max());
     //println!("Cv: {:?}",image_16_cv.buffer.max());
