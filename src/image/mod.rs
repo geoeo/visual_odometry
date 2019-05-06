@@ -11,7 +11,7 @@ use na::DMatrix;
 use cv::mat::Mat;
 use crate::MatrixData;
 use crate::numerics::z_standardize;
-use self::types::ImageFilter;
+use self::types::{ImageFilter,ImageEncoding};
 
 
 pub struct Image {
@@ -41,8 +41,8 @@ impl Image {
         Image{ buffer, filter, is_standardized : standardize}
     }
 
-    pub fn to_image(&self) -> GrayImage {
-        return matrix_to_image(&self.buffer);
+    pub fn to_image(&self, encoding: ImageEncoding) -> GrayImage {
+        return matrix_to_image(&self.buffer, encoding);
     }
 }
 
@@ -83,21 +83,22 @@ pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
     DMatrix::<MatrixData>::from_vec(height as usize,width as usize ,vec_column_major)
 }
 
-pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
+pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
     let min = matrix.min();
-    // if max is in u8 range, use the full range
-    //TODO: Might be wrong. Maybe its 255, 256*255, ... depending on underlying type.
-    let mut max = matrix.max();
-    if max < (256 as MatrixData) {
-        max = 255 as MatrixData;
-    }
+
+    let max
+        = match encoding {
+        ImageEncoding::U8 => 255,
+        ImageEncoding::U16 => 65280 // 255*256
+    };
+
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
     for c in 0..cols {
         for r in 0..rows {
             let val = *matrix.index((r, c));
             let mut pixel = gray_image.get_pixel_mut(c as u32, r as u32);
-            pixel.data[0] = normalize_to_gray(val, min, max);
+            pixel.data[0] = normalize_to_gray(val, min, max as MatrixData);
         }
     }
     gray_image
