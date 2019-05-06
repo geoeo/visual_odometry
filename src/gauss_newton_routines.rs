@@ -111,17 +111,16 @@ pub fn compute_residuals(residuals: &mut Box<Vec<MatrixData>>,
                          image_height: usize,
                          image_range_offset: usize )
     -> () {
-
-    for x in image_range_offset..(image_width-image_range_offset) {
-        for y in image_range_offset..(image_height-image_range_offset) {
-            let flat_index = column_major_index(y,x,image_height);
-            let idx_reference = (y,x);
+    for x in image_range_offset..(image_width - image_range_offset) {
+        for y in image_range_offset..(image_height - image_range_offset) {
+            let flat_index = column_major_index(y, x, image_height);
+            let idx_reference = (y, x);
             residuals[flat_index] = 0.0;
-            if !valid_measurements_reference[flat_index]|| !valid_measurements_target[flat_index] {
+            if !valid_measurements_reference[flat_index] || !valid_measurements_target[flat_index] {
                 continue;
             }
-            let x_idx_target = (*projection_onto_target.index((0,flat_index))).floor() as usize;
-            let y_idx_target = (*projection_onto_target.index((1,flat_index))).floor() as usize;
+            let x_idx_target = (*projection_onto_target.index((0, flat_index))).floor() as usize;
+            let y_idx_target = (*projection_onto_target.index((1, flat_index))).floor() as usize;
             let idx_target = (y_idx_target, x_idx_target);
             if !((image_range_offset < y) && (y < image_height - image_range_offset) &&
                 (image_range_offset < x) && (x < image_width - image_range_offset)) ||
