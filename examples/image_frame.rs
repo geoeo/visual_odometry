@@ -4,7 +4,7 @@ extern crate visual_odometry;
 use std::path::Path;
 
 use visual_odometry::image::Image;
-use visual_odometry::image::types::{ImageFilter,ImageEncoding};
+use visual_odometry::image::types::ImageFilter;
 
 fn main() {
     let image_name = "blocks";
@@ -17,7 +17,7 @@ fn main() {
     image.save(gray_image_path).unwrap();
 
     let frame = Image::from_image(image, ImageFilter::None, false);
-    let new_image = frame.to_image(ImageEncoding::U8);
+    let new_image = frame.to_image();
 
     new_image.save(converted_file_out_path).unwrap();
 }

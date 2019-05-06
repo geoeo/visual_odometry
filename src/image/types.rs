@@ -11,7 +11,7 @@ pub enum ImageFilter {
 }
 
 #[repr(u8)]
-#[derive(Debug,Copy,Clone)]
+#[derive(Debug,Copy,Clone,PartialEq)]
 pub enum ImageEncoding {
     U8,
     U16

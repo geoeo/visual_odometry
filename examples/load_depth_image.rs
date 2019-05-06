@@ -1,5 +1,4 @@
 use visual_odometry::image::Image;
-use visual_odometry::image::types::ImageEncoding;
 use visual_odometry::io::read_png_16bits_row_major;
 
 fn main() {
@@ -19,15 +18,13 @@ fn main() {
         .unwrap_or_else(|_| panic!("Could not read image"));
 
 
-
-
     //let image_16_cv = Image::from_cv_mat(cv_image_16,ImageFilter::None,false);
     let image_16 = Image::from_vec_16(height, width, &vec_16,false);
 
     println!("{:?}",image_16.buffer.max());
     //println!("Cv: {:?}",image_16_cv.buffer.max());
 
-    let new_image = image_16.to_image(ImageEncoding::U16);
+    let new_image = image_16.to_image();
 
     new_image.save(converted_file_out_path).unwrap();
 

@@ -16,12 +16,12 @@ use self::types::{ImageFilter,ImageEncoding};
 pub struct Image {
     pub buffer: DMatrix<MatrixData>,
     pub filter: ImageFilter,
-    pub is_standardized : bool
-}
+    pub is_standardized : bool,
+    pub original_encoding: ImageEncoding}
 
 impl Image {
-    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter, is_standardized : bool) -> Image {
-        Image { buffer, filter, is_standardized}
+    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
+        Image { buffer, filter, is_standardized,original_encoding}
     }
 
     pub fn from_image(image: GrayImage, filter: ImageFilter, standardize : bool) -> Image {
@@ -36,7 +36,7 @@ impl Image {
             z_standardize(&mut buffer);
         }
 
-        Image{ buffer, filter, is_standardized : standardize }
+        Image{ buffer, filter, is_standardized : standardize, original_encoding: ImageEncoding::U8 }
     }
 
     pub fn from_vec_16(height: usize, width: usize, vec_16: &Vec<u16>, standardize : bool) -> Image {
@@ -44,15 +44,20 @@ impl Image {
         if standardize {
             z_standardize(&mut buffer);
         }
-        Image{ buffer, filter: ImageFilter::None, is_standardized : standardize}
+        Image{
+            buffer,
+            filter: ImageFilter::None,
+            is_standardized : standardize,
+            original_encoding: ImageEncoding::U16
+        }
     }
 
-    pub fn to_image(&self, encoding: ImageEncoding) -> GrayImage {
-        return matrix_to_image(&self.buffer, encoding);
+    pub fn to_image(&self) -> GrayImage {
+        return matrix_to_image(&self.buffer, self.original_encoding);
     }
 }
 
-pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
+fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
     let (width, height) = gray_image.dimensions();
@@ -69,7 +74,7 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
 }
 
 // byte size hardcoded for now
-pub fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<MatrixData> {
+fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<MatrixData> {
     let size = width*height;
     let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
     for x in 0..width {
@@ -82,7 +87,7 @@ pub fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatr
     DMatrix::<MatrixData>::from_vec(height,width ,vec_column_major)
 }
 
-pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
+fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
