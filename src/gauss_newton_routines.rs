@@ -81,7 +81,7 @@ pub fn gauss_newton_step(residuals: &Box<Vec<MatrixData>>,
     for x in image_range_offset..(image_width-image_range_offset) {
         for y in image_range_offset..(image_height-image_range_offset) {
             let flat_idx = column_major_index(y,x,image_height);
-            if !valid_measurements_reference[flat_idx] || !valid_measurements_target[flat_idx]{
+            if !(valid_measurements_reference[flat_idx] && valid_measurements_target[flat_idx]){
                 continue;
             }
             let J_image = image_jacobian(image_gradient_x_target,image_gradient_y_target,x,y);
@@ -124,7 +124,9 @@ pub fn compute_residuals(residuals: &mut Box<Vec<MatrixData>>,
             let y_idx_target = (*projection_onto_target.index((1,flat_index))).floor() as usize;
             let idx_target = (y_idx_target, x_idx_target);
             if !((image_range_offset < y) && (y < image_height - image_range_offset) &&
-                (image_range_offset < x) && (x < image_width - image_range_offset)) {
+                (image_range_offset < x) && (x < image_width - image_range_offset)) ||
+                !((image_range_offset < y_idx_target) && (y_idx_target < image_height - image_range_offset) &&
+                    (image_range_offset < x_idx_target) && (x_idx_target < image_width - image_range_offset)) {
                 valid_measurements_reference[flat_index] = false;
                 continue;
             }
