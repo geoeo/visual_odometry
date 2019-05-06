@@ -52,13 +52,6 @@ impl Image {
     }
 }
 
-// https://en.wikipedia.org/wiki/Normalization_(image_processing)
-//TODO: @ Investigate -> Put this into the ImageEncoding type
-fn normalize_to_gray(value: MatrixData, min: MatrixData, max: MatrixData) -> u8 {
-    let range = 255 as MatrixData; // 255 - 0
-    ((value - min) * (range / (max - min)) + min) as u8
-}
-
 pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
@@ -91,20 +84,13 @@ pub fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatr
 
 pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
-    let min = matrix.min();
-
-    let max
-        = match encoding {
-        ImageEncoding::U8 => 255,
-        ImageEncoding::U16 => 65535 // 256*256-1
-    };
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
     for c in 0..cols {
         for r in 0..rows {
             let val = *matrix.index((r, c));
             let mut pixel = gray_image.get_pixel_mut(c as u32, r as u32);
-            pixel.data[0] = normalize_to_gray(val, min, max as MatrixData);
+            pixel.data[0] = encoding.normalize_to_gray(val);
         }
     }
     gray_image

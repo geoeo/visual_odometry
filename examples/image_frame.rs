@@ -7,8 +7,8 @@ use visual_odometry::image::Image;
 use visual_odometry::image::types::{ImageFilter,ImageEncoding};
 
 fn main() {
-    let image_name = "depth";
-    let image_format = "png";
+    let image_name = "blocks";
+    let image_format = "jpg";
     let image_path = format!("images/{}.{}",image_name, image_format);
     let gray_image_path = format!("output/{}_gray_scale.{}",image_name,image_format);
     let converted_file_out_path = format!("output/{}_converted.{}",image_name,image_format);
