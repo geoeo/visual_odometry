@@ -4,7 +4,7 @@ extern crate visual_odometry;
 use std::path::Path;
 
 use visual_odometry::image::Image;
-use visual_odometry::image::filters::types::ImageFilter;
+use visual_odometry::image::types::ImageFilter;
 
 fn main() {
     let image_name = "depth";

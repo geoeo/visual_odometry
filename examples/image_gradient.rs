@@ -5,7 +5,7 @@ use std::path::Path;
 
 use image::imageops::filter3x3;
 use visual_odometry::image::select_filter;
-use visual_odometry::image::filters::types::ImageFilter;
+use visual_odometry::image::types::ImageFilter;
 
 fn main() {
 

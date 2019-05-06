@@ -3,7 +3,7 @@ extern crate cv;
 use cv::Mat;
 
 use visual_odometry::image::Image;
-use visual_odometry::image::filters::types::ImageFilter;
+use visual_odometry::image::types::ImageFilter;
 
 fn main() {
 

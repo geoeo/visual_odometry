@@ -1,16 +1,18 @@
-pub mod filters;
-
 extern crate image;
 extern crate nalgebra as na;
 extern crate cv;
+
+pub mod filters;
+pub mod types;
 
 use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
 use na::DMatrix;
 use cv::mat::Mat;
-pub use filters::types::ImageFilter;
 use crate::MatrixData;
 use crate::numerics::z_standardize;
+use self::types::ImageFilter;
+
 
 pub struct Image {
     pub buffer: DMatrix<MatrixData>,
@@ -66,7 +68,6 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     DMatrix::<MatrixData>::from_vec(height as usize,width as usize,vec_column_major)
 }
 
-//TODO: Maybe make this work with u8 or u16
 pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
 
     let height = cv_mat.rows;
@@ -86,6 +87,7 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>) -> GrayImage {
     let (rows, cols) = matrix.shape();
     let min = matrix.min();
     // if max is in u8 range, use the full range
+    //TODO: Might be wrong. Maybe its 255, 256*255, ... depending on underlying type.
     let mut max = matrix.max();
     if max < (256 as MatrixData) {
         max = 255 as MatrixData;

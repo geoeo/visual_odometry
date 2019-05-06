@@ -6,7 +6,7 @@ use std::path::Path;
 use image::imageops::filter3x3;
 use image::flat::NormalForm;
 use visual_odometry::image::select_filter;
-use visual_odometry::image::filters::types::ImageFilter;
+use visual_odometry::image::types::ImageFilter;
 
 #[test]
 fn image_is_row_major() {

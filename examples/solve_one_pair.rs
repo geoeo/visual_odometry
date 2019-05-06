@@ -6,7 +6,7 @@ extern crate visual_odometry;
 use std::path::Path;
 use cv::Mat;
 use visual_odometry::image::Image;
-use visual_odometry::image::filters::types::ImageFilter;
+use visual_odometry::image::types::ImageFilter;
 use visual_odometry::{Frame, solve};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
