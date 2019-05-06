@@ -1,14 +1,13 @@
 extern crate image;
 extern crate nalgebra as na;
-extern crate cv;
 
 pub mod filters;
 pub mod types;
 
 use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
+use image::imageops::filter3x3;
 use na::DMatrix;
-use cv::mat::Mat;
 use crate::MatrixData;
 use crate::numerics::{z_standardize, row_major_index};
 use self::types::{ImageFilter,ImageEncoding};
@@ -26,18 +25,17 @@ impl Image {
     }
 
     pub fn from_image(image: GrayImage, filter: ImageFilter, standardize : bool) -> Image {
-        let mut buffer = image_to_matrix(image);
-        if standardize {
-            z_standardize(&mut buffer);
-        }
-        Image{ buffer, filter, is_standardized : standardize}
-    }
+        let filter_type = select_filter(filter);
+        let mut buffer =
+            match filter_type {
+                None => image_to_matrix(image),
+                Some(filter) => image_to_matrix(filter3x3(&image,&filter))
+        };
 
-    pub fn from_cv_mat(image: Mat, filter: ImageFilter, standardize : bool) -> Image {
-        let mut buffer = cv_mat_to_matrix(image);
         if standardize {
             z_standardize(&mut buffer);
         }
+
         Image{ buffer, filter, is_standardized : standardize}
     }
 
@@ -77,21 +75,6 @@ pub fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
     DMatrix::<MatrixData>::from_vec(height as usize,width as usize,vec_column_major)
 }
 
-pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
-
-    let height = cv_mat.rows;
-    let width = cv_mat.cols;
-    let size = (height*width) as usize;
-    let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
-    for x in 0..width {
-        for y in 0..height {
-            let pixel_value = cv_mat.at2::<u16>(y,x);
-            vec_column_major.push(pixel_value as MatrixData);
-        }
-    }
-    DMatrix::<MatrixData>::from_vec(height as usize,width as usize ,vec_column_major)
-}
-
 // byte size hardcoded for now
 pub fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<MatrixData> {
     let size = width*height;
@@ -127,12 +110,12 @@ pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) ->
     gray_image
 }
 
-pub fn select_filter(filter_type: ImageFilter) -> [f32;9]  {
+pub fn select_filter(filter_type: ImageFilter) -> Option<[f32;9]>  {
     return match filter_type {
-        ImageFilter::SobelX => filters::HORIZONTAL_SOBEL,
-        ImageFilter::SobelY => filters::VERTICAL_SOBEL,
-        ImageFilter::ScharrX => filters::HORIZONTAL_SCHARR,
-        ImageFilter::ScharrY => filters::VERTICAL_SCHARR,
-        ImageFilter::None => panic!("Invalid filter!: {:?}", filter_type)
+        ImageFilter::SobelX => Some(filters::HORIZONTAL_SOBEL),
+        ImageFilter::SobelY => Some(filters::VERTICAL_SOBEL),
+        ImageFilter::ScharrX => Some(filters::HORIZONTAL_SCHARR),
+        ImageFilter::ScharrY => Some(filters::VERTICAL_SCHARR),
+        ImageFilter::None => None
     };
 }

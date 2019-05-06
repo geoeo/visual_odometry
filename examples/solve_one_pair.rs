@@ -1,15 +1,14 @@
 extern crate image;
-extern crate cv;
 extern crate visual_odometry;
 
 
 use std::path::Path;
-use cv::Mat;
 use visual_odometry::image::Image;
 use visual_odometry::image::types::ImageFilter;
 use visual_odometry::{Frame, solve};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
+use visual_odometry::io::read_png_16bits_row_major;
 
 #[allow(non_snake_case)]
 fn main() {
@@ -24,29 +23,26 @@ fn main() {
     let image_2_path = format!("images/{}.{}",image_name_2, image_format);
     let depth_2_path = format!("images/{}.{}",depth_name_2, image_format);
 
-
     //TODO: simplify this process
     //TODO: @Investigate -> Seems to be a problem when loaded in depth images. Depth images are 16 bit but loaded as 8bit
     //TODO: ----
     let image_1_im_rs = image::open(&Path::new(&image_1_path)).unwrap().to_luma();
-    let depth_1_im_cv
-        = Mat::from_path(depth_1_path,
-                         cv::imgcodecs::ImageReadMode::AnyDepth)
+    let (width,height,depth_1_im)
+        = read_png_16bits_row_major(depth_1_path)
         .unwrap_or_else(|_| panic!("Could not read image"));
     let image_2_im_rs = image::open(&Path::new(&image_2_path)).unwrap().to_luma();
-    let depth_2_im_cv
-        = Mat::from_path(depth_2_path,
-                         cv::imgcodecs::ImageReadMode::AnyDepth)
+    let (_,_,depth_2_im)
+        = read_png_16bits_row_major(depth_2_path)
         .unwrap_or_else(|_| panic!("Could not read image"));
 
 
     let intensity_1 = Image::from_image(image_1_im_rs.clone(), ImageFilter::None, true);
-    let mut depth_1 = Image::from_cv_mat(depth_1_im_cv, ImageFilter::None, false);
+    let mut depth_1 = Image::from_vec_16(height,width,&depth_1_im, ImageFilter::None, false);
     let gx = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelX, false);
     let gy = Image::from_image(image_1_im_rs.clone(), ImageFilter::SobelY, false);
 
     let intensity_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::None, true);
-    let mut depth_2 = Image::from_cv_mat(depth_2_im_cv, ImageFilter::None, false);
+    let mut depth_2 = Image::from_vec_16(height,width,&depth_2_im, ImageFilter::None, false);
     let gx_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::SobelX, false);
     let gy_2 = Image::from_image(image_2_im_rs.clone(), ImageFilter::SobelY, false);
 
@@ -74,7 +70,7 @@ fn main() {
                 camera,
                 1000,
                 0.00000001,
-                800.0,
+                1.0,
                 max_depth,
                 0.0001,
                 100000.0,

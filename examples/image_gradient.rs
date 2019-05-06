@@ -17,7 +17,7 @@ fn main() {
     let file_out_path = format!("output/{}_{:?}.{}",image_name,image_filter,image_format);
 
     let image = image::open(&Path::new(&image_path)).unwrap().grayscale().to_luma();
-    let kernel = select_filter(image_filter);
+    let kernel = select_filter(image_filter).unwrap();
 
     let gradient_image = filter3x3(&image,&kernel);
 

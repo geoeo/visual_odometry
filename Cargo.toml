@@ -9,6 +9,6 @@ image = "*"
 nalgebra = "0.18.0"
 nalgebra-lapack = {version ="0.10.0", default-features=false, features=["accelerate"]}
 approx = "0.3.2"
-cv = { git = "https://github.com/geoeo/cv-rs.git", branch="core-only"}
+#cv = { git = "https://github.com/geoeo/cv-rs.git", branch="core-only"}
 png = "0.12"
 byteorder = "1.2" # Reading numbers in [big/little]-endian.

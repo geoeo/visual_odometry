@@ -14,7 +14,7 @@ fn image_is_row_major() {
     let image_path = "images/ferris.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
-    let kernel = select_filter(ImageFilter::ScharrX);
+    let kernel = select_filter(ImageFilter::ScharrX).unwrap();
     let gradient_image = filter3x3(&image,&kernel);
 
     assert!(image.sample_layout().is_normal(NormalForm::RowMajorPacked));
@@ -25,9 +25,9 @@ fn image_is_row_major() {
 }
 
 #[test]
-#[should_panic]
 fn filter_for_no_gradient() {
-    let _kernel = select_filter(ImageFilter::None);
+    let kernel = select_filter(ImageFilter::None);
+    assert_eq!(kernel, None);
 }
 
 
