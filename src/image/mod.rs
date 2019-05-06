@@ -10,7 +10,7 @@ use image::flat::NormalForm;
 use na::DMatrix;
 use cv::mat::Mat;
 use crate::MatrixData;
-use crate::numerics::z_standardize;
+use crate::numerics::{z_standardize, row_major_index};
 use self::types::{ImageFilter,ImageEncoding};
 
 
@@ -41,12 +41,21 @@ impl Image {
         Image{ buffer, filter, is_standardized : standardize}
     }
 
+    pub fn from_vec_16(height: usize, width: usize, vec_16: &Vec<u16>, filter: ImageFilter, standardize : bool) -> Image {
+        let mut buffer = vec_16_to_matrix(height, width, vec_16);
+        if standardize {
+            z_standardize(&mut buffer);
+        }
+        Image{ buffer, filter, is_standardized : standardize}
+    }
+
     pub fn to_image(&self, encoding: ImageEncoding) -> GrayImage {
         return matrix_to_image(&self.buffer, encoding);
     }
 }
 
 // https://en.wikipedia.org/wiki/Normalization_(image_processing)
+//TODO: @ Investigate -> Put this into the ImageEncoding type
 fn normalize_to_gray(value: MatrixData, min: MatrixData, max: MatrixData) -> u8 {
     let range = 255 as MatrixData; // 255 - 0
     ((value - min) * (range / (max - min)) + min) as u8
@@ -81,6 +90,20 @@ pub fn cv_mat_to_matrix(cv_mat: Mat) -> DMatrix<MatrixData> {
         }
     }
     DMatrix::<MatrixData>::from_vec(height as usize,width as usize ,vec_column_major)
+}
+
+// byte size hardcoded for now
+pub fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<MatrixData> {
+    let size = width*height;
+    let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
+    for x in 0..width {
+        for y in 0..height {
+            let idx = row_major_index(y,x,width);
+            let pixel_value = vec_16[idx];
+            vec_column_major.push(pixel_value as MatrixData);
+        }
+    }
+    DMatrix::<MatrixData>::from_vec(height,width ,vec_column_major)
 }
 
 pub fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
