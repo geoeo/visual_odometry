@@ -148,7 +148,7 @@ pub fn solve(reference: Frame,
                               max_its_var);
 
         if variance > 0.0 {
-            //generate_weights(&residuals,&mut weights,variance,degrees_of_freedom);
+            generate_weights(&residuals,&mut weights,variance,degrees_of_freedom);
         }
 
         let mut res_sum_squared = 0.0;
