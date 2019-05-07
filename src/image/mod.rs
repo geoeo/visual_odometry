@@ -12,7 +12,6 @@ use crate::MatrixData;
 use crate::numerics::{z_standardize, row_major_index};
 use self::types::{ImageFilter,ImageEncoding};
 
-
 pub struct Image {
     pub buffer: DMatrix<MatrixData>,
     pub filter: ImageFilter,
