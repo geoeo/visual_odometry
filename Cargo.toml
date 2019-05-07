@@ -12,3 +12,6 @@ approx = "0.3.2"
 #cv = { git = "https://github.com/geoeo/cv-rs.git", branch="core-only"}
 png = "0.14.1"
 byteorder = "1.3.1" # Reading numbers in [big/little]-endian.
+
+[profile.release]
+debug = true
