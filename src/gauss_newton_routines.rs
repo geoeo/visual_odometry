@@ -63,13 +63,14 @@ pub fn back_project(camera_reference: Camera,
 // @GPU
 //TODO @Investigate -> Trying stack allocated g and H
 #[allow(non_snake_case)]
-pub fn gauss_newton_step(residuals: &Box<Vec<MatrixData>>,
-                         valid_measurements_reference: &Box<Vec<bool>>,
-                         valid_measurements_target: &Box<Vec<bool>>,
+
+pub fn gauss_newton_step(residuals: &Vec<MatrixData>,
+                         valid_measurements_reference: &Vec<bool>,
+                         valid_measurements_target: &Vec<bool>,
                          image_gradient_x_target: &DMatrix<MatrixData>,
                          image_gradient_y_target: &DMatrix<MatrixData>,
-                         J_lie_vec: &Box<Vec<Matrix3x6<MatrixData>>>,
-                         J_pi_vec: &Box<Vec<Matrix2x3<MatrixData>>>,
+                         J_lie_vec: &Vec<Matrix3x6<MatrixData>>,
+                         J_pi_vec: &Vec<Matrix2x3<MatrixData>>,
                          weights: &Box<Vec<MatrixData>>,
                          image_width: usize,
                          image_height: usize,
@@ -101,9 +102,9 @@ pub fn gauss_newton_step(residuals: &Box<Vec<MatrixData>>,
 }
 
 // @GPU
-pub fn compute_residuals(residuals: &mut Box<Vec<MatrixData>>,
-                         valid_measurements_reference: &mut Box<Vec<bool>>,
-                         valid_measurements_target: &Box<Vec<bool>>,
+pub fn compute_residuals(residuals: &mut Vec<MatrixData>,
+                         valid_measurements_reference: &mut Vec<bool>,
+                         valid_measurements_target: &Vec<bool>,
                          image_reference:  &DMatrix<MatrixData>,
                          image_target:  &DMatrix<MatrixData>,
                          projection_onto_target: NormalizedImageCoordinates,

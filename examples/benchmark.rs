@@ -67,8 +67,8 @@ fn main() {
     let runs = 100;
     println!("starting solve");
     let now = Instant::now();
-    for i in 0..runs {
-        let (SE3, lie)
+    for _ in 0..runs {
+        let (_SE3, _lie)
             = solve(&reference_frame,
                     &target_frame,
                     camera,

@@ -2,7 +2,6 @@ extern crate nalgebra as na;
 
 use na::{Matrix,Matrix1x2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,Matrix3x6,U3,U6,DVector, VecStorage};
 use crate::{MatrixData,HomogeneousBackProjections};
-use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
 pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<MatrixData>, px: usize, py: usize) -> Matrix1x2<MatrixData> {
@@ -12,10 +11,10 @@ pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<Mat
     return Matrix1x2::<MatrixData>::new(gx, gy);
 }
 
-//TODO: @Investigate -> Boxing might not be necessary since Vec is of known size
+
 #[allow(non_snake_case)]
 pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &HomogeneousBackProjections)
-                             -> Box<Vec<Matrix2x3<MatrixData>>> {
+                             -> Vec<Matrix2x3<MatrixData>> {
     let N = world_points.ncols();
     let fx = camera_intrinsics.fx();
     let fy = camera_intrinsics.fy();
@@ -37,10 +36,10 @@ pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &Homo
                                                           0.0, v11, v12);
         persp_jacobians.push(persp_jacobian);
     }
-    Box::new(persp_jacobians)
+    //Box::new(persp_jacobians)
+    persp_jacobians
 }
 
-//TODO: @Investigate -> Boxing might be necessary since Vec is very large
 #[allow(non_snake_case)]
 pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
                      generator_y: Matrix3x4<MatrixData>,
@@ -49,7 +48,7 @@ pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
                      generator_pitch: Matrix3x4<MatrixData>,
                      generator_yaw: Matrix3x4<MatrixData>,
                      Y_est: &HomogeneousBackProjections)
-                     -> Box<Vec<Matrix3x6<MatrixData>>> {
+                     -> Vec<Matrix3x6<MatrixData>> {
     let N = Y_est.ncols();
 
     let G_1_y = generator_x*Y_est;
@@ -83,7 +82,8 @@ pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
         G_vec.push(G_sub);
     }
 
-    Box::new(G_vec)
+    //Box::new(G_vec)
+    G_vec
 }
 
 fn stack_columns(m: Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>)
