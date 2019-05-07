@@ -36,7 +36,6 @@ pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &Homo
                                                           0.0, v11, v12);
         persp_jacobians.push(persp_jacobian);
     }
-    //Box::new(persp_jacobians)
     persp_jacobians
 }
 
@@ -82,7 +81,6 @@ pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
         G_vec.push(G_sub);
     }
 
-    //Box::new(G_vec)
     G_vec
 }
 
