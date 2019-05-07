@@ -76,7 +76,7 @@ fn main() {
                 100000.0,
                 100,
                 0,
-                true);
+                false);
     let solver_duration = now.elapsed().as_millis();
     println!("Solver duration: {} ms",solver_duration);
     println!("{}",SE3);
