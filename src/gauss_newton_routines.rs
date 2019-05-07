@@ -16,7 +16,7 @@ pub fn back_project(camera_reference: Camera,
                     image_width: usize,
                     image_height: usize,
                     max_depth: MatrixData)
-                    -> (HomogeneousBackProjections, Box<Vec<bool>>, Box<Vec<bool>>) {
+                    -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
             true => 1.0,
@@ -57,7 +57,7 @@ pub fn back_project(camera_reference: Camera,
     }
 
     let back_projections = HomogeneousBackProjections::from_vec(P_vec);
-    (back_projections, Box::new(valid_measurements_reference), Box::new(valid_measurements_target))
+    (back_projections, valid_measurements_reference, valid_measurements_target)
 }
 
 // @GPU
