@@ -3,6 +3,7 @@ use png::{self, HasParameters};
 use std::{self, fs::File, io::Cursor,path::Path, path::PathBuf};
 use std::io;
 use std::fs::read_dir;
+use crate::MatrixData;
 
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
@@ -56,5 +57,13 @@ pub fn get_file_list_in_dir(image_folder_path: PathBuf) -> io::Result<Vec<String
 
 fn is_valid_file(file_name: &str) -> bool {
     !(file_name == ".DS_Store" || file_name == "._.DS_Store")
+}
+
+pub fn file_name_to_float(filename: &str) -> f64 {
+    let splits = filename.split(".");
+    let vec: Vec<&str> = splits.collect();
+    let float_str = format!("{}.{}",vec[0],vec[1]);
+    float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
+
 }
 

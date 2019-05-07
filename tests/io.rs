@@ -1,4 +1,4 @@
-use visual_odometry::io::get_file_list_in_dir;
+use visual_odometry::io::{get_file_list_in_dir,file_name_to_float};
 
 #[test]
 fn generate_image_lists() {
@@ -21,8 +21,11 @@ fn generate_image_lists() {
     let color_files = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let depth_files = get_file_list_in_dir(depth_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
 
-    assert_eq!(color_files.len(),3);
-    assert_eq!(depth_files.len(),3)
+    let image_str = color_files[0].clone();
+    let float = file_name_to_float(&image_str);
 
+    assert_eq!(float,1311868174.699578);
+    assert_eq!(color_files.len(),3);
+    assert_eq!(depth_files.len(),3);
 
 }
