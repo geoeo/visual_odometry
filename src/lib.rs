@@ -27,13 +27,13 @@ pub type HomogeneousBackProjections = Matrix<MatrixData, U4, Dynamic, VecStorage
 pub struct Frame {
     pub intensity : Image,
     pub depth : Image,
-    pub gradient_x : Option<Image>,
-    pub gradient_y : Option<Image>
+    pub gradient_x : Image,
+    pub gradient_y : Image
 }
 
 #[allow(non_snake_case)]
-pub fn solve(reference: Frame,
-             target: Frame,
+pub fn solve(reference: &Frame,
+             target: &Frame,
              camera: Camera,
              max_its: usize,
              eps: MatrixData,
@@ -68,9 +68,6 @@ pub fn solve(reference: Frame,
     let generator_pitch = generator_pitch_neg();
     let generator_yaw = generator_yaw();
 
-    let gradient_x_reference = reference.gradient_x.unwrap().buffer;
-    let gradient_y_reference = reference.gradient_y.unwrap().buffer;
-
     let (back_projections,
         mut valid_measurements_reference,
         valid_measurements_target)
@@ -101,8 +98,8 @@ pub fn solve(reference: Frame,
             = gauss_newton_step(&residuals,
                                 &valid_measurements_reference,
                                 &valid_measurements_target,
-                                &gradient_x_reference,
-                                &gradient_y_reference,
+                                &reference.gradient_x.buffer,
+                                &reference.gradient_y.buffer,
                                 &J_lie_vec,
                                 &J_pi_vec,
                                 &weights,

@@ -2,7 +2,6 @@ extern crate nalgebra as na;
 
 use na::{Matrix,Matrix1x2,Matrix2x3,Dynamic,DMatrix, Matrix3x4,Matrix3x6,U3,U6,DVector, VecStorage};
 use crate::{MatrixData,HomogeneousBackProjections};
-use std::boxed::Box;
 use crate::camera::intrinsics::Intrinsics;
 
 pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<MatrixData>, px: usize, py: usize) -> Matrix1x2<MatrixData> {
