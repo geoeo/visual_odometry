@@ -36,7 +36,7 @@ fn check_encodings() {
     let image_path = "images/ferris.png";
 
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
-    let frame = Image::from_image(image, ImageFilter::None, false);
+    let frame = Image::from_image(&image, ImageFilter::None, false);
 
     let width = 2;
     let height= 2;

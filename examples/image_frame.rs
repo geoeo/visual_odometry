@@ -16,7 +16,8 @@ fn main() {
     let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
     image.save(gray_image_path).unwrap();
 
-    let frame = Image::from_image(image, ImageFilter::None, false);
+
+    let frame = Image::from_image(&image, ImageFilter::None, false);
     let new_image = frame.to_image();
 
     new_image.save(converted_file_out_path).unwrap();

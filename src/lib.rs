@@ -10,6 +10,7 @@ use crate::camera::Camera;
 use crate::jacobians::{perspective_jacobians, lie_jacobians};
 use crate::numerics::{isometry_from_parts, parts_from_isometry};
 use crate::numerics::weighting::{t_dist_variance,generate_weights};
+use crate::frame::Frame;
 
 pub mod image;
 pub mod numerics;
@@ -17,19 +18,13 @@ pub mod camera;
 pub mod jacobians;
 pub mod gauss_newton_routines;
 pub mod io;
+pub mod frame;
 
 pub type MatrixData = f64; //Rename this to Float?
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
 pub type NormalizedImageCoordinates = Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>;
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
 pub type HomogeneousBackProjections = Matrix<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>;
-
-pub struct Frame {
-    pub intensity : Image,
-    pub depth : Image,
-    pub gradient_x : Image,
-    pub gradient_y : Image
-}
 
 #[allow(non_snake_case)]
 pub fn solve(reference: &Frame,

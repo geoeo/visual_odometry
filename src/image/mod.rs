@@ -23,12 +23,12 @@ impl Image {
         Image { buffer, filter, is_standardized,original_encoding}
     }
 
-    pub fn from_image(image: GrayImage, filter: ImageFilter, standardize : bool) -> Image {
+    pub fn from_image(image: &GrayImage, filter: ImageFilter, standardize : bool) -> Image {
         let filter_type = select_filter(filter);
         let mut buffer =
             match filter_type {
                 None => image_to_matrix(image),
-                Some(filter) => image_to_matrix(filter3x3(&image,&filter))
+                Some(filter) => image_to_matrix(&filter3x3(image,&filter))
         };
 
         if standardize {
@@ -56,7 +56,7 @@ impl Image {
     }
 }
 
-fn image_to_matrix(gray_image: GrayImage) -> DMatrix<MatrixData> {
+fn image_to_matrix(gray_image: &GrayImage) -> DMatrix<MatrixData> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
     let (width, height) = gray_image.dimensions();
