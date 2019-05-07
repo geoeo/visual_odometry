@@ -1,6 +1,6 @@
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
-use std::{self, fs::File, io::Cursor, path::Path};
+use std::{self, fs::File, io::Cursor,path::Path, path::PathBuf};
 
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
@@ -21,6 +21,7 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     reader.next_frame(&mut buffer)?;
 
     // Transform buffer into 16 bits slice.
+    // Transform buffer into 16 bits slice.
     // if cfg!(target_endian = "big") ...
     let mut buffer_u16 = vec![0; (info.width * info.height) as usize];
     let mut buffer_cursor = Cursor::new(buffer);
@@ -29,3 +30,9 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     // Return u16 buffer.
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
+
+pub fn generate_image_depth_path_lists(image_folder_path: PathBuf, start_idx: String, extension: String, count: usize)
+    -> () {
+
+}
+

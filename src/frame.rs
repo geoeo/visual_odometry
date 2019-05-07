@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::PathBuf;
 use crate::{Image, MatrixData};
 use crate::image::types::ImageFilter;
 use crate::io::read_png_16bits_row_major;
@@ -10,10 +10,10 @@ pub struct Frame {
     pub gradient_y : Image
 }
 
-pub fn load_frames(reference_image_paths: &Vec<String>,
-                   reference_depth_paths: &Vec<String>,
-                   target_image_paths: &Vec<String>,
-                   target_depth_paths: &Vec<String>,
+pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
+                   reference_depth_paths: &Vec<PathBuf>,
+                   target_image_paths: &Vec<PathBuf>,
+                   target_depth_paths: &Vec<PathBuf>,
                    depth_factor: MatrixData)
     -> (Vec<Frame>, Vec<Frame>, Vec<MatrixData>) {
     assert_eq!(reference_image_paths.len(),target_image_paths.len());
@@ -32,12 +32,12 @@ pub fn load_frames(reference_image_paths: &Vec<String>,
         let target_image_path = &target_image_paths[i];
         let target_depth_path = &target_depth_paths[i];
 
-        let image_ref = image::open(&Path::new(&reference_image_path)).unwrap().to_luma();
+        let image_ref = image::open(reference_image_path).unwrap().to_luma();
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)
             .unwrap_or_else(|_| panic!("Could not read image"));
 
-        let image_2 = image::open(&Path::new(&target_image_path)).unwrap().to_luma();
+        let image_2 = image::open(target_image_path).unwrap().to_luma();
         let (_,_,target_depth)
             = read_png_16bits_row_major(target_depth_path)
             .unwrap_or_else(|_| panic!("Could not read image"));
