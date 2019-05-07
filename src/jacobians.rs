@@ -11,10 +11,9 @@ pub fn image_jacobian(gradient_x: &DMatrix<MatrixData>, gradient_y: &DMatrix<Mat
     return Matrix1x2::<MatrixData>::new(gx, gy);
 }
 
-//TODO: @Investigate -> Boxing might not be necessary since Vec is of known size
+
 #[allow(non_snake_case)]
 pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &HomogeneousBackProjections)
-                             //-> Box<Vec<Matrix2x3<MatrixData>>> {
                              -> Vec<Matrix2x3<MatrixData>> {
     let N = world_points.ncols();
     let fx = camera_intrinsics.fx();
@@ -41,7 +40,6 @@ pub fn perspective_jacobians(camera_intrinsics: &Intrinsics, world_points: &Homo
     persp_jacobians
 }
 
-//TODO: @Investigate -> Boxing might be necessary since Vec is very large
 #[allow(non_snake_case)]
 pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
                      generator_y: Matrix3x4<MatrixData>,
@@ -50,7 +48,6 @@ pub fn lie_jacobians(generator_x: Matrix3x4<MatrixData>,
                      generator_pitch: Matrix3x4<MatrixData>,
                      generator_yaw: Matrix3x4<MatrixData>,
                      Y_est: &HomogeneousBackProjections)
-                     //-> Box<Vec<Matrix3x6<MatrixData>>> {
                      -> Vec<Matrix3x6<MatrixData>> {
     let N = Y_est.ncols();
 
