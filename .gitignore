@@ -2,6 +2,7 @@
 **/*.rs.bk
 .idea/*
 output/*
+profiling/*.stacks
 Cargo.lock
 cmake-build-debug/
 .DS_Store
