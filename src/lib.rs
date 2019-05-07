@@ -55,8 +55,8 @@ pub fn solve(reference: &Frame,
     fn gen_vec_zeros(size: usize) -> Vec<MatrixData> { vec![0.0 as MatrixData;size] };
     fn gen_vec_ones(size: usize) -> Vec<MatrixData> { vec![1.0 as MatrixData;size] };
 
-    let mut residuals = Box::new(gen_vec_zeros(N));
-    let mut weights = Box::new(gen_vec_ones(N));
+    let mut residuals = gen_vec_zeros(N);
+    let mut weights = gen_vec_ones(N);
     let mut res_squared_mean = std::f32::MAX as MatrixData;
     let degrees_of_freedom = 5; // empirically derived: see paper Robust VO for RGBD
 

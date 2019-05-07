@@ -71,7 +71,7 @@ pub fn gauss_newton_step(residuals: &Vec<MatrixData>,
                          image_gradient_y_target: &DMatrix<MatrixData>,
                          J_lie_vec: &Vec<Matrix3x6<MatrixData>>,
                          J_pi_vec: &Vec<Matrix2x3<MatrixData>>,
-                         weights: &Box<Vec<MatrixData>>,
+                         weights: &Vec<MatrixData>,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize)
