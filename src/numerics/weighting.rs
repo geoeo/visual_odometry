@@ -3,7 +3,7 @@ extern crate nalgebra as na;
 use crate::MatrixData;
 
 // @GPU
-pub fn generate_weights(residuals: &Box<Vec<MatrixData>>, weights: &mut Box<Vec<MatrixData>>,  variance: MatrixData, degrees_of_freedom: usize)
+pub fn generate_weights(residuals: &Vec<MatrixData>, weights: &mut Vec<MatrixData>,  variance: MatrixData, degrees_of_freedom: usize)
     -> () {
     let numerator = (degrees_of_freedom + 1) as MatrixData;
     let number_of_samples = residuals.len();
@@ -16,9 +16,9 @@ pub fn generate_weights(residuals: &Box<Vec<MatrixData>>, weights: &mut Box<Vec<
     }
 }
 
-pub fn t_dist_variance(residuals: &Box<Vec<MatrixData>>,
-                       valid_measurements_reference: &Box<Vec<bool>>,
-                       valid_measurements_target: &Box<Vec<bool>>,
+pub fn t_dist_variance(residuals: &Vec<MatrixData>,
+                       valid_measurements_reference: &Vec<bool>,
+                       valid_measurements_target: &Vec<bool>,
                        number_of_valid_measurements: usize,
                        degrees_of_freedom: usize,
                        variance_min: MatrixData,
@@ -43,9 +43,9 @@ pub fn t_dist_variance(residuals: &Box<Vec<MatrixData>>,
 }
 
 #[allow(non_snake_case)]
-fn t_dist_variance_step(residuals: &Box<Vec<MatrixData>>,
-                        valid_measurements_reference: &Box<Vec<bool>>,
-                        valid_measurements_target: &Box<Vec<bool>>,
+fn t_dist_variance_step(residuals: &Vec<MatrixData>,
+                        valid_measurements_reference: &Vec<bool>,
+                        valid_measurements_target: &Vec<bool>,
                         number_of_valid_measurements: usize,
                         degrees_of_freedom: usize,
                         variance_prev: MatrixData) -> MatrixData {
