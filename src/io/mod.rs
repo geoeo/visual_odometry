@@ -1,6 +1,8 @@
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
 use std::{self, fs::File, io::Cursor,path::Path, path::PathBuf};
+use std::io;
+use std::fs::read_dir;
 
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
@@ -31,8 +33,28 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
 
-pub fn generate_image_depth_path_lists(image_folder_path: PathBuf, start_idx: String, extension: String, count: usize)
-    -> () {
+pub fn get_file_list_in_dir(image_folder_path: PathBuf) -> io::Result<Vec<String>> {
 
+    let mut file_vec: Vec<String> = Vec::new();
+    for entry in read_dir(image_folder_path)? {
+        let entry = entry?;
+        let path = entry.path();
+        if path.is_dir(){
+            continue;
+        } else {
+            let name = entry.file_name().into_string().unwrap_or_else(|_| panic!("Error reading filename"));
+            if is_valid_file(&name) {
+                file_vec.push(name);
+            }
+
+        }
+    }
+
+    Ok(file_vec)
+
+}
+
+fn is_valid_file(file_name: &str) -> bool {
+    !(file_name == ".DS_Store" || file_name == "._.DS_Store")
 }
 

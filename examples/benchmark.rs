@@ -17,10 +17,6 @@ fn main() {
     let image_folder = "images";
     let depth_folder = "images";
     let image_format = "png";
-    let image_name_1 = format!("{}.{}","1311868174.699578",image_format);
-    let depth_name_1 = format!("{}.{}","1311868174.687374",image_format);
-    let image_name_2 = format!("{}.{}","1311868174.731625",image_format);
-    let depth_name_2 = format!("{}.{}","1311868174.719933",image_format);
 
     let mut image_folder_path = current_dir.clone();
     let mut depth_folder_path = current_dir.clone();
@@ -33,6 +29,11 @@ fn main() {
     let mut image_2_path = image_folder_path.clone();
     let mut depth_2_path = depth_folder_path.clone();
 
+    let image_name_1 = format!("{}.{}","1311868174.699578",image_format);
+    let depth_name_1 = format!("{}.{}","1311868174.687374",image_format);
+    let image_name_2 = format!("{}.{}","1311868174.731625",image_format);
+    let depth_name_2 = format!("{}.{}","1311868174.719933",image_format);
+
     image_1_path.push(image_name_1);
     depth_1_path.push(depth_name_1);
     image_2_path.push(image_name_2);
@@ -44,10 +45,9 @@ fn main() {
     let target_depth_paths: Vec<PathBuf> = vec!(depth_2_path);
     //TODO --
 
-
     let depth_factor = 5000.0;
 
-    let (reference_frames, target_frames,max_depths)
+    let (reference_frames, target_frames, max_depths)
         = load_frames(&reference_image_paths,
                       &reference_depth_paths,
                       &target_image_paths,
@@ -60,7 +60,7 @@ fn main() {
     let fy = 521.0;
     let ox = 321.5;
     let oy = 249.7;
-    let intrinsics = Intrinsics::new(fx,fy,ox,oy);
+    let intrinsics = Intrinsics::new(fx, fy, ox, oy);
     let camera = Camera{intrinsics};
 
     let runs = 20;
