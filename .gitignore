@@ -3,6 +3,7 @@
 .idea/*
 output/*
 profiling/*.stacks
+profiling/out.svg
 Cargo.lock
 cmake-build-debug/
 .DS_Store
