@@ -1,6 +1,6 @@
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
-use std::{self, fs::File, io::Cursor,path::Path, path::PathBuf};
+use std::{self, fs::File, io::Cursor,path::Path};
 use std::io;
 use std::fs::read_dir;
 
@@ -33,7 +33,7 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
 
-pub fn get_file_list_in_dir(image_folder_path: PathBuf) -> io::Result<Vec<String>> {
+pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<Vec<String>> {
 
     let mut file_vec: Vec<String> = Vec::new();
     for entry in read_dir(image_folder_path)? {
@@ -64,7 +64,7 @@ pub fn file_name_to_float(filename: &str) -> f64 {
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
-pub fn associate_file_name(image_folder_path: PathBuf, file_name: &str)-> io::Result<String> {
+pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, file_name: &str)-> io::Result<String> {
     let file_name_list = get_file_list_in_dir(image_folder_path)?;
     let file_name_to_match_as_float = file_name_to_float(file_name);
     let time_stamp_differences: Vec<f64>
