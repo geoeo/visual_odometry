@@ -1,4 +1,4 @@
-use crate::MatrixData;
+use crate::Float;
 
 #[repr(u16)]
 #[derive(Debug,Copy,Clone)]
@@ -19,14 +19,14 @@ pub enum ImageEncoding {
 
 impl ImageEncoding {
     // https://en.wikipedia.org/wiki/Normalization_(image_processing)
-    pub fn normalize_to_gray(&self, value: MatrixData) -> u8 {
+    pub fn normalize_to_gray(&self, value: Float) -> u8 {
         let max
             = match self {
             ImageEncoding::U8 => 255,
             ImageEncoding::U16 => 65535 // 256*256-1
-        } as MatrixData;
+        } as Float;
 
-        let range = 255 as MatrixData; // 255 - 0
+        let range = 255 as Float; // 255 - 0
         (value * range / max) as u8
     }
 }

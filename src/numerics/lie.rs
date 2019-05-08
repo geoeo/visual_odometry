@@ -1,86 +1,86 @@
 extern crate nalgebra as na;
 
 use na::{Matrix3x4, Vector6, Matrix3, Vector3};
-use crate::MatrixData;
+use crate::Float;
 use super::skew_symmetric;
 
-pub fn generator_x() -> Matrix3x4<MatrixData> {
+pub fn generator_x() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 1.0,
                    0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_x_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_x_neg() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, -1.0,
                    0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_y() -> Matrix3x4<MatrixData> {
+pub fn generator_y() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 1.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_y_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_y_neg() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, -1.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_z() -> Matrix3x4<MatrixData> {
+pub fn generator_z() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 1.0)
 }
 
-pub fn generator_z_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_z_neg() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, -1.0)
 }
 
 // rotation around X
-pub fn generator_roll() -> Matrix3x4<MatrixData> {
+pub fn generator_roll() -> Matrix3x4<Float> {
     return Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                           0.0, 0.0, -1.0, 0.0,
                           0.0, 1.0, 0.0, 0.0);
 }
 
-pub fn generator_roll_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_roll_neg() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 1.0, 0.0,
                    0.0, -1.0, 0.0, 0.0)
 }
 
 // rotation around Y
-pub fn generator_pitch() -> Matrix3x4<MatrixData> {
+pub fn generator_pitch() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 0.0, 1.0, 0.0,
                    0.0, 0.0, 0.0, 0.0,
                    -1.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_pitch_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_pitch_neg() -> Matrix3x4<Float> {
     return Matrix3x4::new(0.0, 0.0, -1.0, 0.0,
                           0.0, 0.0, 0.0, 0.0,
                           1.0, 0.0, 0.0, 0.0);
 }
 
 // rotation around Z
-pub fn generator_yaw() -> Matrix3x4<MatrixData> {
+pub fn generator_yaw() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, -1.0, 0.0, 0.0,
                    1.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
-pub fn generator_yaw_neg() -> Matrix3x4<MatrixData> {
+pub fn generator_yaw_neg() -> Matrix3x4<Float> {
     Matrix3x4::new(0.0, 1.0, 0.0, 0.0,
                    -1.0, 0.0, 0.0, 0.0,
                    0.0, 0.0, 0.0, 0.0)
 }
 
 #[allow(non_snake_case)]
-pub fn exp(v_lie: Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixData>) {
+pub fn exp(v_lie: Vector6<Float>) -> (Matrix3<Float>, Vector3<Float>) {
     let u = Vector3::from(v_lie.fixed_rows::<na::U3>(0));
     let w = Vector3::from(v_lie.fixed_rows::<na::U3>(3));
 
@@ -105,8 +105,8 @@ pub fn exp(v_lie: Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixDa
     } else { 0.0 };
 
     //TODO: when calls in const become available refactor identity()
-    let SO3_new = Matrix3::<MatrixData>::identity() + a * W_x + b * W_x_squared;
-    let V: Matrix3<MatrixData> = Matrix3::<MatrixData>::identity() + b * W_x + c * W_x_squared;
+    let SO3_new = Matrix3::<Float>::identity() + a * W_x + b * W_x_squared;
+    let V: Matrix3<Float> = Matrix3::<Float>::identity() + b * W_x + c * W_x_squared;
 
     let t = V * u;
 
@@ -114,7 +114,7 @@ pub fn exp(v_lie: Vector6<MatrixData>) -> (Matrix3<MatrixData>, Vector3<MatrixDa
 }
 
 #[allow(non_snake_case)]
-pub fn ln(SO3: Matrix3<MatrixData>, t: Vector3<MatrixData>) -> Vector6<MatrixData> {
+pub fn ln(SO3: Matrix3<Float>, t: Vector3<Float>) -> Vector6<Float> {
     let trace = SO3.trace();
     let theta = ((trace - 1.0) / 2.0).acos();
     let theta_squared = theta * theta;
@@ -126,7 +126,7 @@ pub fn ln(SO3: Matrix3<MatrixData>, t: Vector3<MatrixData>) -> Vector6<MatrixDat
         if theta != 0.0 {
             (theta / (2.0 * theta.sin())) * (SO3 - SO3_t)
         } else {
-            Matrix3::<MatrixData>::identity()
+            Matrix3::<Float>::identity()
         };
 
     let w_3 = *ln_r.index((2, 1));
@@ -148,7 +148,7 @@ pub fn ln(SO3: Matrix3<MatrixData>, t: Vector3<MatrixData>) -> Vector6<MatrixDat
         (1.0 / theta_squared) * (1.0 - (a / (2.0 * b)))
     } else { 0.0 };
 
-    let V_inv = Matrix3::<MatrixData>::identity() - 0.5 * W_x + coeff * W_x_squared;
+    let V_inv = Matrix3::<Float>::identity() - 0.5 * W_x + coeff * W_x_squared;
 
     let u = V_inv * t;
 
@@ -156,5 +156,5 @@ pub fn ln(SO3: Matrix3<MatrixData>, t: Vector3<MatrixData>) -> Vector6<MatrixDat
     let w_1 = *u.index(1);
     let w_2 = *u.index(2);
 
-    Vector6::<MatrixData>::new(w_0, w_1, w_2, w_3, w_4, w_5)
+    Vector6::<Float>::new(w_0, w_1, w_2, w_3, w_4, w_5)
 }

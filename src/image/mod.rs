@@ -8,18 +8,18 @@ use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
 use image::imageops::filter3x3;
 use na::DMatrix;
-use crate::MatrixData;
+use crate::Float;
 use crate::numerics::{z_standardize, row_major_index};
 use self::types::{ImageFilter,ImageEncoding};
 
 pub struct Image {
-    pub buffer: DMatrix<MatrixData>,
+    pub buffer: DMatrix<Float>,
     pub filter: ImageFilter,
     pub is_standardized : bool,
     pub original_encoding: ImageEncoding}
 
 impl Image {
-    pub fn new(buffer: DMatrix<MatrixData>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
+    pub fn new(buffer: DMatrix<Float>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
         Image { buffer, filter, is_standardized,original_encoding}
     }
 
@@ -56,37 +56,37 @@ impl Image {
     }
 }
 
-fn image_to_matrix(gray_image: &GrayImage) -> DMatrix<MatrixData> {
+fn image_to_matrix(gray_image: &GrayImage) -> DMatrix<Float> {
     debug_assert!(gray_image.sample_layout().is_normal(NormalForm::RowMajorPacked));
 
     let (width, height) = gray_image.dimensions();
     let size = (width * height) as usize;
-    let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
+    let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
     for x in 0..width {
         for y in 0..height {
             let pixel = gray_image.get_pixel(x, y);
             let pixel_value = pixel.data[0];
-            vec_column_major.push(pixel_value as MatrixData);
+            vec_column_major.push(pixel_value as Float);
         }
     }
-    DMatrix::<MatrixData>::from_vec(height as usize,width as usize,vec_column_major)
+    DMatrix::<Float>::from_vec(height as usize, width as usize, vec_column_major)
 }
 
 // byte size hardcoded for now
-fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<MatrixData> {
+fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<Float> {
     let size = width*height;
-    let mut vec_column_major: Vec<MatrixData> = Vec::with_capacity(size);
+    let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
     for x in 0..width {
         for y in 0..height {
             let idx = row_major_index(y,x,width);
             let pixel_value = vec_16[idx];
-            vec_column_major.push(pixel_value as MatrixData);
+            vec_column_major.push(pixel_value as Float);
         }
     }
-    DMatrix::<MatrixData>::from_vec(height,width ,vec_column_major)
+    DMatrix::<Float>::from_vec(height, width, vec_column_major)
 }
 
-fn matrix_to_image(matrix: &DMatrix<MatrixData>, encoding: ImageEncoding) -> GrayImage {
+fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();

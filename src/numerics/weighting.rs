@@ -1,29 +1,29 @@
 extern crate nalgebra as na;
 
-use crate::MatrixData;
+use crate::Float;
 
 // @GPU
-pub fn generate_weights(residuals: &Vec<MatrixData>, weights: &mut Vec<MatrixData>,  variance: MatrixData, degrees_of_freedom: usize)
-    -> () {
-    let numerator = (degrees_of_freedom + 1) as MatrixData;
+pub fn generate_weights(residuals: &Vec<Float>, weights: &mut Vec<Float>, variance: Float, degrees_of_freedom: usize)
+                        -> () {
+    let numerator = (degrees_of_freedom + 1) as Float;
     let number_of_samples = residuals.len();
     for i in 0..number_of_samples {
         let residual = residuals[i];
         let temp = residual / variance;
         let temp_sqrd = temp*temp;
         let frac = temp_sqrd/variance;
-        weights[i] = numerator / (degrees_of_freedom as MatrixData + frac);
+        weights[i] = numerator / (degrees_of_freedom as Float + frac);
     }
 }
 
-pub fn t_dist_variance(residuals: &Vec<MatrixData>,
+pub fn t_dist_variance(residuals: &Vec<Float>,
                        valid_measurements_reference: &Vec<bool>,
                        valid_measurements_target: &Vec<bool>,
                        number_of_valid_measurements: usize,
                        degrees_of_freedom: usize,
-                       variance_min: MatrixData,
-                       eps: MatrixData,
-                       max_it: usize) -> MatrixData {
+                       variance_min: Float,
+                       eps: Float,
+                       max_it: usize) -> Float {
     let mut variance = variance_min;
     let mut variance_prev = variance_min;
     for _ in 0..max_it {
@@ -43,13 +43,13 @@ pub fn t_dist_variance(residuals: &Vec<MatrixData>,
 }
 
 #[allow(non_snake_case)]
-fn t_dist_variance_step(residuals: &Vec<MatrixData>,
+fn t_dist_variance_step(residuals: &Vec<Float>,
                         valid_measurements_reference: &Vec<bool>,
                         valid_measurements_target: &Vec<bool>,
                         number_of_valid_measurements: usize,
                         degrees_of_freedom: usize,
-                        variance_prev: MatrixData) -> MatrixData {
-    let numerator = degrees_of_freedom as MatrixData + 1.0;
+                        variance_prev: Float) -> Float {
+    let numerator = degrees_of_freedom as Float + 1.0;
     let mut variance = variance_prev;
     let N = residuals.len();
     for i in 0..N {
@@ -58,9 +58,9 @@ fn t_dist_variance_step(residuals: &Vec<MatrixData>,
         }
         let res = residuals[i];
         let res_sqrd = res * res;
-        let denominator = (degrees_of_freedom as MatrixData) + (res_sqrd / variance_prev);
+        let denominator = (degrees_of_freedom as Float) + (res_sqrd / variance_prev);
         variance += (numerator / denominator) * res_sqrd;
     }
-    variance / (number_of_valid_measurements as MatrixData)
+    variance / (number_of_valid_measurements as Float)
 }
 

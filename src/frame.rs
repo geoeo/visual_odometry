@@ -1,5 +1,5 @@
 use std::path::PathBuf;
-use crate::{Image, MatrixData};
+use crate::{Image, Float};
 use crate::image::types::ImageFilter;
 use crate::io::read_png_16bits_row_major;
 
@@ -14,8 +14,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
                    reference_depth_paths: &Vec<PathBuf>,
                    target_image_paths: &Vec<PathBuf>,
                    target_depth_paths: &Vec<PathBuf>,
-                   depth_factor: MatrixData)
-    -> (Vec<Frame>, Vec<Frame>, Vec<MatrixData>) {
+                   depth_factor: Float)
+    -> (Vec<Frame>, Vec<Frame>, Vec<Float>) {
     assert_eq!(reference_image_paths.len(),target_image_paths.len());
     assert_eq!(reference_depth_paths.len(),target_depth_paths.len());
     assert_eq!(reference_image_paths.len(),reference_depth_paths.len());
@@ -24,7 +24,7 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
 
     let mut reference_frames: Vec<Frame> = Vec::with_capacity(samples);
     let mut target_frames: Vec<Frame> = Vec::with_capacity(samples);
-    let mut max_depths: Vec<MatrixData> = Vec::with_capacity(samples);
+    let mut max_depths: Vec<Float> = Vec::with_capacity(samples);
 
     for i in 0..samples {
         let reference_image_path = &reference_image_paths[i];

@@ -20,39 +20,39 @@ pub mod gauss_newton_routines;
 pub mod io;
 pub mod frame;
 
-pub type MatrixData = f64; //Rename this to Float?
+pub type Float = f64; //Rename this to Float?
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
-pub type NormalizedImageCoordinates = Matrix<MatrixData, U3, Dynamic, VecStorage<MatrixData, U3, Dynamic>>;
+pub type NormalizedImageCoordinates = Matrix<Float, U3, Dynamic, VecStorage<Float, U3, Dynamic>>;
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
-pub type HomogeneousBackProjections = Matrix<MatrixData, U4, Dynamic, VecStorage<MatrixData, U4, Dynamic>>;
+pub type HomogeneousBackProjections = Matrix<Float, U4, Dynamic, VecStorage<Float, U4, Dynamic>>;
 
 #[allow(non_snake_case)]
 pub fn solve(reference: &Frame,
              target: &Frame,
              camera: Camera,
              max_its: usize,
-             eps: MatrixData,
-             alpha_step: MatrixData,
-             max_depth: MatrixData,
-             var_eps: MatrixData,
-             var_min: MatrixData,
+             eps: Float,
+             alpha_step: Float,
+             max_depth: Float,
+             var_eps: Float,
+             var_min: Float,
              max_its_var: usize,
              image_range_offset: usize,
              print_runtime_info: bool)
-    -> (Matrix4<MatrixData>, Vector6<MatrixData>) {
-    let mut lie = Vector6::<MatrixData>::zeros();
-    let mut SE3 = Matrix4::<MatrixData>::identity();
+             -> (Matrix4<Float>, Vector6<Float>) {
+    let mut lie = Vector6::<Float>::zeros();
+    let mut SE3 = Matrix4::<Float>::identity();
 
     let image_width = reference.intensity.buffer.ncols();
     let image_height = reference.intensity.buffer.nrows();
     let N = image_width*image_height;
 
-    fn gen_vec_zeros(size: usize) -> Vec<MatrixData> { vec![0.0 as MatrixData;size] };
-    fn gen_vec_ones(size: usize) -> Vec<MatrixData> { vec![1.0 as MatrixData;size] };
+    fn gen_vec_zeros(size: usize) -> Vec<Float> { vec![0.0 as Float; size] };
+    fn gen_vec_ones(size: usize) -> Vec<Float> { vec![1.0 as Float; size] };
 
     let mut residuals = gen_vec_zeros(N);
     let mut weights = gen_vec_ones(N);
-    let mut res_squared_mean = std::f32::MAX as MatrixData;
+    let mut res_squared_mean = std::f32::MAX as Float;
     let degrees_of_freedom = 5; // empirically derived: see paper Robust VO for RGBD
 
     // We want RHS coordiante system. As such, we invert Z and Pitch
@@ -125,7 +125,7 @@ pub fn solve(reference: &Frame,
                           image_range_offset);
 
         let number_of_valid_measurements = valid_measurements_reference.iter().fold(0, |acc,x| acc + *x as usize);
-        let valid_pixel_ratio =  number_of_valid_measurements as MatrixData/ N as MatrixData;
+        let valid_pixel_ratio =  number_of_valid_measurements as Float / N as Float;
         if valid_pixel_ratio < 0.0 {
             panic!("All pixels are invalid!")
         }
@@ -152,7 +152,7 @@ pub fn solve(reference: &Frame,
         }
 
         let res_squared_mean_prev = res_squared_mean;
-        res_squared_mean = res_sum_squared/number_of_valid_measurements as MatrixData;
+        res_squared_mean = res_sum_squared/number_of_valid_measurements as Float;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
 

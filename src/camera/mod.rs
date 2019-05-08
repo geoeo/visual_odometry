@@ -3,7 +3,7 @@ extern crate nalgebra as na;
 pub mod intrinsics;
 
 use intrinsics::Intrinsics;
-use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
+use crate::{Float, NormalizedImageCoordinates, HomogeneousBackProjections};
 use self::na::Vector3;
 
 //TODO: @Invest -> refactor intrinsics into Camera
@@ -35,8 +35,8 @@ impl Camera {
         persp_points
     }
 
-    pub fn back_project_pixel(&self, x : MatrixData, y : MatrixData, Z : MatrixData) -> Vector3<MatrixData> {
-        let nic = Vector3::<MatrixData>::new(x,y,1.0);
+    pub fn back_project_pixel(&self, x : Float, y : Float, Z : Float) -> Vector3<Float> {
+        let nic = Vector3::<Float>::new(x, y, 1.0);
         let X = self.intrinsics.K_inv*nic;
         Z*X
     }

@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 
 use na::{DMatrix,Vector6,Matrix6,Matrix3x6,Matrix2x3};
-use crate::{MatrixData,NormalizedImageCoordinates,HomogeneousBackProjections};
+use crate::{Float, NormalizedImageCoordinates, HomogeneousBackProjections};
 use crate::camera::Camera;
 use crate::numerics::column_major_index;
 use crate::jacobians::*;
@@ -11,11 +11,11 @@ use crate::jacobians::*;
 // As such it is allocating.
 #[allow(non_snake_case)]
 pub fn back_project(camera_reference: Camera,
-                    depth_image_reference: &DMatrix<MatrixData>,
-                    depth_image_target: &DMatrix<MatrixData>,
+                    depth_image_reference: &DMatrix<Float>,
+                    depth_image_target: &DMatrix<Float>,
                     image_width: usize,
                     image_height: usize,
-                    max_depth: MatrixData)
+                    max_depth: Float)
                     -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
@@ -23,7 +23,7 @@ pub fn back_project(camera_reference: Camera,
             false => -1.0
         };
     let N = image_width * image_height;
-    let mut P_vec: Vec<MatrixData> = Vec::with_capacity(4 * N);
+    let mut P_vec: Vec<Float> = Vec::with_capacity(4 * N);
     let mut valid_measurements_reference: Vec<bool> = Vec::with_capacity(N);
     let mut valid_measurements_target: Vec<bool> = Vec::with_capacity(N);
 
@@ -48,7 +48,7 @@ pub fn back_project(camera_reference: Camera,
 
             let Z = depth_reference;
 
-            let P = camera_reference.back_project_pixel(x as MatrixData, y as MatrixData, Z);
+            let P = camera_reference.back_project_pixel(x as Float, y as Float, Z);
             P_vec.push(*P.index(0));
             P_vec.push(*P.index(1));
             P_vec.push(*P.index(2));
@@ -64,20 +64,20 @@ pub fn back_project(camera_reference: Camera,
 //TODO @Investigate -> Trying stack allocated g and H
 #[allow(non_snake_case)]
 
-pub fn gauss_newton_step(residuals: &Vec<MatrixData>,
+pub fn gauss_newton_step(residuals: &Vec<Float>,
                          valid_measurements_reference: &Vec<bool>,
                          valid_measurements_target: &Vec<bool>,
-                         image_gradient_x_target: &DMatrix<MatrixData>,
-                         image_gradient_y_target: &DMatrix<MatrixData>,
-                         J_lie_vec: &Vec<Matrix3x6<MatrixData>>,
-                         J_pi_vec: &Vec<Matrix2x3<MatrixData>>,
-                         weights: &Vec<MatrixData>,
+                         image_gradient_x_target: &DMatrix<Float>,
+                         image_gradient_y_target: &DMatrix<Float>,
+                         J_lie_vec: &Vec<Matrix3x6<Float>>,
+                         J_pi_vec: &Vec<Matrix2x3<Float>>,
+                         weights: &Vec<Float>,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize)
-    -> (Vector6<MatrixData>,Matrix6<MatrixData>) {
-    let mut g = Vector6::<MatrixData>::zeros();
-    let mut H = Matrix6::<MatrixData>::zeros();
+                         -> (Vector6<Float>, Matrix6<Float>) {
+    let mut g = Vector6::<Float>::zeros();
+    let mut H = Matrix6::<Float>::zeros();
 
     for x in image_range_offset..(image_width-image_range_offset) {
         for y in image_range_offset..(image_height-image_range_offset) {
@@ -102,16 +102,16 @@ pub fn gauss_newton_step(residuals: &Vec<MatrixData>,
 }
 
 // @GPU
-pub fn compute_residuals(residuals: &mut Vec<MatrixData>,
+pub fn compute_residuals(residuals: &mut Vec<Float>,
                          valid_measurements_reference: &mut Vec<bool>,
                          valid_measurements_target: &Vec<bool>,
-                         image_reference:  &DMatrix<MatrixData>,
-                         image_target:  &DMatrix<MatrixData>,
+                         image_reference:  &DMatrix<Float>,
+                         image_target:  &DMatrix<Float>,
                          projection_onto_target: NormalizedImageCoordinates,
                          image_width: usize,
                          image_height: usize,
                          image_range_offset: usize )
-    -> () {
+                         -> () {
     for x in image_range_offset..(image_width - image_range_offset) {
         for y in image_range_offset..(image_height - image_range_offset) {
             let flat_index = column_major_index(y, x, image_height);

@@ -5,17 +5,19 @@ extern crate visual_odometry;
 use std::time::Instant;
 use std::path::PathBuf;
 use visual_odometry::frame::load_frames;
-use visual_odometry::{solve, MatrixData};
+use visual_odometry::{solve, Float};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 
 #[allow(non_snake_case)]
 fn main() {
 
+    let runs = 20;
+
     //TODO -- Encapsulate this
     let current_dir = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
-    let image_folder = "images";
-    let depth_folder = "images";
+    let image_folder = "images/color";
+    let depth_folder = "images/depth";
     let image_format = "png";
 
     let mut image_folder_path = current_dir.clone();
@@ -63,7 +65,6 @@ fn main() {
     let intrinsics = Intrinsics::new(fx, fy, ox, oy);
     let camera = Camera{intrinsics};
 
-    let runs = 20;
     for i in 0..number_of_frames {
 
         println!("starting solve");
@@ -88,7 +89,7 @@ fn main() {
                         false);
         }
         let solver_duration = now.elapsed().as_millis();
-        let average_duration = solver_duration as MatrixData/runs as MatrixData;
+        let average_duration = solver_duration as Float /runs as Float;
         println!("Average Solver duration: {} ms/run for {} runs",average_duration, runs);
         //println!("{}",SE3);
         //println!("{}",lie)
