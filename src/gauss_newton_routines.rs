@@ -127,7 +127,6 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                 (image_range_offset < x) && (x < image_width - image_range_offset)) ||
                 !((image_range_offset < y_idx_target) && (y_idx_target < image_height - image_range_offset) &&
                     (image_range_offset < x_idx_target) && (x_idx_target < image_width - image_range_offset)) {
-                valid_measurements_reference[flat_index] = false;
                 continue;
             }
             valid_measurements_reference[flat_index] = true;

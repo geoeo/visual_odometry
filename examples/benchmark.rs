@@ -71,7 +71,7 @@ fn main() {
                         0.0001,
                         100000.0,
                         100,
-                        0,
+                        20,
                         false);
         }
         let solver_duration = now.elapsed().as_millis();
