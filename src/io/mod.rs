@@ -64,9 +64,9 @@ pub fn file_name_to_float(filename: &str) -> f64 {
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
-pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, file_name: &str)-> io::Result<String> {
-    let file_name_list = get_file_list_in_dir(image_folder_path)?;
-    let file_name_to_match_as_float = file_name_to_float(file_name);
+pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: &str)-> String {
+    let file_name_list = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("file association failed with: {}",time_stamp));
+    let file_name_to_match_as_float = file_name_to_float(time_stamp);
     let time_stamp_differences: Vec<f64>
         = file_name_list.iter()
         .map(|x| file_name_to_float(x))
@@ -78,7 +78,7 @@ pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, file_name: &str
         .enumerate()
         .fold((0, 100.0), |(ts_idx, acc), (i, x)| if *x < acc { (i, *x) } else { (ts_idx, acc) });
 
-    Ok(file_name_list[closet_match_idx].clone())
+    file_name_list[closet_match_idx].clone()
 }
 
 pub fn generate_folder_path(folder_path_relative_to_project: &str) -> PathBuf {
@@ -87,6 +87,14 @@ pub fn generate_folder_path(folder_path_relative_to_project: &str) -> PathBuf {
     image_folder_path.push(folder_path_relative_to_project);
 
     image_folder_path
+}
+
+pub fn generate_corresponding_depth_files(image_folder_path: PathBuf, depth_folder_path: PathBuf, start_file_name: &str, extension: &str, frame_count: usize) -> Vec<String> {
+    let start_file = format!("{}.{}",start_file_name,extension);
+    let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
+    let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
+    let selected_color_files = &color_files[start_idx..frame_count];
+    selected_color_files.iter().map(|x| associate_file_name(&depth_folder_path,x)).collect()
 }
 
 
