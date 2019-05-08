@@ -3,7 +3,6 @@ use png::{self, HasParameters};
 use std::{self, fs::File, io::Cursor,path::Path, path::PathBuf};
 use std::io;
 use std::fs::read_dir;
-use crate::MatrixData;
 
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
@@ -47,7 +46,6 @@ pub fn get_file_list_in_dir(image_folder_path: PathBuf) -> io::Result<Vec<String
             if is_valid_file(&name) {
                 file_vec.push(name);
             }
-
         }
     }
 
@@ -64,6 +62,24 @@ pub fn file_name_to_float(filename: &str) -> f64 {
     let vec: Vec<&str> = splits.collect();
     let float_str = format!("{}.{}",vec[0],vec[1]);
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
+}
 
+pub fn associate_file_name(image_folder_path: PathBuf, file_name: &str)-> io::Result<String> {
+    let file_name_list = get_file_list_in_dir(image_folder_path)?;
+    let file_name_to_match_as_float = file_name_to_float(file_name);
+    let time_stamp_differences: Vec<f64>
+        = file_name_list.iter()
+        .map(|x| file_name_to_float(x))
+        .map(|x| (file_name_to_match_as_float-x).abs())
+        .collect();
+    let (closet_match_idx, _)
+        = time_stamp_differences
+        .iter()
+        .enumerate()
+        .fold((0, 100.0), |(ts_idx, acc), (i, x)| if *x < acc { (i, *x) } else { (ts_idx, acc) });
+
+    let file_name = file_name_list[closet_match_idx].clone();
+
+    Ok(file_name)
 }
 
