@@ -33,6 +33,7 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
 
+//TODO: This is buggy. Might have to sort it
 pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<Vec<String>> {
 
     let mut file_vec: Vec<String> = Vec::new();
@@ -43,13 +44,29 @@ pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<
             continue;
         } else {
             let name = entry.file_name().into_string().unwrap_or_else(|_| panic!("Error reading filename"));
-            if is_valid_file(&name) {
-                file_vec.push(name);
+            let name_trimmed = remove_prefixes(name);
+            if is_valid_file(&name_trimmed) {
+                file_vec.push(name_trimmed);
             }
         }
     }
 
     Ok(file_vec)
+
+}
+
+fn remove_prefixes(file_name: String) -> String {
+    let prefix = &file_name[0..2];
+    let len = file_name.len();
+
+    if prefix == "._" {
+        let mut file_name_trimmed = String::new();
+        file_name_trimmed.push_str(&file_name[2..len]);
+        file_name_trimmed
+    } else {
+        file_name
+    }
+
 
 }
 
@@ -84,17 +101,16 @@ pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: &st
 pub fn generate_folder_path(root: PathBuf, folder_path_relative_to_project: &str) -> PathBuf {
     let mut image_folder_path = root;
     image_folder_path.push(folder_path_relative_to_project);
-
     image_folder_path
 }
 
-pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intenstiy_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
+pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
                                               -> (Vec<String>, Vec<String>) {
 
     let start_file = format!("{}.{}",start_file_name,extension);
-    let color_files = get_file_list_in_dir(&intenstiy_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
+    let color_files = get_file_list_in_dir(&intensity_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
-    assert!(start_idx+frame_count < color_files.len());
+    assert!(start_idx+frame_count <= color_files.len());
 
     let mut selected_color_files: Vec<String> = Vec::new();
     for i in (start_idx..(start_idx+frame_count)).step_by(step_count) {

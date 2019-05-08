@@ -19,7 +19,7 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 1;
+    let frame_count = 3;
     let step_count = 1;
 
     let intensity_folder_path = generate_folder_path(root.clone(),intensity_folder);
@@ -29,6 +29,11 @@ fn main() {
         = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,reference_start_file_name,extension,step_count,frame_count);
     let (target_intensity_files, target_depth_files)
         = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,target_start_file_name,extension,step_count,frame_count);
+
+    println!("{:?}",reference_intensity_files);
+    println!("{:?}",reference_depth_files);
+    println!("{:?}",target_intensity_files);
+    println!("{:?}",target_depth_files);
 
     let (reference_intensity_paths,reference_depth_paths,target_intensity_paths,target_depth_paths)
         = generate_runtime_paths(intensity_folder_path, depth_folder_path,reference_intensity_files, reference_depth_files, target_intensity_files,target_depth_files);
@@ -52,28 +57,29 @@ fn main() {
     let camera = Camera{intrinsics};
 
     println!("starting solve");
-    let now = Instant::now();
-    for i in 0..number_of_frames {
-        let max_depth = max_depths[i];
-        let reference_frame = &reference_frames[i];
-        let target_frame = &target_frames[i];
 
-        let (_SE3, _lie)
-            = solve(&reference_frame,
-                    &target_frame,
-                    camera,
-                    1000,
-                    0.00000000001,
-                    1.0,
-                    max_depth,
-                    0.0001,
-                    100000.0,
-                    100,
-                    20,
-                    false);
-    }
-    let solver_duration = now.elapsed().as_millis();
-    println!("Average Solver duration: {} ms",solver_duration as Float);
+//    for i in 0..number_of_frames {
+//        let max_depth = max_depths[i];
+//        let reference_frame = &reference_frames[i];
+//        let target_frame = &target_frames[i];
+//        let now = Instant::now();
+//        let (_SE3, _lie)
+//            = solve(&reference_frame,
+//                    &target_frame,
+//                    camera,
+//                    1000,
+//                    0.00000000001,
+//                    1.0,
+//                    max_depth,
+//                    0.0001,
+//                    100000.0,
+//                    100,
+//                    20,
+//                    false);
+//        let solver_duration = now.elapsed().as_millis();
+//        println!("Solver duration: {} ms",solver_duration as Float);
+//    }
+
     //println!("{}",SE3);
     //println!("{}",lie)
 

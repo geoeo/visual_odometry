@@ -55,7 +55,8 @@ fn generate_correct_reference_target_lists(){
     let (start_idx,_) = intenstiy.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
     let (start_idx_2,_) = intenstiy.iter().enumerate().find(|(_,x)| **x==start_file_2).unwrap_or_else(||panic!("reading files failed"));
 
-    let (runtime_intensity_files, runtime_depth_files) = generate_runtime_intensity_depth_lists(image_folder_path, depth_folder_path, start_name, extension, step_count, frame_count);
+    let (runtime_intensity_files, runtime_depth_files)
+        = generate_runtime_intensity_depth_lists(image_folder_path, depth_folder_path, start_name, extension, step_count, frame_count);
 
     assert_eq!(runtime_intensity_files,vec!("1311868174.699578.png","1311868174.731625.png","1311868174.767680.png"));
     assert_eq!(runtime_depth_files,vec!("1311868174.687374.png","1311868174.719933.png","1311868174.751101.png"));
