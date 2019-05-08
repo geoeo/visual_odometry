@@ -1,7 +1,6 @@
 extern crate image;
 extern crate visual_odometry;
 
-
 use std::time::Instant;
 use visual_odometry::frame::load_frames;
 use visual_odometry::{solve, Float};
@@ -13,7 +12,7 @@ use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_
 fn main() {
 
     let runs = 20;
-
+    let root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
     let reference_start_file_name = "1311868174.699578";
     let target_start_file_name = "1311868174.731625";
     let intensity_folder = "images/color";
@@ -22,8 +21,8 @@ fn main() {
     let frame_count = 1;
     let step_count = 1;
 
-    let intensity_folder_path = generate_folder_path(intensity_folder);
-    let depth_folder_path = generate_folder_path(depth_folder);
+    let intensity_folder_path = generate_folder_path(root.clone(),intensity_folder);
+    let depth_folder_path = generate_folder_path(root.clone(),depth_folder);
 
     let (reference_intensity_files, reference_depth_files)
         = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,reference_start_file_name,extension,step_count,frame_count);
