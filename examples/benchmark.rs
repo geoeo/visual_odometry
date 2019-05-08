@@ -3,56 +3,42 @@ extern crate visual_odometry;
 
 
 use std::time::Instant;
-use std::path::PathBuf;
 use visual_odometry::frame::load_frames;
 use visual_odometry::{solve, Float};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
+use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_lists, generate_runtime_paths};
 
 #[allow(non_snake_case)]
 fn main() {
 
     let runs = 20;
 
-    //TODO -- Encapsulate this
-    let current_dir = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
-    let image_folder = "images/color";
+    let reference_start_file_name = "1311868174.699578";
+    let target_start_file_name = "1311868174.731625";
+    let intensity_folder = "images/color";
     let depth_folder = "images/depth";
-    let image_format = "png";
+    let extension = "png";
+    let frame_count = 1;
+    let step_count = 1;
 
-    let mut image_folder_path = current_dir.clone();
-    let mut depth_folder_path = current_dir.clone();
+    let intensity_folder_path = generate_folder_path(intensity_folder);
+    let depth_folder_path = generate_folder_path(depth_folder);
 
-    image_folder_path.push(image_folder);
-    depth_folder_path.push(depth_folder);
+    let (reference_intensity_files, reference_depth_files)
+        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,reference_start_file_name,extension,step_count,frame_count);
+    let (target_intensity_files, target_depth_files)
+        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,target_start_file_name,extension,step_count,frame_count);
 
-    let mut image_1_path = image_folder_path.clone();
-    let mut depth_1_path = depth_folder_path.clone();
-    let mut image_2_path = image_folder_path.clone();
-    let mut depth_2_path = depth_folder_path.clone();
-
-    let image_name_1 = format!("{}.{}","1311868174.699578",image_format);
-    let depth_name_1 = format!("{}.{}","1311868174.687374",image_format);
-    let image_name_2 = format!("{}.{}","1311868174.731625",image_format);
-    let depth_name_2 = format!("{}.{}","1311868174.719933",image_format);
-
-    image_1_path.push(image_name_1);
-    depth_1_path.push(depth_name_1);
-    image_2_path.push(image_name_2);
-    depth_2_path.push(depth_name_2);
-
-    let reference_image_paths: Vec<PathBuf> = vec!(image_1_path);
-    let reference_depth_paths: Vec<PathBuf> = vec!(depth_1_path);
-    let target_image_paths: Vec<PathBuf> = vec!(image_2_path);
-    let target_depth_paths: Vec<PathBuf> = vec!(depth_2_path);
-    //TODO --
+    let (reference_intensity_paths,reference_depth_paths,target_intensity_paths,target_depth_paths)
+        = generate_runtime_paths(intensity_folder_path, depth_folder_path,reference_intensity_files, reference_depth_files, target_intensity_files,target_depth_files);
 
     let depth_factor = 5000.0;
 
     let (reference_frames, target_frames, max_depths)
-        = load_frames(&reference_image_paths,
+        = load_frames(&reference_intensity_paths,
                       &reference_depth_paths,
-                      &target_image_paths,
+                      &target_intensity_paths,
                       &target_depth_paths,
                       depth_factor);
 

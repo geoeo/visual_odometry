@@ -89,13 +89,56 @@ pub fn generate_folder_path(folder_path_relative_to_project: &str) -> PathBuf {
     image_folder_path
 }
 
-pub fn generate_runtime_intensity_depth_lists(image_folder_path: PathBuf, depth_folder_path: PathBuf, start_file_name: &str, extension: &str, frame_count: usize)
+pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intenstiy_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
                                               -> (Vec<String>, Vec<String>) {
+
     let start_file = format!("{}.{}",start_file_name,extension);
-    let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
+    let color_files = get_file_list_in_dir(&intenstiy_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
-    let selected_color_files = &color_files[start_idx..frame_count];
+    assert!(start_idx+frame_count < color_files.len());
+
+    let mut selected_color_files: Vec<String> = Vec::new();
+    for i in (start_idx..(start_idx+frame_count)).step_by(step_count) {
+        selected_color_files.push(color_files[i].clone());
+    }
     (selected_color_files.to_vec(), selected_color_files.iter().map(|x| associate_file_name(&depth_folder_path,x)).collect())
 }
 
+pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
+                              depth_folder_path: PathBuf,
+                              reference_intensity_files: Vec<String>,
+                              reference_depth_files: Vec<String>,
+                              target_intensity_files :Vec<String>,
+                              target_depth_files: Vec<String>)
+    -> (Vec<PathBuf>,Vec<PathBuf>,Vec<PathBuf>,Vec<PathBuf>) {
+
+    let reference_intensity_paths
+        = reference_intensity_files.iter().map(|file_name| {
+        let mut full_path = intensity_folder_path.clone();
+        full_path.push(file_name);
+        return full_path
+    }).collect();
+    let reference_depth_paths
+        = reference_depth_files.iter().map(|file_name| {
+        let mut full_path = depth_folder_path.clone();
+        full_path.push(file_name);
+        return full_path
+    }).collect();
+
+    let target_intensity_paths
+        = target_intensity_files.iter().map(|file_name| {
+        let mut full_path = intensity_folder_path.clone();
+        full_path.push(file_name);
+        return full_path
+    }).collect();
+    let target_depth_paths
+        = target_depth_files.iter().map(|file_name| {
+        let mut full_path = depth_folder_path.clone();
+        full_path.push(file_name);
+        return full_path
+    }).collect();
+
+    (reference_intensity_paths,reference_depth_paths,target_intensity_paths,target_depth_paths)
+
+}
 
