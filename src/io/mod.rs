@@ -78,8 +78,6 @@ pub fn associate_file_name(image_folder_path: PathBuf, file_name: &str)-> io::Re
         .enumerate()
         .fold((0, 100.0), |(ts_idx, acc), (i, x)| if *x < acc { (i, *x) } else { (ts_idx, acc) });
 
-    let file_name = file_name_list[closet_match_idx].clone();
-
-    Ok(file_name)
+    Ok(file_name_list[closet_match_idx].clone())
 }
 
