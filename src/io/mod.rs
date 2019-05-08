@@ -89,12 +89,13 @@ pub fn generate_folder_path(folder_path_relative_to_project: &str) -> PathBuf {
     image_folder_path
 }
 
-pub fn generate_corresponding_depth_files(image_folder_path: PathBuf, depth_folder_path: PathBuf, start_file_name: &str, extension: &str, frame_count: usize) -> Vec<String> {
+pub fn generate_runtime_intensity_depth_lists(image_folder_path: PathBuf, depth_folder_path: PathBuf, start_file_name: &str, extension: &str, frame_count: usize)
+                                              -> (Vec<String>, Vec<String>) {
     let start_file = format!("{}.{}",start_file_name,extension);
     let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
     let selected_color_files = &color_files[start_idx..frame_count];
-    selected_color_files.iter().map(|x| associate_file_name(&depth_folder_path,x)).collect()
+    (selected_color_files.to_vec(), selected_color_files.iter().map(|x| associate_file_name(&depth_folder_path,x)).collect())
 }
 
 

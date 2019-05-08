@@ -1,20 +1,20 @@
-use visual_odometry::io::{get_file_list_in_dir, file_name_to_float, associate_file_name, generate_folder_path, generate_corresponding_depth_files};
+use visual_odometry::io::{get_file_list_in_dir, file_name_to_float, associate_file_name, generate_folder_path, generate_runtime_intensity_depth_lists};
 
 #[test]
 fn generate_image_lists() {
     let image_folder_path = generate_folder_path("images/color");
     let depth_folder_path = generate_folder_path("images/depth");
 
-    let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
+    let intensity_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let depth_files = get_file_list_in_dir(&depth_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
 
-    let image_str = color_files[0].clone();
+    let image_str = intensity_files[0].clone();
     let float = file_name_to_float(&image_str);
     let float_str = float.to_string();
 
     assert_eq!(float,1311868174.699578);
     assert_eq!(float_str,"1311868174.699578");
-    assert_eq!(color_files.len(),3);
+    assert_eq!(intensity_files.len(),3);
     assert_eq!(depth_files.len(),3);
 
 }
@@ -48,15 +48,14 @@ fn generate_correct_reference_target_lists(){
     let image_folder_path = generate_folder_path("images/color");
     let depth_folder_path = generate_folder_path("images/depth");
 
-    let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
-    let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
-    let (start_idx_2,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file_2).unwrap_or_else(||panic!("reading files failed"));
+    let intenstiy = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
+    let (start_idx,_) = intenstiy.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
+    let (start_idx_2,_) = intenstiy.iter().enumerate().find(|(_,x)| **x==start_file_2).unwrap_or_else(||panic!("reading files failed"));
 
+    let (runtime_intensity_files, runtime_depth_files) = generate_runtime_intensity_depth_lists(image_folder_path, depth_folder_path, start_name, extension, frame_count);
 
-    let corresponding_depth_files = generate_corresponding_depth_files(image_folder_path,depth_folder_path,start_name,extension,frame_count);
-
-
-    assert_eq!(corresponding_depth_files,vec!("1311868174.687374.png","1311868174.719933.png","1311868174.751101.png"));
+    assert_eq!(runtime_intensity_files,vec!("1311868174.699578.png","1311868174.731625.png","1311868174.767680.png"));
+    assert_eq!(runtime_depth_files,vec!("1311868174.687374.png","1311868174.719933.png","1311868174.751101.png"));
     assert_eq!(start_idx,0);
     assert_eq!(start_idx_2,1);
 }
