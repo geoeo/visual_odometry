@@ -1,18 +1,9 @@
-use visual_odometry::io::{get_file_list_in_dir,file_name_to_float,associate_file_name};
+use visual_odometry::io::{get_file_list_in_dir,file_name_to_float,associate_file_name,generate_folder_path};
 
 #[test]
 fn generate_image_lists() {
-
-    let current_dir = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
-    let image_folder = "images/color";
-    let depth_folder = "images/depth";
-
-    let mut image_folder_path = current_dir.clone();
-    let mut depth_folder_path = current_dir.clone();
-
-    image_folder_path.push(image_folder);
-    depth_folder_path.push(depth_folder);
-
+    let image_folder_path = generate_folder_path("images/color");
+    let depth_folder_path = generate_folder_path("images/depth");
 
     let color_files = get_file_list_in_dir(&image_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let depth_files = get_file_list_in_dir(&depth_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
@@ -30,17 +21,10 @@ fn generate_image_lists() {
 
 #[test]
 fn associate_file_names(){
-
-    let current_dir = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
-    let image_folder = "images/color";
-    let depth_folder = "images/depth";
     let extension = "png";
 
-    let mut image_folder_path = current_dir.clone();
-    let mut depth_folder_path = current_dir.clone();
-
-    image_folder_path.push(image_folder);
-    depth_folder_path.push(depth_folder);
+    let image_folder_path = generate_folder_path("images/color");
+    let depth_folder_path = generate_folder_path("images/depth");
 
     let depth_image_1 = associate_file_name(&depth_folder_path,"1311868174.699578").unwrap_or_else(|_|panic!("file assocation failed"));
     let depth_image_2 = associate_file_name(&depth_folder_path,"1311868174.731625").unwrap_or_else(|_|panic!("file assocation failed"));
@@ -50,5 +34,22 @@ fn associate_file_names(){
     assert_eq!(depth_image_2,format!("{}.{}","1311868174.719933",extension));
     assert_eq!(depth_image_3,format!("{}.{}","1311868174.751101",extension));
 
+}
 
+#[test]
+fn generate_correct_reference_target_lists(){
+
+    let frame_count = 3;
+    let start_idx = "1311868174.699578";
+    let extension = "png";
+
+    let image_folder_path = generate_folder_path("images/color");
+    let depth_folder_path = generate_folder_path("images/depth");
+
+
+
+
+
+
+    assert!(false);
 }

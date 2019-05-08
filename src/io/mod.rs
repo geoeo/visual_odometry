@@ -1,6 +1,6 @@
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
-use std::{self, fs::File, io::Cursor,path::Path};
+use std::{self, fs::File, io::Cursor,path::{Path,PathBuf}};
 use std::io;
 use std::fs::read_dir;
 
@@ -80,4 +80,13 @@ pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, file_name: &str
 
     Ok(file_name_list[closet_match_idx].clone())
 }
+
+pub fn generate_folder_path(folder_path_relative_to_project: &str) -> PathBuf {
+    let current_dir = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
+    let mut image_folder_path = current_dir.clone();
+    image_folder_path.push(folder_path_relative_to_project);
+
+    image_folder_path
+}
+
 
