@@ -60,7 +60,7 @@ pub fn file_name_to_float(filename: &str) -> f64 {
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
-pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64)-> String {
+pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64, max_diff_milliseconds: f64)-> String {
     let file_name_list = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("file association failed with: {}",time_stamp));
     //let file_name_to_match_as_float = file_name_to_float(time_stamp);
     let time_stamp_differences: Vec<f64>
@@ -68,11 +68,18 @@ pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64
         .map(|x| file_name_to_float(x))
         .map(|x| (time_stamp-x).abs())
         .collect();
-    let (closet_match_idx, _)
+
+    let (closet_match_idx, ts_diff_min)
         = time_stamp_differences
         .iter()
         .enumerate()
         .fold((0, 100.0), |(ts_idx, acc), (i, x)| if *x < acc { (i, *x) } else { (ts_idx, acc) });
+
+    if ts_diff_min >= max_diff_milliseconds {
+        panic!(
+            "The timestamp difference between intensity and depth image is too large for intensity: {}. The difference is: {}, with max diff: {}",
+            time_stamp,ts_diff_min,max_diff_milliseconds);
+    }
 
     file_name_list[closet_match_idx].clone()
 }
@@ -83,7 +90,7 @@ pub fn generate_folder_path(root: PathBuf, folder_path_relative_to_project: &str
     image_folder_path
 }
 
-pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
+pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize, max_diff_milliseconds: f64)
                                               -> (Vec<String>, Vec<String>) {
 
     let start_file_as_float: f64 = start_file_name.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"));
@@ -100,7 +107,7 @@ pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_p
         selected_color_files.push(color_files_as_floats[i].clone());
     }
     (selected_color_files.iter().map(|&x| float_to_string(x)).map(|mut x| {x.push('.');x.push_str(extension);return x}).collect(),
-     selected_color_files.iter().map(|&x| associate_file_name(&depth_folder_path,x)).collect())
+     selected_color_files.iter().map(|&x| associate_file_name(&depth_folder_path,x,max_diff_milliseconds)).collect())
 }
 
 pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
@@ -144,7 +151,6 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 // Some times MacOS will prefix files on non APFS file systems with "._"
 fn has_win_prefix(file_name: &str) -> bool {
     let prefix = &file_name[0..2];
-    let len = file_name.len();
     prefix == "._"
 }
 

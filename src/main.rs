@@ -21,18 +21,19 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 10;
+    let frame_count = 1;
     let step_count = 1;
     let debug = false;
     let print_runtime_info = true;
+    let max_diff_milliseconds = 0.03;
 
     let intensity_folder_path = generate_folder_path(root.clone(),intensity_folder);
     let depth_folder_path = generate_folder_path(root.clone(),depth_folder);
 
     let (reference_intensity_files, reference_depth_files)
-        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,reference_start_file_name,extension,step_count,frame_count);
+        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,reference_start_file_name,extension,step_count,frame_count, max_diff_milliseconds);
     let (target_intensity_files, target_depth_files)
-        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,target_start_file_name,extension,step_count,frame_count);
+        = generate_runtime_intensity_depth_lists(&intensity_folder_path,&depth_folder_path,target_start_file_name,extension,step_count,frame_count, max_diff_milliseconds);
 
     if debug {
         println!("{:?}",reference_intensity_files);

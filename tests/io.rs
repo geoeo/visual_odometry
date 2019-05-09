@@ -17,7 +17,6 @@ fn generate_image_lists() {
     assert_eq!(float_str,"1311868174.699578");
     assert_eq!(intensity_files.len(),3);
     assert_eq!(depth_files.len(),3);
-
 }
 
 #[test]
@@ -27,14 +26,13 @@ fn associate_file_names(){
 
     let depth_folder_path = generate_folder_path(root,"images/depth");
 
-    let depth_image_1 = associate_file_name(&depth_folder_path,"1311868174.699578");
-    let depth_image_2 = associate_file_name(&depth_folder_path,"1311868174.731625");
-    let depth_image_3 = associate_file_name(&depth_folder_path,"1311868174.767680");
+    let depth_image_1 = associate_file_name(&depth_folder_path,1311868174.699578,0.1);
+    let depth_image_2 = associate_file_name(&depth_folder_path,1311868174.731625,0.1);
+    let depth_image_3 = associate_file_name(&depth_folder_path,1311868174.767680,0.1);
 
-    assert_eq!(depth_image_1,format!("{}.{}","1311868174.687374",extension));
-    assert_eq!(depth_image_2,format!("{}.{}","1311868174.719933",extension));
-    assert_eq!(depth_image_3,format!("{}.{}","1311868174.751101",extension));
-
+    assert_eq!(depth_image_1, format!("{}.{}","1311868174.687374", extension));
+    assert_eq!(depth_image_2, format!("{}.{}","1311868174.719933", extension));
+    assert_eq!(depth_image_3, format!("{}.{}","1311868174.751101", extension));
 }
 
 #[test]
@@ -47,6 +45,7 @@ fn generate_correct_reference_target_lists(){
     let extension = "png";
     let start_file = format!("{}.{}",start_name,extension);
     let start_file_2 = format!("{}.{}",start_name_2,extension);
+    let max_diff_milliseconds = 0.05;
 
     let image_folder_path = generate_folder_path(root.clone(),"images/color");
     let depth_folder_path = generate_folder_path(root.clone(),"images/depth");
@@ -56,10 +55,22 @@ fn generate_correct_reference_target_lists(){
     let (start_idx_2,_) = intenstiy.iter().enumerate().find(|(_,x)| **x==start_file_2).unwrap_or_else(||panic!("reading files failed"));
 
     let (runtime_intensity_files, runtime_depth_files)
-        = generate_runtime_intensity_depth_lists(image_folder_path, depth_folder_path, start_name, extension, step_count, frame_count);
+        = generate_runtime_intensity_depth_lists(image_folder_path, depth_folder_path, start_name, extension, step_count, frame_count, max_diff_milliseconds);
 
     assert_eq!(runtime_intensity_files,vec!("1311868174.699578.png","1311868174.731625.png","1311868174.767680.png"));
     assert_eq!(runtime_depth_files,vec!("1311868174.687374.png","1311868174.719933.png","1311868174.751101.png"));
     assert_eq!(start_idx,0);
     assert_eq!(start_idx_2,1);
+}
+
+#[should_panic]
+#[test]
+fn ts_difference_too_large() {
+    let root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
+    let extension = "png";
+
+    let depth_folder_path = generate_folder_path(root,"images/depth");
+
+    let depth_image_1 = associate_file_name(&depth_folder_path,1311868174.699578,0.000001);
+
 }
