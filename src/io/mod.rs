@@ -6,9 +6,8 @@ use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
 use std::{self, fs::File, io::Cursor,path::{Path,PathBuf}};
 use std::io;
-use std::fs::{self, read_dir};
+use std::fs::{OpenOptions,read_dir};
 use std::fmt::Debug;
-use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::clone::Clone;
 
@@ -175,7 +174,7 @@ pub fn write_lie_vectors_to_file(file_path: &str, data_vec: Vec<Vector6<Float>>)
         data_as_string.push(',');
         data_as_string.push_str(&(*data.index(5).to_string()));
         data_as_string.push('\n');
-        file.write(data_as_string.as_bytes());
+        file.write(data_as_string.as_bytes()).expect("Failed to write lie data to file");
     }
 }
 

@@ -105,8 +105,4 @@ fn main() {
 
     write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
 
-    //println!("{}",SE3);
-    //println!("{}",lie)
-
-
 }
