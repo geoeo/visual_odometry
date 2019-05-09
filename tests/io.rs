@@ -1,4 +1,8 @@
-use visual_odometry::io::{get_file_list_in_dir, file_name_to_float, associate_file_name, generate_folder_path, generate_runtime_intensity_depth_lists};
+extern crate nalgebra as na;
+
+use na::Vector6;
+use visual_odometry::io::{*};
+use visual_odometry::Float;
 
 #[test]
 fn generate_image_lists() {
@@ -67,10 +71,27 @@ fn generate_correct_reference_target_lists(){
 #[test]
 fn ts_difference_too_large() {
     let root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
-    let extension = "png";
 
     let depth_folder_path = generate_folder_path(root,"images/depth");
 
-    let depth_image_1 = associate_file_name(&depth_folder_path,1311868174.699578,0.000001);
+    let _depth_image_1 = associate_file_name(&depth_folder_path,1311868174.699578,0.000001);
+}
+
+#[test]
+fn write_to_file(){
+    let root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
+    let dir = "output";
+    let file_name = "test_out.txt";
+
+    let mut image_folder_path = root;
+    image_folder_path.push(dir);
+    image_folder_path.push(file_name);
+
+    let path_as_string = image_folder_path.as_os_str().to_str().expect("failed to unwrap");
+    assert_eq!(path_as_string,"/Users/marchaubenstock/Workspace/Rust/visual_odometry/output/test_out.txt");
+
+    let test_vec: Vec<Vector6<Float>> = vec![Vector6::new(1.0,2.0,3.0,4.0,5.0,6.0),Vector6::new(11.0,22.0,33.0,44.0,55.0,66.0)];
+
+    write_lie_vectors_to_file(path_as_string,test_vec);
 
 }

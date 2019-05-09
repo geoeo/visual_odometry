@@ -1,8 +1,16 @@
+extern crate nalgebra as na;
+
+use na::Vector6;
+use crate::Float;
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
 use std::{self, fs::File, io::Cursor,path::{Path,PathBuf}};
 use std::io;
-use std::fs::read_dir;
+use std::fs::{self, read_dir};
+use std::fmt::Debug;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+use std::clone::Clone;
 
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
@@ -62,7 +70,6 @@ pub fn file_name_to_float(filename: &str) -> f64 {
 
 pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64, max_diff_milliseconds: f64)-> String {
     let file_name_list = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("file association failed with: {}",time_stamp));
-    //let file_name_to_match_as_float = file_name_to_float(time_stamp);
     let time_stamp_differences: Vec<f64>
         = file_name_list.iter()
         .map(|x| file_name_to_float(x))
@@ -146,6 +153,30 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 
     (reference_intensity_paths,reference_depth_paths,target_intensity_paths,target_depth_paths)
 
+}
+
+pub fn write_lie_vectors_to_file(file_path: &str, data_vec: Vec<Vector6<Float>>) -> () {
+    let mut file = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .open(file_path)
+        .unwrap();
+    for data in data_vec {
+        let mut data_as_string = String::new();
+        data_as_string.push_str(&(*data.index(0).to_string()));
+        data_as_string.push(',');
+        data_as_string.push_str(&(*data.index(1).to_string()));
+        data_as_string.push(',');
+        data_as_string.push_str(&(*data.index(2).to_string()));
+        data_as_string.push(',');
+        data_as_string.push_str(&(*data.index(3).to_string()));
+        data_as_string.push(',');
+        data_as_string.push_str(&(*data.index(4).to_string()));
+        data_as_string.push(',');
+        data_as_string.push_str(&(*data.index(5).to_string()));
+        data_as_string.push('\n');
+        file.write(data_as_string.as_bytes());
+    }
 }
 
 // Some times MacOS will prefix files on non APFS file systems with "._"
