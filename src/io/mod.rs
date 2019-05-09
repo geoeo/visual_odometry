@@ -33,7 +33,7 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
 
-//TODO: This is buggy. Might have to sort it
+
 pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<Vec<String>> {
 
     let mut file_vec: Vec<String> = Vec::new();
@@ -44,50 +44,41 @@ pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<
             continue;
         } else {
             let name = entry.file_name().into_string().unwrap_or_else(|_| panic!("Error reading filename"));
-            let name_trimmed = remove_prefixes(name);
-            if is_valid_file(&name_trimmed) {
-                file_vec.push(name_trimmed);
+            if is_valid_file(&name) {
+                file_vec.push(name);
             }
         }
     }
 
     Ok(file_vec)
-
 }
 
-fn remove_prefixes(file_name: String) -> String {
+// Some times MacOS will prefix files on non APFS file systems with "._"
+fn has_win_prefix(file_name: &str) -> bool {
     let prefix = &file_name[0..2];
     let len = file_name.len();
-
-    if prefix == "._" {
-        let mut file_name_trimmed = String::new();
-        file_name_trimmed.push_str(&file_name[2..len]);
-        file_name_trimmed
-    } else {
-        file_name
-    }
-
-
+    prefix == "._"
 }
 
 fn is_valid_file(file_name: &str) -> bool {
-    !(file_name == ".DS_Store" || file_name == "._.DS_Store")
+    !(file_name == ".DS_Store" || file_name == "._.DS_Store" || has_win_prefix(file_name))
 }
 
 pub fn file_name_to_float(filename: &str) -> f64 {
     let splits = filename.split(".");
     let vec: Vec<&str> = splits.collect();
     let float_str = format!("{}.{}",vec[0],vec[1]);
+    //TODO: Makes sure its converted to 9 decimal places i.e. 0 -> ""
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
-pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: &str)-> String {
+pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64)-> String {
     let file_name_list = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("file association failed with: {}",time_stamp));
-    let file_name_to_match_as_float = file_name_to_float(time_stamp);
+    //let file_name_to_match_as_float = file_name_to_float(time_stamp);
     let time_stamp_differences: Vec<f64>
         = file_name_list.iter()
         .map(|x| file_name_to_float(x))
-        .map(|x| (file_name_to_match_as_float-x).abs())
+        .map(|x| (time_stamp-x).abs())
         .collect();
     let (closet_match_idx, _)
         = time_stamp_differences
@@ -107,16 +98,21 @@ pub fn generate_folder_path(root: PathBuf, folder_path_relative_to_project: &str
 pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
                                               -> (Vec<String>, Vec<String>) {
 
-    let start_file = format!("{}.{}",start_file_name,extension);
+    //TODO: Makes sure its converted to 9 decimal places i.e. 0 -> ""
+    let start_file_as_float: f64 = start_file_name.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"));
     let color_files = get_file_list_in_dir(&intensity_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
-    let (start_idx,_) = color_files.iter().enumerate().find(|(_,x)| **x==start_file).unwrap_or_else(||panic!("reading files failed"));
-    assert!(start_idx+frame_count <= color_files.len());
+    let mut color_files_as_floats: Vec<f64> = color_files.iter().map(|x| file_name_to_float(x)).collect();
+    color_files_as_floats.sort_by(|&a,b| a.partial_cmp(b).unwrap());
 
-    let mut selected_color_files: Vec<String> = Vec::new();
+
+    let (start_idx,_) = color_files_as_floats.iter().enumerate().find(|(_,x)| **x==start_file_as_float).unwrap_or_else(||panic!("reading files failed"));
+    assert!(start_idx+frame_count <= color_files_as_floats.len());
+
+    let mut selected_color_files: Vec<f64> = Vec::new();
     for i in (start_idx..(start_idx+frame_count)).step_by(step_count) {
-        selected_color_files.push(color_files[i].clone());
+        selected_color_files.push(color_files_as_floats[i].clone());
     }
-    (selected_color_files.to_vec(), selected_color_files.iter().map(|x| associate_file_name(&depth_folder_path,x)).collect())
+    (selected_color_files.iter().map(|x| x.to_string()).map(|mut x| {x.push('.');x.push_str(extension);return x}).collect(), selected_color_files.iter().map(|&x| associate_file_name(&depth_folder_path,x)).collect())
 }
 
 pub fn generate_runtime_paths(intensity_folder_path: PathBuf,

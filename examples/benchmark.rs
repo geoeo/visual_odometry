@@ -11,7 +11,7 @@ use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_
 #[allow(non_snake_case)]
 fn main() {
 
-    let runs = 20;
+    let runs = 1;
     let root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
     let reference_start_file_name = "1311868174.699578";
     let target_start_file_name = "1311868174.731625";
