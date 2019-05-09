@@ -9,23 +9,35 @@ use visual_odometry::frame::load_frames;
 use visual_odometry::{solve, Float};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
-use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_lists, generate_runtime_paths};
+use visual_odometry::io::{*};
 
 
 #[allow(non_snake_case)]
 fn main() {
 
-    let root = PathBuf::from("/Volumes/Sandisk/Diplomarbeit_Resources/VO_Bench/rgbd_dataset_freiburg2_desk");
+    let data_set = "rgbd_dataset_freiburg2_desk";
+    let mut root = PathBuf::from("/Volumes/Sandisk/Diplomarbeit_Resources/VO_Bench");
+    root.push(data_set);
+
     let reference_start_file_name = "1311868174.699578";
     let target_start_file_name = "1311868174.731625";
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 1;
+    let frame_count = 10;
     let step_count = 1;
     let debug = false;
     let print_runtime_info = true;
     let max_diff_milliseconds = 0.03;
+
+    let project_root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
+    let out_dir = "output";
+    let file_name = format!("{}_{}.txt",data_set,reference_start_file_name);
+    let mut lie_results_path = project_root;
+    lie_results_path.push(out_dir);
+    lie_results_path.push(file_name);
+
+    let lie_results_file_path = lie_results_path.as_os_str().to_str().expect("failed to unwrap");
 
     let intensity_folder_path = generate_folder_path(root.clone(),intensity_folder);
     let depth_folder_path = generate_folder_path(root.clone(),depth_folder);
@@ -90,6 +102,8 @@ fn main() {
         lie_buffer.push(lie);
         println!("Solver duration: {} ms",solver_duration as Float);
     }
+
+    write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
 
     //println!("{}",SE3);
     //println!("{}",lie)
