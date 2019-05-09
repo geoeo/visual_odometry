@@ -53,22 +53,10 @@ pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<
     Ok(file_vec)
 }
 
-// Some times MacOS will prefix files on non APFS file systems with "._"
-fn has_win_prefix(file_name: &str) -> bool {
-    let prefix = &file_name[0..2];
-    let len = file_name.len();
-    prefix == "._"
-}
-
-fn is_valid_file(file_name: &str) -> bool {
-    !(file_name == ".DS_Store" || file_name == "._.DS_Store" || has_win_prefix(file_name))
-}
-
 pub fn file_name_to_float(filename: &str) -> f64 {
     let splits = filename.split(".");
     let vec: Vec<&str> = splits.collect();
     let float_str = format!("{}.{}",vec[0],vec[1]);
-    //TODO: Makes sure its converted to 9 decimal places i.e. 0 -> ""
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
@@ -98,7 +86,6 @@ pub fn generate_folder_path(root: PathBuf, folder_path_relative_to_project: &str
 pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize)
                                               -> (Vec<String>, Vec<String>) {
 
-    //TODO: Makes sure its converted to 9 decimal places i.e. 0 -> ""
     let start_file_as_float: f64 = start_file_name.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"));
     let color_files = get_file_list_in_dir(&intensity_folder_path).unwrap_or_else(|_|panic!("reading files failed"));
     let mut color_files_as_floats: Vec<f64> = color_files.iter().map(|x| file_name_to_float(x)).collect();
@@ -112,7 +99,8 @@ pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_p
     for i in (start_idx..(start_idx+frame_count)).step_by(step_count) {
         selected_color_files.push(color_files_as_floats[i].clone());
     }
-    (selected_color_files.iter().map(|x| x.to_string()).map(|mut x| {x.push('.');x.push_str(extension);return x}).collect(), selected_color_files.iter().map(|&x| associate_file_name(&depth_folder_path,x)).collect())
+    (selected_color_files.iter().map(|&x| float_to_string(x)).map(|mut x| {x.push('.');x.push_str(extension);return x}).collect(),
+     selected_color_files.iter().map(|&x| associate_file_name(&depth_folder_path,x)).collect())
 }
 
 pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
@@ -151,5 +139,21 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 
     (reference_intensity_paths,reference_depth_paths,target_intensity_paths,target_depth_paths)
 
+}
+
+// Some times MacOS will prefix files on non APFS file systems with "._"
+fn has_win_prefix(file_name: &str) -> bool {
+    let prefix = &file_name[0..2];
+    let len = file_name.len();
+    prefix == "._"
+}
+
+fn is_valid_file(file_name: &str) -> bool {
+    !(file_name == ".DS_Store" || has_win_prefix(file_name))
+}
+
+// Currently 6 decimal places is hard coded
+fn float_to_string(x: f64) -> String {
+    format!("{:.6}", x)
 }
 
