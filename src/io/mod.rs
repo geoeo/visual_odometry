@@ -4,13 +4,9 @@ use na::Vector6;
 use crate::Float;
 use byteorder::{BigEndian, ReadBytesExt};
 use png::{self, HasParameters};
-use std::{self, fs::File, io::Cursor,path::{Path,PathBuf}};
-use std::io;
-use std::fs::{OpenOptions,read_dir};
-use std::fmt::Debug;
-use std::io::prelude::*;
-use std::clone::Clone;
-
+use std::{self,path::{Path,PathBuf}};
+use std::io::{self,Cursor,prelude::*};
+use std::fs::{File,OpenOptions,read_dir};
 
 // https://github.com/mpizenberg/visual-odometry-rs/blob/master/src/misc/helper.rs#L13
 /// Read a 16 bit gray png image from a file.
@@ -154,6 +150,7 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 
 }
 
+//TODO: investigate Cursor trait
 pub fn write_lie_vectors_to_file(file_path: &str, data_vec: Vec<Vector6<Float>>) -> () {
     let mut file = OpenOptions::new()
         .create(true)
