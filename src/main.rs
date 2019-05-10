@@ -92,10 +92,10 @@ fn main() {
                         camera,
                         1000,
                         0.000001,
-                        2.0,
+                        20.0,
                         max_depth,
                         0.0001,
-                        1.0,
+                        1000.0,
                         100,
                         0,
                         print_runtime_info);

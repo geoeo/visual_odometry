@@ -49,8 +49,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
 
         let intensity_2 = Image::from_image(&image_2, ImageFilter::None, true);
         let mut depth_2 = Image::from_vec_16(height,width,&target_depth, false);
-        let gx_2 = Image::from_image(&image_2, ImageFilter::SobelX, true);
-        let gy_2 = Image::from_image(&image_2, ImageFilter::SobelY, true);
+        let gx_2 = Image::from_image(&image_2, ImageFilter::SobelX, false);
+        let gy_2 = Image::from_image(&image_2, ImageFilter::SobelY, false);
 
         depth_1.buffer /= depth_factor;
         depth_2.buffer /= depth_factor;
