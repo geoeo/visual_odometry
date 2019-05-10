@@ -90,6 +90,11 @@ pub fn solve(reference: &Frame,
                       image_width, image_height,
                       image_range_offset);
 
+    //TODO: @Investigate -> Values in residual diverge from the python impl
+    let t = residuals[13378];
+    let t1 = residuals[13379];
+    let t2 = residuals[13380];
+
 
     for it in 0..max_its {
 
@@ -129,6 +134,8 @@ pub fn solve(reference: &Frame,
                           image_width, image_height,
                           image_range_offset);
 
+
+        //TODO move this out of loop
         let number_of_valid_measurements = valid_measurements_reference.iter().fold(0, |acc,x| acc + *x as usize);
         let valid_pixel_ratio =  number_of_valid_measurements as Float / N as Float;
         if valid_pixel_ratio < 0.0 {
