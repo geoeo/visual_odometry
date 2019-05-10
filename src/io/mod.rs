@@ -152,6 +152,11 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 
 //TODO: investigate Cursor trait
 pub fn write_lie_vectors_to_file(file_path: &str, data_vec: Vec<Vector6<Float>>) -> () {
+
+    if Path::new(file_path).exists() {
+        std::fs::remove_file(file_path).expect("Failed to remove file");
+    }
+
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)

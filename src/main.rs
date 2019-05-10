@@ -24,9 +24,10 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 10;
+    let frame_count = 60;
     let step_count = 1;
     let debug = false;
+    let run_vo = true;
     let print_runtime_info = true;
     let max_diff_milliseconds = 0.03;
 
@@ -79,30 +80,32 @@ fn main() {
     let mut SE3_buffer: Vec<Matrix4<Float>> = Vec::with_capacity(number_of_frames);
     let mut lie_buffer: Vec<Vector6<Float>> = Vec::with_capacity(number_of_frames);
 
-    for i in 0..number_of_frames {
-        let max_depth = max_depths[i];
-        let reference_frame = &reference_frames[i];
-        let target_frame = &target_frames[i];
-        let now = Instant::now();
-        let (SE3, lie)
-            = solve(&reference_frame,
-                    &target_frame,
-                    camera,
-                    1000,
-                    0.00000000001,
-                    1.0,
-                    max_depth,
-                    0.0001,
-                    100000.0,
-                    100,
-                    20,
-                    print_runtime_info);
-        let solver_duration = now.elapsed().as_millis();
-        SE3_buffer.push(SE3);
-        lie_buffer.push(lie);
-        println!("Solver duration: {} ms",solver_duration as Float);
+    if run_vo {
+        for i in 0..number_of_frames {
+            let max_depth = max_depths[i];
+            let reference_frame = &reference_frames[i];
+            let target_frame = &target_frames[i];
+            let now = Instant::now();
+            let (SE3, lie)
+                = solve(&reference_frame,
+                        &target_frame,
+                        camera,
+                        1000,
+                        0.000001,
+                        2.0,
+                        max_depth,
+                        0.0001,
+                        1.0,
+                        100,
+                        0,
+                        print_runtime_info);
+            let solver_duration = now.elapsed().as_millis();
+            SE3_buffer.push(SE3);
+            lie_buffer.push(lie);
+            println!("{}) Solver duration: {} ms",i, solver_duration as Float);
+        }
+        write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
     }
 
-    write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
 
 }

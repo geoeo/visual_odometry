@@ -14,6 +14,7 @@ pub fn row_major_index(r : usize, c : usize, cols: usize) -> usize {
     return r*cols + c;
 }
 
+//TODO @Investigate this.
 pub fn z_standardize(matrix : &mut DMatrix<Float>) -> () {
     let mean = matrix.mean();
     let std_dev = matrix.variance().sqrt();

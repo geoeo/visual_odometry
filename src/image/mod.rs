@@ -30,7 +30,7 @@ impl Image {
                 None => image_to_matrix(image),
                 Some(filter) => image_to_matrix(&filter3x3(image,&filter))
         };
-
+        //TODO @Investigate -> maybe standardarize before filter
         if standardize {
             z_standardize(&mut buffer);
         }
