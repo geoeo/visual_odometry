@@ -24,7 +24,7 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 60;
+    let frame_count = 1;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
@@ -90,12 +90,12 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        1000,
-                        0.000001,
-                        2.0,
+                        30,
+                        0.0000005,
+                        1.0,
                         max_depth,
                         0.0001,
-                        1.0,
+                        1000.0,
                         100,
                         0,
                         print_runtime_info);

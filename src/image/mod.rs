@@ -121,7 +121,9 @@ pub fn cv_mat_to_matrix(cv_mat: Mat, original_encoding: ImageEncoding) -> DMatri
             let pixel_value =
                 match original_encoding {
                 ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
-                ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float
+                ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float,
+                ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x) as Float,
+                ImageEncoding::F64 =>cv_mat.at2::<f64>(y,x) as Float
             };
 
             vec_column_major.push(pixel_value);

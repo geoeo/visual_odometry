@@ -14,7 +14,9 @@ pub enum ImageFilter {
 #[derive(Debug,Copy,Clone,PartialEq)]
 pub enum ImageEncoding {
     U8,
-    U16
+    U16,
+    S16,
+    F64
 }
 
 impl ImageEncoding {
@@ -23,7 +25,9 @@ impl ImageEncoding {
         let max
             = match self {
             ImageEncoding::U8 => 255,
-            ImageEncoding::U16 => 65535 // 256*256-1
+            ImageEncoding::U16 => 65535, // 256*256-1
+            ImageEncoding::S16 => panic!("normalizing with S16 not implemented"), // 256*256-1
+            ImageEncoding::F64 => panic!("normalizing with F64 not implemented") // 256*256-1
         } as Float;
 
         let range = 255 as Float; // 255 - 0
