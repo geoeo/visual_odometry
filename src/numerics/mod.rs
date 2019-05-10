@@ -9,6 +9,7 @@ use crate::image::types::ImageEncoding;
 use crate::image::cv_mat_to_matrix;
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::mem;
+use self::byteorder::BigEndian;
 
 pub mod lie;
 pub mod weighting;
@@ -21,6 +22,8 @@ pub fn row_major_index(r : usize, c : usize, cols: usize) -> usize {
     return r*cols + c;
 }
 
+const f64_size: usize = mem::size_of::<f64>();
+
 //TODO @Investigate this.
 pub fn z_standardize(matrix : &mut DMatrix<Float>) -> () {
     let mean = matrix.mean();
@@ -31,7 +34,7 @@ pub fn z_standardize(matrix : &mut DMatrix<Float>) -> () {
     }
 }
 
-pub fn z_standardize_cv_mat(cv_mat : &mut Mat, encoding: ImageEncoding) -> () {
+pub fn z_standardize_cv_mat(cv_mat : &Mat, encoding: ImageEncoding) -> Mat {
     let height = cv_mat.rows;
     let width = cv_mat.cols;
     let n = (height*width) as Float;
@@ -41,9 +44,9 @@ pub fn z_standardize_cv_mat(cv_mat : &mut Mat, encoding: ImageEncoding) -> () {
         for y in 0..height {
             let pixel_value =
                 match encoding {
-                    ImageEncoding::U8 => panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::U16 =>panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::S16 =>panic!("Z-standardization only supported for floating point types"),
+                    ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
+                    ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float,
+                    ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x) as Float,
                     ImageEncoding::F64 =>cv_mat.at2::<f64>(y,x) as Float
                 };
 
@@ -57,9 +60,9 @@ pub fn z_standardize_cv_mat(cv_mat : &mut Mat, encoding: ImageEncoding) -> () {
         for y in 0..height {
             let pixel_value =
                 match encoding {
-                    ImageEncoding::U8 => panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::U16 =>panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::S16 =>panic!("Z-standardization only supported for floating point types"),
+                    ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
+                    ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float,
+                    ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x) as Float,
                     ImageEncoding::F64 => cv_mat.at2::<f64>(y,x) as Float
                 };
 
@@ -70,36 +73,31 @@ pub fn z_standardize_cv_mat(cv_mat : &mut Mat, encoding: ImageEncoding) -> () {
 
     std_dev/=n;
     std_dev = std_dev.sqrt();
+    let mut value_buffer: Vec<u8> = Vec::new();
 
-    for x in 0..width {
-        for y in 0..height {
+    for y in 0..height {
+        for x in 0..width {
             let pixel_value =
                 match encoding {
-                    ImageEncoding::U8 => panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::U16 =>panic!("Z-standardization only supported for floating point types"),
-                    ImageEncoding::S16 =>panic!("Z-standardization only supported for floating point types"),
+                    ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
+                    ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float,
+                    ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x) as Float,
                     ImageEncoding::F64 =>cv_mat.at2::<f64>(y,x) as Float
                 };
 
             let v = (pixel_value-mean)/std_dev;
-            match encoding {
-                ImageEncoding::U8 => panic!("Z-standardization only supported for floating point types"),
-                ImageEncoding::U16 =>panic!("Z-standardization only supported for floating point types"),
-                ImageEncoding::S16 =>panic!("Z-standardization only supported for floating point types"),
-                ImageEncoding::F64 => {
-//                    let data = cv_mat.data();
-//                    let pos = y as usize * cv_mat.step1(0) * cv_mat.elem_size1() + x as usize * cv_mat.step1(1) * cv_mat.elem_size1();
-//                    let mut byte = &mut data[pos];
-//                    let mut bs = [0u8; mem::size_of::<f64>()];
-//                    bs.as_mut()
-//                        .write_i64::<LittleEndian>(i)
-//                        .expect("Unable to write");
-//                    *byte = bs;
-                    panic!("Z-standardization not yet implemented for floating point types")
-                }
-            };
+
+            let mut bs = [0u8; f64_size];
+            bs.as_mut()
+                .write_f64::<LittleEndian>(v)
+                .expect("Unable to write");
+            for elem in &bs {
+                value_buffer.push(*elem);
+            }
         }
     }
+
+    Mat::from_buffer(height,width,cv::CvType::Cv64FC1,&value_buffer)
 
 }
 

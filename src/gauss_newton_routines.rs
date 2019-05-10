@@ -130,7 +130,8 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                 continue;
             }
             valid_measurements_reference[flat_index] = true;
-            residuals[flat_index] = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+            let r  = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+            residuals[flat_index] = r;
         }
     }
 }

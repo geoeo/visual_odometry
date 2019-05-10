@@ -90,8 +90,8 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        30,
-                        0.0000005,
+                        1000,
+                        0.000005,
                         1.0,
                         max_depth,
                         0.0001,
@@ -106,6 +106,8 @@ fn main() {
         }
         write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
     }
+
+
 
 
 }

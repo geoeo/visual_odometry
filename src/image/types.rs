@@ -26,8 +26,8 @@ impl ImageEncoding {
             = match self {
             ImageEncoding::U8 => 255,
             ImageEncoding::U16 => 65535, // 256*256-1
-            ImageEncoding::S16 => panic!("normalizing with S16 not implemented"), // 256*256-1
-            ImageEncoding::F64 => panic!("normalizing with F64 not implemented") // 256*256-1
+            ImageEncoding::S16 => panic!("normalizing with S16 not implemented"),
+            ImageEncoding::F64 => panic!("normalizing with F64 not implemented")
         } as Float;
 
         let range = 255 as Float; // 255 - 0

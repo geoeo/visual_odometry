@@ -59,10 +59,12 @@ pub fn solve(reference: &Frame,
     let generator_x = generator_x();
     let generator_y = generator_y();
     //let generator_y = generator_y_neg();
+    //let generator_z = generator_z();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
     //let generator_roll = generator_roll_neg();
     let generator_pitch = generator_pitch_neg();
+    //let generator_pitch = generator_pitch();
     let generator_yaw = generator_yaw();
 
     let (back_projections,
