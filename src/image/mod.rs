@@ -11,6 +11,7 @@ use na::DMatrix;
 use crate::Float;
 use crate::numerics::{z_standardize, row_major_index};
 use self::types::{ImageFilter,ImageEncoding};
+use cv::mat::Mat;
 
 pub struct Image {
     pub buffer: DMatrix<Float>,
@@ -53,6 +54,14 @@ impl Image {
 
     pub fn to_image(&self) -> GrayImage {
         return matrix_to_image(&self.buffer, self.original_encoding);
+    }
+
+    pub fn from_cv_mat(image: Mat, filter: ImageFilter, standardize : bool, original_encoding: ImageEncoding) -> Image {
+        let mut buffer = cv_mat_to_matrix(image,original_encoding);
+        if standardize {
+            z_standardize(&mut buffer);
+        }
+        Image{ buffer, filter, is_standardized : standardize, original_encoding}
     }
 }
 
@@ -99,6 +108,28 @@ fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImag
     }
     gray_image
 }
+
+
+pub fn cv_mat_to_matrix(cv_mat: Mat, original_encoding: ImageEncoding) -> DMatrix<Float> {
+
+    let height = cv_mat.rows;
+    let width = cv_mat.cols;
+    let size = (height*width) as usize;
+    let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
+    for x in 0..width {
+        for y in 0..height {
+            let pixel_value =
+                match original_encoding {
+                ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
+                ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float
+            };
+
+            vec_column_major.push(pixel_value);
+        }
+    }
+    DMatrix::<Float>::from_vec(height as usize,width as usize ,vec_column_major)
+}
+
 
 pub fn select_filter(filter_type: ImageFilter) -> Option<[f32;9]>  {
     return match filter_type {

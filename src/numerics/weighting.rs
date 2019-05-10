@@ -10,7 +10,6 @@ pub fn generate_weights(residuals: &Vec<Float>, weights: &mut Vec<Float>, varian
     for i in 0..number_of_samples {
         let residual = residuals[i];
         let res_sqrd = residual*residual;
-        (res_sqrd / variance_prev);
         weights[i] = numerator / (degrees_of_freedom as Float + (res_sqrd / variance));
     }
 }
