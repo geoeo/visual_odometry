@@ -14,7 +14,6 @@ pub fn row_major_index(r : usize, c : usize, cols: usize) -> usize {
     return r*cols + c;
 }
 
-//TODO @Investigate this.
 pub fn z_standardize(matrix : &mut DMatrix<Float>) -> () {
     let mean = matrix.mean();
     let std_dev = matrix.variance().sqrt();
@@ -45,5 +44,49 @@ pub fn parts_from_isometry(SE3 : Matrix4<Float>) -> (Matrix3<Float>, Vector3<Flo
     let SO3 = SE3.fixed_slice::<U3,U3>(0,0).clone_owned();
     let t = SE3.fixed_slice::<U3,U1>(0,3).clone_owned();
     (SO3,t)
+
+}
+
+// https://en.wikipedia.org/wiki/Kernel_(image_processing)
+// Actually the kernel has to be flipped accross x and y.
+// But filters are symmetric!
+pub fn filter3x3(kernel: &Matrix3<Float>, matrix: DMatrix<Float>) -> DMatrix<Float> {
+    let width = matrix.ncols();
+    let height = matrix.nrows();
+    let size = width*height;
+    let kernel_size = 3;
+    let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
+    for x in 0..width {
+        for y in 0..height {
+            let mut value = 0.0;
+            let mut valid_count = 0.0;
+            for i in (x-kernel_size)..(x+kernel_size) {
+                for j in (y-kernel_size)..(y+kernel_size) {
+                    let convolved_value =
+                        match is_within_kernel_bounds(y,x,kernel_size,width,height) {
+                            true => {
+                                let kernel_value = *kernel.index((j,i));
+                                let pixel_value = *matrix.index((j,i));
+                                valid_count+=1;
+                                kernel_value*pixel_value
+                            },
+                            false => 0.0 //TODO: implement different bound behaviours
+                        };
+                    value += convolved_value;
+                }
+            }
+            let avg_value = value/valid_count;
+            vec_column_major.push(avg_value);
+        }
+    }
+
+    DMatrix::<Float>::from_vec(height,width, vec_column_major)
+}
+
+fn is_within_kernel_bounds(j: usize, i: usize, kernel_size: usize ,width: usize ,height: usize) -> bool {
+
+    let is_j_in_range = j >= 0 && j < height;
+    let is_i_in_range = i >= 0 && i < width;
+    return is_j_in_range && is_i_in_range;
 
 }
