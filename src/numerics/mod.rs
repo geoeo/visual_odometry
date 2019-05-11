@@ -66,11 +66,13 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Fl
                 for j in 0..kernel_size {
                     let i_matrix = x + i - kernel_min;
                     let j_matrix = y + j - kernel_min;
+                    let i_kernel = i;
+                    let j_kernel = j;
                     let convolved_value =
-                        match is_within_kernel_bounds(j_matrix,i_matrix,kernel_size,width_i32,height_i32) {
+                        match is_within_kernel_bounds(j_matrix,i_matrix,width_i32,height_i32) {
                             true => {
                                 //Cant be negative, safe to cast
-                                let kernel_value = *kernel.index((j as  usize,i as usize));
+                                let kernel_value = *kernel.index((j_kernel as  usize,i_kernel as usize));
                                 let pixel_value = *matrix.index((j_matrix as usize,i_matrix as usize));
                                 //valid_count+=1.0;
                                 kernel_value*pixel_value
@@ -92,7 +94,7 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Fl
     DMatrix::<Float>::from_vec(height,width, vec_column_major)
 }
 
-fn is_within_kernel_bounds(j: Unsigned, i: Unsigned, kernel_size: Unsigned ,width: Unsigned ,height: Unsigned) -> bool {
+fn is_within_kernel_bounds(j: Unsigned, i: Unsigned ,width: Unsigned ,height: Unsigned) -> bool {
 
     let is_j_in_range = j >= 0 && j < height;
     let is_i_in_range = i >= 0 && i < width;

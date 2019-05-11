@@ -10,13 +10,21 @@ pub fn horizontal_sobel() -> Matrix3<Float> {
         -1.0, 0.0, 1.0)
 }
 
+pub fn horizontal_sobel_vec() -> Vec<Float> {
+    vec!(-1.0, -2.0, -1.0, 0.0 ,0.0 ,0.0 ,1.0, 2.0, 1.0)
+}
+
 
 pub fn vertical_sobel() -> Matrix3<Float> {
     Matrix3::<Float>::new(
         -1.0, -2.0, -1.0,
         0.0, 0.0, 0.0,
-        1.0, 2.0, 2.0
+        1.0, 2.0, 1.0
     )
+}
+
+pub fn vertical_sobel_vec() -> Vec<Float> {
+    vec!(-1.0, 0.0, 1.0, -2.0 ,0.0 ,2.0 ,-1.0, 0.0, 1.0)
 }
 
 pub fn horizontal_scharr() -> Matrix3<Float> {

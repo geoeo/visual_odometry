@@ -129,7 +129,8 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                     (image_range_offset < x_idx_target) && (x_idx_target < image_width - image_range_offset)) {
                 continue;
             }
-            residuals[flat_index] = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+            let r = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+            residuals[flat_index] = r;
         }
     }
 }

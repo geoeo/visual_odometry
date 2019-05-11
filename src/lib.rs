@@ -59,10 +59,8 @@ pub fn solve(reference: &Frame,
     // We want RHS coordiante system. As such, we invert Z and Pitch
     let generator_x = generator_x();
     let generator_y = generator_y();
-    //let generator_z = generator_z();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
-    //let generator_pitch = generator_pitch();
     let generator_pitch = generator_pitch_neg();
     let generator_yaw = generator_yaw();
 
