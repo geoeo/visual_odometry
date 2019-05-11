@@ -23,6 +23,7 @@ pub fn row_major_index(r : usize, c : usize, cols: usize) -> usize {
 }
 
 const f64_size: usize = mem::size_of::<f64>();
+const u8_size: usize = mem::size_of::<u8>();
 
 //TODO @Investigate this.
 pub fn z_standardize(matrix : &mut DMatrix<Float>) -> () {

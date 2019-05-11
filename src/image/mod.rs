@@ -56,7 +56,7 @@ impl Image {
         return matrix_to_image(&self.buffer, self.original_encoding);
     }
 
-    pub fn from_cv_mat(image: Mat, filter: ImageFilter, standardize : bool, original_encoding: ImageEncoding) -> Image {
+    pub fn from_cv_mat(image: &Mat, filter: ImageFilter, standardize : bool, original_encoding: ImageEncoding) -> Image {
         let mut buffer = cv_mat_to_matrix(image,original_encoding);
         if standardize {
             z_standardize(&mut buffer);
@@ -110,7 +110,7 @@ fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImag
 }
 
 
-pub fn cv_mat_to_matrix(cv_mat: Mat, original_encoding: ImageEncoding) -> DMatrix<Float> {
+pub fn cv_mat_to_matrix(cv_mat: &Mat, original_encoding: ImageEncoding) -> DMatrix<Float> {
 
     let height = cv_mat.rows;
     let width = cv_mat.cols;
@@ -120,10 +120,10 @@ pub fn cv_mat_to_matrix(cv_mat: Mat, original_encoding: ImageEncoding) -> DMatri
         for y in 0..height {
             let pixel_value =
                 match original_encoding {
-                ImageEncoding::U8 => cv_mat.at2::<u8>(y,x) as Float,
-                ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x) as Float,
-                ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x) as Float,
-                ImageEncoding::F64 =>cv_mat.at2::<f64>(y,x) as Float
+                ImageEncoding::U8 => cv_mat.at2::<u8>(y,x).clone() as Float,
+                ImageEncoding::U16 =>cv_mat.at2::<u16>(y,x).clone() as Float,
+                ImageEncoding::S16 =>cv_mat.at2::<i16>(y,x).clone() as Float,
+                ImageEncoding::F64 =>cv_mat.at2::<f64>(y,x).clone() as Float
             };
 
             vec_column_major.push(pixel_value);

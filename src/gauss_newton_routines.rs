@@ -5,6 +5,7 @@ use crate::{Float, NormalizedImageCoordinates, HomogeneousBackProjections};
 use crate::camera::Camera;
 use crate::numerics::column_major_index;
 use crate::jacobians::*;
+use cv::imgcodecs::ImageWritePngStrategy::HuffmanOnly;
 
 // @GPU
 // This is not used in the Gauss-Newton estimation loop
@@ -130,7 +131,9 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                 continue;
             }
             valid_measurements_reference[flat_index] = true;
-            let r  = *image_reference.index(idx_reference) - *image_target.index(idx_target);
+            let ref_val = *image_reference.index(idx_reference);
+            let target_val = *image_target.index(idx_target);
+            let r  = ref_val-target_val;
             residuals[flat_index] = r;
         }
     }

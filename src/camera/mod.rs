@@ -27,9 +27,11 @@ impl Camera {
             let mut persp_points = self.intrinsics.K * world_points;
             let N = persp_points.ncols();
             for i in 0..N {
+                let x = *persp_points.index((0, i));
+                let y = *persp_points.index((1, i));
                 let z = *persp_points.index((2, i));
-                *persp_points.index_mut((0, i)) = *persp_points.index((0, i)) / z;
-                *persp_points.index_mut((1, i)) = *persp_points.index((1, i)) / z;
+                *persp_points.index_mut((0, i)) = x / z;
+                *persp_points.index_mut((1, i)) = y / z;
                 *persp_points.index_mut((2, i)) = 1.0;
         }
         persp_points
