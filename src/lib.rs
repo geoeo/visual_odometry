@@ -20,7 +20,8 @@ pub mod gauss_newton_routines;
 pub mod io;
 pub mod frame;
 
-pub type Float = f64; //Rename this to Float?
+pub type Float = f64;
+pub type Unsigned = i64;
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
 pub type NormalizedImageCoordinates = Matrix<Float, U3, Dynamic, VecStorage<Float, U3, Dynamic>>;
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)

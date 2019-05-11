@@ -1,7 +1,7 @@
 extern crate nalgebra as na;
 
 use na::{DMatrix, Matrix3, Vector3, Matrix4, U3, U1};
-use crate::Float;
+use crate::{Float,Unsigned};
 
 pub mod lie;
 pub mod weighting;
@@ -56,18 +56,21 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: DMatrix<Float>) -> DMatrix<Flo
     let size = width*height;
     let kernel_size = 3;
     let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
-    for x in 0..width {
-        for y in 0..height {
+    let width_i32 = width as Unsigned;
+    let height_i32 = height as Unsigned;
+    for x in 0..width_i32 {
+        for y in 0..height_i32 {
             let mut value = 0.0;
             let mut valid_count = 0.0;
             for i in (x-kernel_size)..(x+kernel_size) {
                 for j in (y-kernel_size)..(y+kernel_size) {
                     let convolved_value =
-                        match is_within_kernel_bounds(y,x,kernel_size,width,height) {
+                        match is_within_kernel_bounds(y,x,kernel_size,width_i32,height_i32) {
                             true => {
-                                let kernel_value = *kernel.index((j,i));
-                                let pixel_value = *matrix.index((j,i));
-                                valid_count+=1;
+                                //Cant be negative, safe to cast
+                                let kernel_value = *kernel.index((j as  usize,i as usize));
+                                let pixel_value = *matrix.index((j as usize,i as usize));
+                                valid_count+=1.0;
                                 kernel_value*pixel_value
                             },
                             false => 0.0 //TODO: implement different bound behaviours
@@ -83,7 +86,7 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: DMatrix<Float>) -> DMatrix<Flo
     DMatrix::<Float>::from_vec(height,width, vec_column_major)
 }
 
-fn is_within_kernel_bounds(j: usize, i: usize, kernel_size: usize ,width: usize ,height: usize) -> bool {
+fn is_within_kernel_bounds(j: Unsigned, i: Unsigned, kernel_size: Unsigned ,width: Unsigned ,height: Unsigned) -> bool {
 
     let is_j_in_range = j >= 0 && j < height;
     let is_i_in_range = i >= 0 && i < width;
