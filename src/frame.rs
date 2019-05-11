@@ -42,15 +42,15 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
             = read_png_16bits_row_major(target_depth_path)
             .unwrap_or_else(|_| panic!("Could not read image"));
 
-        let intensity_1 = Image::from_image(&image_ref, ImageFilter::None, false);
+        let intensity_1 = Image::from_image(&image_ref, ImageFilter::None, true);
         let mut depth_1 = Image::from_vec_16(height,width,&depth_ref, false);
-        let gx = Image::from_image(&image_ref, ImageFilter::SobelX, false);
-        let gy = Image::from_image(&image_ref, ImageFilter::SobelY, false);
+        let gx = Image::from_image(&image_ref, ImageFilter::SobelX, true);
+        let gy = Image::from_image(&image_ref, ImageFilter::SobelY, true);
 
-        let intensity_2 = Image::from_image(&image_2, ImageFilter::None, false);
+        let intensity_2 = Image::from_image(&image_2, ImageFilter::None, true);
         let mut depth_2 = Image::from_vec_16(height,width,&target_depth, false);
-        let gx_2 = Image::from_image(&image_2, ImageFilter::SobelX, false);
-        let gy_2 = Image::from_image(&image_2, ImageFilter::SobelY, false);
+        let gx_2 = Image::from_image(&image_2, ImageFilter::SobelX, true);
+        let gy_2 = Image::from_image(&image_2, ImageFilter::SobelY, true);
 
         depth_1.buffer /= depth_factor;
         depth_2.buffer /= depth_factor;

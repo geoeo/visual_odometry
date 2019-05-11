@@ -103,7 +103,7 @@ pub fn gauss_newton_step(residuals: &Vec<Float>,
 
 // @GPU
 pub fn compute_residuals(residuals: &mut Vec<Float>,
-                         valid_measurements_reference: &mut Vec<bool>,
+                         valid_measurements_reference: &Vec<bool>,
                          valid_measurements_target: &Vec<bool>,
                          image_reference:  &DMatrix<Float>,
                          image_target:  &DMatrix<Float>,
@@ -129,7 +129,6 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                     (image_range_offset < x_idx_target) && (x_idx_target < image_width - image_range_offset)) {
                 continue;
             }
-            valid_measurements_reference[flat_index] = true;
             residuals[flat_index] = *image_reference.index(idx_reference) - *image_target.index(idx_target);
         }
     }

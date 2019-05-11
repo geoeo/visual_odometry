@@ -6,10 +6,9 @@ pub mod types;
 
 use image::{GrayImage,DynamicImage};
 use image::flat::NormalForm;
-use image::imageops::filter3x3;
-use na::DMatrix;
+use na::{Matrix3,DMatrix};
 use crate::Float;
-use crate::numerics::{z_standardize, row_major_index};
+use crate::numerics::{z_standardize, row_major_index,filter3x3};
 use self::types::{ImageFilter,ImageEncoding};
 
 pub struct Image {
@@ -18,6 +17,7 @@ pub struct Image {
     pub is_standardized : bool,
     pub original_encoding: ImageEncoding}
 
+//TODO refactor this
 impl Image {
     pub fn new(buffer: DMatrix<Float>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
         Image { buffer, filter, is_standardized,original_encoding}
@@ -25,17 +25,23 @@ impl Image {
 
     pub fn from_image(image: &GrayImage, filter: ImageFilter, standardize : bool) -> Image {
         let filter_type = select_filter(filter);
-        let mut buffer =
-            match filter_type {
-                None => image_to_matrix(image),
-                Some(filter) => image_to_matrix(&filter3x3(image,&filter))
-        };
-        //TODO @Investigate -> standardarize before filter
+        let mut buffer = image_to_matrix(image);
         if standardize {
             z_standardize(&mut buffer);
         }
+        let filtered_buffer =
+            match filter_type {
+                None => buffer,
+                Some(filter) => filter3x3(&filter,&buffer)
+        };
 
-        Image{ buffer, filter, is_standardized : standardize, original_encoding: ImageEncoding::U8 }
+        let encoding =
+            match standardize {
+                true => ImageEncoding::F64,
+                false => ImageEncoding::U8
+            };
+
+        Image{ buffer: filtered_buffer, filter, is_standardized : standardize, original_encoding: encoding }
     }
 
     pub fn from_vec_16(height: usize, width: usize, vec_16: &Vec<u16>, standardize : bool) -> Image {
@@ -103,12 +109,12 @@ fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImag
     gray_image
 }
 
-pub fn select_filter(filter_type: ImageFilter) -> Option<[f32;9]>  {
+pub fn select_filter(filter_type: ImageFilter) -> Option<Matrix3<Float>>  {
     return match filter_type {
-        ImageFilter::SobelX => Some(filters::HORIZONTAL_SOBEL),
-        ImageFilter::SobelY => Some(filters::VERTICAL_SOBEL),
-        ImageFilter::ScharrX => Some(filters::HORIZONTAL_SCHARR),
-        ImageFilter::ScharrY => Some(filters::VERTICAL_SCHARR),
+        ImageFilter::SobelX => Some(filters::horizontal_sobel()),
+        ImageFilter::SobelY => Some(filters::vertical_sobel()),
+        ImageFilter::ScharrX => Some(filters::horizontal_scharr()),
+        ImageFilter::ScharrY => Some(filters::vertical_scharr()),
         ImageFilter::None => None
     };
 }

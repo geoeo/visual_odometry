@@ -4,10 +4,9 @@ extern crate visual_odometry;
 use std::path::Path;
 
 use image::imageops::filter3x3;
-use visual_odometry::image::select_filter;
 use visual_odometry::image::types::{ImageFilter, ImageEncoding};
 use visual_odometry::image::Image;
-use visual_odometry::image::filters::horizontal_sobel;
+use visual_odometry::image::filters::{horizontal_sobel, HORIZONTAL_SCHARR};
 use visual_odometry::numerics;
 
 fn main() {
@@ -22,7 +21,7 @@ fn main() {
     let file_mat_out_path = format!("output/{}_{:?}.{}",image_name_mat,image_filter,image_format);
 
     let image = image::open(&Path::new(&image_path)).unwrap().grayscale().to_luma();
-    let kernel = select_filter(image_filter).unwrap();
+    let kernel = HORIZONTAL_SCHARR;
 
     let gradient_image = filter3x3(&image,&kernel);
     let gradient_image_conv = Image::from_image(&gradient_image,ImageFilter::None, false);

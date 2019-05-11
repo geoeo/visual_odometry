@@ -59,10 +59,10 @@ pub fn solve(reference: &Frame,
     // We want RHS coordiante system. As such, we invert Z and Pitch
     let generator_x = generator_x();
     let generator_y = generator_y();
-    //let generator_y = generator_y_neg();
+    //let generator_z = generator_z();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
-    //let generator_roll = generator_roll_neg();
+    //let generator_pitch = generator_pitch();
     let generator_pitch = generator_pitch_neg();
     let generator_yaw = generator_yaw();
 
@@ -107,8 +107,8 @@ pub fn solve(reference: &Frame,
 
 
         let lie_new = alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
-        //let (R_current, t_current) = parts_from_isometry(SE3);
-        let (R_current, t_current) = exp(lie);
+        let (R_current, t_current) = parts_from_isometry(SE3);
+        //let (R_current, t_current) = exp(lie);
         let (R_new, t_new) = exp(lie_new);
 
         let R_est = R_current*R_new;
