@@ -88,6 +88,9 @@ fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<F
 
 fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
+    if encoding == ImageEncoding::F64 {
+        println!("WARNING normalize_to_gray: Floating point values will be clamped to 0 if less than 0")
+    }
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
     for c in 0..cols {

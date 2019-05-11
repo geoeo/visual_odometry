@@ -5,8 +5,9 @@ extern crate visual_odometry;
 use approx::assert_relative_eq;
 use na::{Vector6, DMatrix, Vector3, Matrix3,Matrix4};
 use visual_odometry::Float;
-use visual_odometry::numerics::{z_standardize, parts_from_isometry, isometry_from_parts};
+use visual_odometry::numerics::{z_standardize, parts_from_isometry, isometry_from_parts, filter3x3};
 use visual_odometry::numerics::lie::{exp,ln};
+use visual_odometry::image::filters::horizontal_sobel;
 
 
 #[test]
@@ -67,3 +68,35 @@ fn isometry() {
     assert_eq!(t_new, t);
     assert_eq!(se3_new, se3);
 }
+
+#[test]
+fn test_filter3x3() {
+    let so3 = DMatrix::<Float>::from_row_slice(3,3, &[0.5, 0.0, 0.5,
+                                    0.4, 0.2, 0.4,
+                                    0.1, 0.8, 0.1]);
+
+    let vert_edge = DMatrix::<Float>::from_row_slice(3,3, &[0.0, 1.0, 1.0,
+        0.0, 1.0, 1.0,
+        0.0, 1.0, 1.0]);
+
+    let id_filter = Matrix3::<Float>::new(0.0, 0.0, 0.0,
+                                    0.0, 1.0, 0.0,
+                                    0.0, 0.0, 0.0);
+
+    let filter = horizontal_sobel();
+
+
+    let filtered = DMatrix::<Float>::from_row_slice(3,3, &[0.0, 0.0, 0.0,
+        0.0, 0.2, 0.0,
+        0.0, 0.0, 0.0]);
+
+    let filtered_edge = DMatrix::<Float>::from_row_slice(3,3, &[0.0, 0.0, 0.0,
+        0.0, 4.0, 0.0,
+        0.0, 0.0, 0.0]);
+    let mat = filter3x3(&id_filter, &so3);
+    let mat_edge = filter3x3(&filter, &vert_edge);
+
+    assert_eq!(mat,filtered);
+    assert_eq!(mat_edge,filtered_edge);
+}
+
