@@ -24,7 +24,7 @@ pub fn t_dist_variance(residuals: &Vec<Float>,
                        max_it: usize) -> Float {
     let mut variance = variance_min;
     let mut variance_prev = variance_min;
-    for _ in 0..max_it {
+    for _it in 0..max_it {
         variance = t_dist_variance_step(residuals,
                                         valid_measurements_reference,
                                         valid_measurements_target,

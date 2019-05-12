@@ -76,11 +76,12 @@ fn main() {
     let intrinsics = Intrinsics::new(fx, fy, ox, oy);
     let camera = Camera{intrinsics};
 
-    println!("starting solve");
-    let mut SE3_buffer: Vec<Matrix4<Float>> = Vec::with_capacity(number_of_frames);
-    let mut lie_buffer: Vec<Vector6<Float>> = Vec::with_capacity(number_of_frames);
 
     if run_vo {
+        println!("starting solve");
+        let mut SE3_buffer: Vec<Matrix4<Float>> = Vec::with_capacity(number_of_frames);
+        let mut lie_buffer: Vec<Vector6<Float>> = Vec::with_capacity(number_of_frames);
+
         for i in 0..number_of_frames {
             let max_depth = max_depths[i];
             let reference_frame = &reference_frames[i];
@@ -90,9 +91,9 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        100,
+                        500,
                         0.0000005,
-                        1.0,
+                        0.25,
                         max_depth,
                         0.0001,
                         1000.0,
