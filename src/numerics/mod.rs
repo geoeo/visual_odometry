@@ -47,8 +47,9 @@ pub fn parts_from_isometry(SE3 : Matrix4<Float>) -> (Matrix3<Float>, Vector3<Flo
 
 }
 
+//@GPU
 // https://en.wikipedia.org/wiki/Kernel_(image_processing)
-// Actually the kernel has to be flipped accross x and y. //TODO sobel, scharr are not symmetric
+// Actually the kernel has to be flipped accross x and y? But kernels seem to work as is
 pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Float> {
     let width = matrix.ncols();
     let height = matrix.nrows();
@@ -61,7 +62,7 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Fl
     for x in 0..width_i32 {
         'image: for y in 0..height_i32 {
             let mut value = 0.0;
-            //let mut valid_count = 0.0;
+            let mut out_of_range_flag = false;
             for i in 0..kernel_size {
                 for j in 0..kernel_size {
                     let i_matrix = x + i - kernel_min;
@@ -69,25 +70,28 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Fl
                     let i_kernel = i;
                     let j_kernel = j;
                     let convolved_value =
-                        match is_within_kernel_bounds(j_matrix,i_matrix,width_i32,height_i32) {
+                        match is_within_kernel_bounds(j_matrix,i_matrix,width_i32,height_i32){
                             true => {
                                 //Cant be negative, safe to cast
                                 let kernel_value = *kernel.index((j_kernel as  usize,i_kernel as usize));
                                 let pixel_value = *matrix.index((j_matrix as usize,i_matrix as usize));
-                                //valid_count+=1.0;
                                 kernel_value*pixel_value
                             },
                             false => {
                                 //TODO: implement different bound behaviours
-                                vec_column_major.push(0.0);
-                                continue 'image
+                                out_of_range_flag = true;
+                                0.0
                             }
                         };
                     value += convolved_value;
                 }
             }
-            //let avg_value = value/valid_count;
-            vec_column_major.push(value);
+            if !out_of_range_flag{
+                vec_column_major.push(value);
+            } else {
+                vec_column_major.push(0.0);
+            }
+
         }
     }
 
