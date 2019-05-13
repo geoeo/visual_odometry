@@ -7,6 +7,7 @@ use visual_odometry::{solve, Float};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_lists, generate_runtime_paths};
+use visual_odometry::image::types::ImageFilter;
 
 #[allow(non_snake_case)]
 fn main() {
@@ -40,7 +41,9 @@ fn main() {
                       &reference_depth_paths,
                       &target_intensity_paths,
                       &target_depth_paths,
-                      depth_factor);
+                      depth_factor,
+                      ImageFilter::SobelX,
+                      ImageFilter::SobelY);
 
     let number_of_frames = reference_frames.len();
 

@@ -63,7 +63,6 @@ pub fn back_project(camera_reference: Camera,
 // @GPU
 //TODO @Investigate -> Trying stack allocated g and H
 #[allow(non_snake_case)]
-
 pub fn gauss_newton_step(residuals: &Vec<Float>,
                          valid_measurements_reference: &Vec<bool>,
                          valid_measurements_target: &Vec<bool>,
@@ -86,7 +85,7 @@ pub fn gauss_newton_step(residuals: &Vec<Float>,
                 continue;
             }
             let J_image = image_jacobian(image_gradient_x_target,image_gradient_y_target,x,y);
-            let J_pi =J_pi_vec[flat_idx];
+            let J_pi = J_pi_vec[flat_idx];
             let J_lie = J_lie_vec[flat_idx];
 
             let J = J_image*J_pi*J_lie;

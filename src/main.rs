@@ -10,6 +10,7 @@ use visual_odometry::{solve, Float};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{*};
+use visual_odometry::image::types::ImageFilter;
 
 
 #[allow(non_snake_case)]
@@ -65,7 +66,9 @@ fn main() {
                       &reference_depth_paths,
                       &target_intensity_paths,
                       &target_depth_paths,
-                      depth_factor);
+                      depth_factor,
+                      ImageFilter::SobelX,
+                      ImageFilter::SobelY);
 
     let number_of_frames = reference_frames.len();
 
@@ -91,9 +94,9 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        500,
+                        100,
                         0.0000005,
-                        0.25,
+                        1.0,
                         max_depth,
                         0.0001,
                         1000.0,
