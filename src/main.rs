@@ -94,7 +94,7 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        100,
+                        1000,
                         0.0000005,
                         1.0,
                         max_depth,

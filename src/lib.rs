@@ -1,14 +1,14 @@
 extern crate nalgebra as na;
 extern crate nalgebra_lapack as na_lapack;
 
-use na::{Matrix, Matrix4, U3, U4, Dynamic, Vector6, VecStorage};
+use na::{Matrix, Matrix4, Matrix6, U3, U4, Dynamic, Vector6, VecStorage};
 use nalgebra::LU;
 use numerics::lie::*;
 use crate::image::Image;
-use crate::gauss_newton_routines::{back_project, compute_residuals, gauss_newton_step};
+use crate::gauss_newton_routines::*;
 use crate::camera::Camera;
 use crate::jacobians::{perspective_jacobians, lie_jacobians};
-use crate::numerics::{isometry_from_parts, parts_from_isometry};
+use crate::numerics::{isometry_from_parts, parts_from_isometry, lm_gamma};
 use crate::numerics::weighting::{t_dist_variance,generate_weights};
 use crate::frame::Frame;
 
@@ -87,6 +87,24 @@ pub fn solve(reference: &Frame,
                       image_width, image_height,
                       image_range_offset);
 
+    // Leuvenberg-Marquart Specific
+    //let tau = 1.0 as Float;
+    let tau = 0.000001 as Float;
+    let mut nu = 2.0 as Float;
+    let I_6 = Matrix6::<Float>::identity();
+    let H_initial
+        = approximate_hessian(&valid_measurements_reference,
+                              &valid_measurements_target,
+                              &target.gradient_x.buffer,
+                              &target.gradient_y.buffer,
+                              &J_lie_vec,
+                              &J_pi_vec,
+                              &weights,
+                              image_width,
+                              image_height,
+                              image_range_offset);
+    let h_max = (H_initial.diagonal().max()) / N as Float;
+    let mut mu = tau*h_max;
 
     for it in 0..max_its {
 
@@ -104,17 +122,18 @@ pub fn solve(reference: &Frame,
                                 image_range_offset);
 
 
-        let lie_new = alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
+        let lie_new = LU::new(H+mu*I_6).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
+        //let lie_new = alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
         let (R_current, t_current) = parts_from_isometry(SE3);
         //let (R_current, t_current) = exp(lie);
         let (R_new, t_new) = exp(lie_new);
 
         let R_est = R_current*R_new;
         let t_est = R_current*t_new + t_current;
-        lie = ln(R_est,t_est);
-        SE3 = isometry_from_parts(R_est,t_est);
+        let lie_est = ln(R_est,t_est);
+        let SE3_est = isometry_from_parts(R_est,t_est);
 
-        let Y_est: HomogeneousBackProjections = SE3*(&back_projections);
+        let Y_est: HomogeneousBackProjections = SE3_est*(&back_projections);
         let target_projections = camera.apply_perspective_projection(&Y_est);
 
         compute_residuals(&mut residuals,
@@ -144,6 +163,7 @@ pub fn solve(reference: &Frame,
 
         //TODO: Maybe redundant
         // clear weights
+
         for i in 0..N {
             weights[i] = 1.0;
         }
@@ -151,6 +171,7 @@ pub fn solve(reference: &Frame,
         if variance > 0.0 {
             generate_weights(&residuals,&mut weights,variance,degrees_of_freedom);
         }
+
 
         let mut res_sum_squared = 0.0;
         for i in 0..N {
@@ -163,17 +184,39 @@ pub fn solve(reference: &Frame,
         res_squared_mean = res_sum_squared/number_of_valid_measurements as Float;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
-
         if residual_delta <= eps {
+            lie = lie_est;
+            SE3 = SE3_est;
             println!("done, squared mean error: {}, delta: {}, pixel ratio: {}",
                      res_squared_mean,
                      residual_delta,
                      valid_pixel_ratio);
             break;
         }
+
+        //Leuvenberg-Marquardt
+        // http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=3215
+        let gamma = lm_gamma(res_squared_mean_prev, res_squared_mean, lie_new, g, mu);
+
+        if gamma > 0.0 {
+            lie = lie_est;
+            SE3 = SE3_est;
+            let v1 = 1.0/3.0 as Float;
+            let v2 = 1.0-(2.0*gamma-1.0).powf(3.0) as Float;
+            let value = if v1 > v2 { v1 } else {v2};
+            mu *= value;
+            nu = 2.0;
+
+        } else {
+            mu *= nu;
+            nu *= 2.0;
+        }
+
+        mu /= N as Float;
+
         if print_runtime_info {
             //TODO: think of a way to buffer this. As it impacts performance
-            println!("squared mean error: {}, delta: {}, iterator:  {}, valid_pixel_ratio: {}, variance: {}", res_squared_mean, residual_delta, it, valid_pixel_ratio, variance);
+            println!("squared mean error: {}, delta: {}, iterator:  {}, mu: {}", res_squared_mean, residual_delta, it, mu);
         }
 
     }
