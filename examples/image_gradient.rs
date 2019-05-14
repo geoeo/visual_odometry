@@ -6,8 +6,7 @@ use std::path::Path;
 use image::imageops::filter3x3;
 use visual_odometry::image::types::{ImageFilter, ImageEncoding};
 use visual_odometry::image::Image;
-use visual_odometry::image::filters::{horizontal_sobel, HORIZONTAL_SCHARR};
-use visual_odometry::numerics;
+use visual_odometry::image::filters::HORIZONTAL_SCHARR;
 
 fn main() {
 
@@ -31,16 +30,14 @@ fn main() {
 
     println!("min: {}, max: {}", min, max);
 
-
     let image_mat = Image::from_image(&image,ImageFilter::None, false);
-    let grad_mat = numerics::filter3x3(&horizontal_sobel(),&image_mat.buffer);
 
-    let my_max = grad_mat.max();
-    let my_min = grad_mat.min();
+    let mat_gradient_image = Image::from_matrix(&image_mat.buffer, ImageFilter::SobelX, false, ImageEncoding::F64);
+
+    let my_max = mat_gradient_image.buffer.max();
+    let my_min = mat_gradient_image.buffer.min();
 
     println!("my min: {}, my max: {}", my_min, my_max);
-
-    let mat_gradient_image = Image::from_matrix(grad_mat, ImageFilter::None, false, ImageEncoding::F64);
 
     let mat_gradient_image_rs = mat_gradient_image.to_image();
 

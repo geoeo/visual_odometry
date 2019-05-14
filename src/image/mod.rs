@@ -18,13 +18,9 @@ pub struct Image {
     pub original_encoding: ImageEncoding}
 
 impl Image {
-    pub fn from_matrix(buffer: DMatrix<Float>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
-        Image { buffer, filter, is_standardized,original_encoding}
-    }
-
-    pub fn from_image(image: &GrayImage, filter: ImageFilter, standardize : bool) -> Image {
+    pub fn from_matrix(matrix: &DMatrix<Float>, filter: ImageFilter, standardize : bool, original_encoding: ImageEncoding) -> Image {
+        let mut buffer = matrix.clone();
         let filter_type = select_filter(filter);
-        let mut buffer = image_to_matrix(image);
         if standardize {
             z_standardize(&mut buffer);
         }
@@ -32,7 +28,23 @@ impl Image {
             match filter_type {
                 None => buffer,
                 Some(filter) => filter3x3(&filter,&buffer)
-        };
+            };
+
+
+        Image{ buffer: filtered_buffer, filter, is_standardized : standardize, original_encoding }
+    }
+
+    pub fn from_image(image: &GrayImage, filter: ImageFilter, standardize : bool) -> Image {
+        let mut buffer = image_to_matrix(image);
+        let filter_type = select_filter(filter);
+        if standardize {
+            z_standardize(&mut buffer);
+        }
+        let filtered_buffer =
+            match filter_type {
+                None => buffer,
+                Some(filter) => filter3x3(&filter,&buffer)
+            };
 
         let encoding =
             match standardize {
