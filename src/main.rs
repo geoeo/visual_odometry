@@ -6,7 +6,7 @@ use std::time::Instant;
 use std::path::PathBuf;
 use na::{Matrix4,Vector6};
 use visual_odometry::frame::load_frames;
-use visual_odometry::{solve, Float};
+use visual_odometry::{solve, Float, SolverOptions};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{*};
@@ -29,8 +29,14 @@ fn main() {
     let step_count = 1;
     let debug = false;
     let run_vo = true;
-    let print_runtime_info = true;
     let max_diff_milliseconds = 0.03;
+
+    let runtime_options = SolverOptions{
+        lm: true,
+        weighting: true,
+        print_runtime_info: true
+    };
+
 
     let project_root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
     let out_dir = "output";
@@ -79,7 +85,6 @@ fn main() {
     let intrinsics = Intrinsics::new(fx, fy, ox, oy);
     let camera = Camera{intrinsics};
 
-
     if run_vo {
         println!("starting solve");
         let mut SE3_buffer: Vec<Matrix4<Float>> = Vec::with_capacity(number_of_frames);
@@ -102,7 +107,7 @@ fn main() {
                         1000.0,
                         100,
                         0,
-                        print_runtime_info);
+                        runtime_options);
             let solver_duration = now.elapsed().as_millis();
             SE3_buffer.push(SE3);
             lie_buffer.push(lie);

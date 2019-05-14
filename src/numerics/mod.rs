@@ -1,6 +1,6 @@
 extern crate nalgebra as na;
 
-use na::{DMatrix, Matrix3, Vector3, Matrix4, U3, U1};
+use na::{DMatrix, Matrix3, Vector3, Vector6, Matrix4, U3, U1};
 use crate::{Float,Unsigned};
 
 pub mod lie;
@@ -45,6 +45,20 @@ pub fn parts_from_isometry(SE3 : Matrix4<Float>) -> (Matrix3<Float>, Vector3<Flo
     let t = SE3.fixed_slice::<U3,U1>(0,3).clone_owned();
     (SO3,t)
 
+}
+
+#[allow(non_snake_case)]
+pub fn lm_gamma(F_prev: Float,
+                F: Float,
+                lie_new: Vector6<Float>,
+                g: Vector6<Float>,
+                mu: Float) -> Float {
+    let lie_new_trans = lie_new.transpose();
+    let numerator = F_prev - F;
+    let denom_inner = mu*(lie_new - g);
+    let single = lie_new_trans*denom_inner;
+    let single_val = single.index(0);
+    numerator/(mu*single_val)
 }
 
 //@GPU
