@@ -32,7 +32,7 @@ fn main() {
     let max_diff_milliseconds = 0.03;
 
     let runtime_options = SolverOptions{
-        lm: true,
+        lm: false,
         weighting: true,
         print_runtime_info: true
     };
@@ -99,7 +99,7 @@ fn main() {
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        1000,
+                        500,
                         0.0000005,
                         1.0,
                         max_depth,

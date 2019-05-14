@@ -229,11 +229,18 @@ pub fn solve(reference: &Frame,
             }
 
             mu /= N as Float;
+        } else {
+            lie = lie_est;
+            SE3 = SE3_est;
         }
 
         if print_runtime_info {
             //TODO: think of a way to buffer this. As it impacts performance
-            println!("squared mean error: {}, delta: {}, iterator:  {}, mu: {}", res_squared_mean, residual_delta, it, mu);
+            if lm {
+                println!("squared mean error: {}, delta: {}, iterator:  {}, mu: {}", res_squared_mean, residual_delta, it, mu);
+            } else {
+                println!("squared mean error: {}, delta: {}, iterator:  {}, valid_pixel_ratio: {}, variance: {}", res_squared_mean, residual_delta, it, valid_pixel_ratio, variance);
+            }
         }
 
     }
