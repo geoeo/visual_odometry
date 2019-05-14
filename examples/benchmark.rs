@@ -1,9 +1,11 @@
+extern crate nalgebra as na;
 extern crate image;
 extern crate visual_odometry;
 
+use na::{Vector6, Matrix4};
 use std::time::Instant;
 use visual_odometry::frame::load_frames;
-use visual_odometry::{solve, Float, SolverOptions};
+use visual_odometry::{solve, Float, SolverOptions, SolverParameters};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_lists, generate_runtime_paths};
@@ -69,18 +71,24 @@ fn main() {
             let reference_frame = &reference_frames[i];
             let target_frame = &target_frames[i];
 
+            let solver_parameters = SolverParameters {
+                lie_prior: Vector6::<Float>::zeros(),
+                SE3_prior: Matrix4::<Float>::identity(),
+                max_its: 1000,
+                eps: 0.0000005,
+                alpha_step: 1.0,
+                max_depth,
+                var_eps: 0.0001,
+                var_min: 1000.0,
+                max_its_var: 100,
+                image_range_offset: 0
+            };
+
             let (_SE3, _lie)
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        1000,
-                        0.00000000001,
-                        1.0,
-                        max_depth,
-                        0.0001,
-                        100000.0,
-                        100,
-                        20,
+                        solver_parameters,
                         runtime_options);
         }
         let solver_duration = now.elapsed().as_millis();

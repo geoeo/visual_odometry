@@ -6,7 +6,7 @@ use std::time::Instant;
 use std::path::PathBuf;
 use na::{Matrix4,Vector6};
 use visual_odometry::frame::load_frames;
-use visual_odometry::{solve, Float, SolverOptions};
+use visual_odometry::{solve, Float, SolverOptions, SolverParameters};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{*};
@@ -94,19 +94,24 @@ fn main() {
             let max_depth = max_depths[i];
             let reference_frame = &reference_frames[i];
             let target_frame = &target_frames[i];
+            let solver_parameters = SolverParameters {
+                lie_prior: Vector6::<Float>::zeros(),
+                SE3_prior: Matrix4::<Float>::identity(),
+                max_its: 1000,
+                eps: 0.0000005,
+                alpha_step: 1.0,
+                max_depth,
+                var_eps: 0.0001,
+                var_min: 1000.0,
+                max_its_var: 100,
+                image_range_offset: 0
+            };
             let now = Instant::now();
             let (SE3, lie)
                 = solve(&reference_frame,
                         &target_frame,
                         camera,
-                        1000,
-                        0.0000005,
-                        1.0,
-                        max_depth,
-                        0.0001,
-                        1000.0,
-                        100,
-                        0,
+                        solver_parameters,
                         runtime_options);
             let solver_duration = now.elapsed().as_millis();
             SE3_buffer.push(SE3);

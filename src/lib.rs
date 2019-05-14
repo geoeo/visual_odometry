@@ -27,6 +27,7 @@ pub type NormalizedImageCoordinates = Matrix<Float, U3, Dynamic, VecStorage<Floa
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
 pub type HomogeneousBackProjections = Matrix<Float, U4, Dynamic, VecStorage<Float, U4, Dynamic>>;
 
+
 #[derive(Debug,Copy,Clone)]
 pub struct SolverOptions {
     pub lm: bool, // if false, will use gradient line search
@@ -35,26 +36,43 @@ pub struct SolverOptions {
 }
 
 #[allow(non_snake_case)]
+#[derive(Debug,Copy,Clone)]
+pub struct SolverParameters {
+    pub lie_prior: Vector6<Float>, // if false, will use gradient line search
+    pub SE3_prior: Matrix4<Float>,
+    pub max_its: usize,
+    pub eps: Float,
+    pub alpha_step: Float,
+    pub max_depth: Float,
+    pub var_eps: Float,
+    pub var_min: Float,
+    pub max_its_var: usize,
+    pub image_range_offset: usize
+}
+
+#[allow(non_snake_case)]
 pub fn solve(reference: &Frame,
              target: &Frame,
              camera: Camera,
-             max_its: usize,
-             eps: Float,
-             alpha_step: Float,
-             max_depth: Float,
-             var_eps: Float,
-             var_min: Float,
-             max_its_var: usize,
-             image_range_offset: usize,
+             parameters: SolverParameters,
              runtime_options: SolverOptions)
              -> (Matrix4<Float>, Vector6<Float>) {
+
+    let max_its = parameters.max_its;
+    let eps = parameters.eps;
+    let alpha_step = parameters.alpha_step;
+    let max_depth = parameters.max_depth;
+    let var_eps = parameters.var_eps;
+    let var_min = parameters.var_min;
+    let max_its_var = parameters.max_its_var;
+    let image_range_offset = parameters.image_range_offset;
 
     let lm = runtime_options.lm;
     let weighting = runtime_options.weighting;
     let print_runtime_info = runtime_options.print_runtime_info;
 
-    let mut lie = Vector6::<Float>::zeros();
-    let mut SE3 = Matrix4::<Float>::identity();
+    let mut lie = parameters.lie_prior;
+    let mut SE3 = parameters.SE3_prior;
 
     let image_width = reference.intensity.buffer.ncols();
     let image_height = reference.intensity.buffer.nrows();
@@ -106,6 +124,8 @@ pub fn solve(reference: &Frame,
 
     // Leuvenberg-Marquart Specific
     if lm {
+        //TODO: @Investigate -> This might change when using image pyramids
+        // If the inital approximation to SE3 is good, tau can be bigger (0.001 - 1.0)
         let tau = 0.000001 as Float;
         nu = 2.0 as Float;
         let H_initial
