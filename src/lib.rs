@@ -27,6 +27,13 @@ pub type NormalizedImageCoordinates = Matrix<Float, U3, Dynamic, VecStorage<Floa
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
 pub type HomogeneousBackProjections = Matrix<Float, U4, Dynamic, VecStorage<Float, U4, Dynamic>>;
 
+#[derive(Debug,Copy,Clone)]
+pub struct SolverOptions {
+    pub lm: bool, // if false, will use gradient line search
+    pub weighting: bool,
+    pub print_runtime_info: bool
+}
+
 #[allow(non_snake_case)]
 pub fn solve(reference: &Frame,
              target: &Frame,
@@ -39,8 +46,13 @@ pub fn solve(reference: &Frame,
              var_min: Float,
              max_its_var: usize,
              image_range_offset: usize,
-             print_runtime_info: bool)
+             runtime_options: SolverOptions)
              -> (Matrix4<Float>, Vector6<Float>) {
+
+    let lm = runtime_options.lm;
+    let weighting = runtime_options.weighting;
+    let print_runtime_info = runtime_options.print_runtime_info;
+
     let mut lie = Vector6::<Float>::zeros();
     let mut SE3 = Matrix4::<Float>::identity();
 
@@ -63,6 +75,11 @@ pub fn solve(reference: &Frame,
     let generator_roll = generator_roll();
     let generator_pitch = generator_pitch_neg();
     let generator_yaw = generator_yaw();
+
+    // LM
+    let mut mu = -1.0;
+    let mut nu = -1.0;
+    let I_6 = Matrix6::<Float>::identity();
 
     let (back_projections,
         mut valid_measurements_reference,
@@ -88,23 +105,23 @@ pub fn solve(reference: &Frame,
                       image_range_offset);
 
     // Leuvenberg-Marquart Specific
-    //let tau = 1.0 as Float;
-    let tau = 0.000001 as Float;
-    let mut nu = 2.0 as Float;
-    let I_6 = Matrix6::<Float>::identity();
-    let H_initial
-        = approximate_hessian(&valid_measurements_reference,
-                              &valid_measurements_target,
-                              &target.gradient_x.buffer,
-                              &target.gradient_y.buffer,
-                              &J_lie_vec,
-                              &J_pi_vec,
-                              &weights,
-                              image_width,
-                              image_height,
-                              image_range_offset);
-    let h_max = (H_initial.diagonal().max()) / N as Float;
-    let mut mu = tau*h_max;
+    if lm {
+        let tau = 0.000001 as Float;
+        nu = 2.0 as Float;
+        let H_initial
+            = approximate_hessian(&valid_measurements_reference,
+                                  &valid_measurements_target,
+                                  &target.gradient_x.buffer,
+                                  &target.gradient_y.buffer,
+                                  &J_lie_vec,
+                                  &J_pi_vec,
+                                  &weights,
+                                  image_width,
+                                  image_height,
+                                  image_range_offset);
+        let h_max = (H_initial.diagonal().max()) / N as Float;
+        mu = tau*h_max;
+    }
 
     for it in 0..max_its {
 
@@ -122,8 +139,12 @@ pub fn solve(reference: &Frame,
                                 image_range_offset);
 
 
-        let lie_new = LU::new(H+mu*I_6).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
-        //let lie_new = alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"));
+        let lie_new
+            = if lm {
+            LU::new(H+mu*I_6).solve(&g).unwrap_or_else(|| panic!("System not solvable!"))
+        } else {
+            alpha_step*LU::new(H).solve(&g).unwrap_or_else(|| panic!("System not solvable!"))
+        };
         let (R_current, t_current) = parts_from_isometry(SE3);
         //let (R_current, t_current) = exp(lie);
         let (R_new, t_new) = exp(lie_new);
@@ -161,14 +182,8 @@ pub fn solve(reference: &Frame,
                               var_eps,
                               max_its_var);
 
-        //TODO: Maybe redundant
-        // clear weights
 
-        for i in 0..N {
-            weights[i] = 1.0;
-        }
-
-        if variance > 0.0 {
+        if weighting && variance > 0.0 {
             generate_weights(&residuals,&mut weights,variance,degrees_of_freedom);
         }
 
@@ -196,23 +211,25 @@ pub fn solve(reference: &Frame,
 
         //Leuvenberg-Marquardt
         // http://www2.imm.dtu.dk/pubdb/views/publication_details.php?id=3215
-        let gamma = lm_gamma(res_squared_mean_prev, res_squared_mean, lie_new, g, mu);
+        if lm {
+            let gamma = lm_gamma(res_squared_mean_prev, res_squared_mean, lie_new, g, mu);
 
-        if gamma > 0.0 {
-            lie = lie_est;
-            SE3 = SE3_est;
-            let v1 = 1.0/3.0 as Float;
-            let v2 = 1.0-(2.0*gamma-1.0).powf(3.0) as Float;
-            let value = if v1 > v2 { v1 } else {v2};
-            mu *= value;
-            nu = 2.0;
+            if gamma > 0.0 {
+                lie = lie_est;
+                SE3 = SE3_est;
+                let v1 = 1.0/3.0 as Float;
+                let v2 = 1.0-(2.0*gamma-1.0).powf(3.0) as Float;
+                let value = if v1 > v2 { v1 } else {v2};
+                mu *= value;
+                nu = 2.0;
 
-        } else {
-            mu *= nu;
-            nu *= 2.0;
+            } else {
+                mu *= nu;
+                nu *= 2.0;
+            }
+
+            mu /= N as Float;
         }
-
-        mu /= N as Float;
 
         if print_runtime_info {
             //TODO: think of a way to buffer this. As it impacts performance
