@@ -40,7 +40,7 @@ fn main() {
 
     println!("my min: {}, my max: {}", my_min, my_max);
 
-    let mat_gradient_image = Image::new(grad_mat,ImageFilter::None,false,ImageEncoding::F64);
+    let mat_gradient_image = Image::from_matrix(grad_mat, ImageFilter::None, false, ImageEncoding::F64);
 
     let mat_gradient_image_rs = mat_gradient_image.to_image();
 

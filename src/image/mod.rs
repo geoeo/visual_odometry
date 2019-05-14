@@ -17,9 +17,8 @@ pub struct Image {
     pub is_standardized : bool,
     pub original_encoding: ImageEncoding}
 
-//TODO refactor this
 impl Image {
-    pub fn new(buffer: DMatrix<Float>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
+    pub fn from_matrix(buffer: DMatrix<Float>, filter: ImageFilter, is_standardized : bool, original_encoding: ImageEncoding) -> Image {
         Image { buffer, filter, is_standardized,original_encoding}
     }
 
