@@ -133,3 +133,42 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
         }
     }
 }
+
+#[allow(non_snake_case)]
+pub fn approximate_hessian(
+                         valid_measurements_reference: &Vec<bool>,
+                         valid_measurements_target: &Vec<bool>,
+                         image_gradient_x_target: &DMatrix<Float>,
+                         image_gradient_y_target: &DMatrix<Float>,
+                         J_lie_vec: &Vec<Matrix3x6<Float>>,
+                         J_pi_vec: &Vec<Matrix2x3<Float>>,
+                         weights: &Vec<Float>,
+                         image_width: usize,
+                         image_height: usize,
+                         image_range_offset: usize)
+                         -> Matrix6<Float> {
+
+
+    let mut H = Matrix6::<Float>::zeros();
+
+    for x in image_range_offset..(image_width-image_range_offset) {
+        for y in image_range_offset..(image_height-image_range_offset) {
+            let flat_idx = column_major_index(y,x,image_height);
+            if !(valid_measurements_reference[flat_idx] && valid_measurements_target[flat_idx]){
+                continue;
+            }
+            let J_image = image_jacobian(image_gradient_x_target,image_gradient_y_target,x,y);
+            let J_pi = J_pi_vec[flat_idx];
+            let J_lie = J_lie_vec[flat_idx];
+
+            let J = J_image*J_pi*J_lie;
+            let J_t = J.transpose();
+            let w_i = weights[flat_idx];
+
+
+            H += w_i*(J_t*J);
+        }
+    }
+    H
+}
+

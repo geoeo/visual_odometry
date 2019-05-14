@@ -3,7 +3,7 @@ extern crate visual_odometry;
 
 use std::time::Instant;
 use visual_odometry::frame::load_frames;
-use visual_odometry::{solve, Float};
+use visual_odometry::{solve, Float, SolverOptions};
 use visual_odometry::camera::intrinsics::Intrinsics;
 use visual_odometry::camera::Camera;
 use visual_odometry::io::{generate_folder_path,generate_runtime_intensity_depth_lists, generate_runtime_paths};
@@ -22,6 +22,12 @@ fn main() {
     let frame_count = 1;
     let step_count = 1;
     let max_diff_milliseconds= 0.05;
+
+    let runtime_options = SolverOptions{
+        lm: true,
+        weighting: true,
+        print_runtime_info: false
+    };
 
     let intensity_folder_path = generate_folder_path(root.clone(),intensity_folder);
     let depth_folder_path = generate_folder_path(root.clone(),depth_folder);
@@ -75,7 +81,7 @@ fn main() {
                         100000.0,
                         100,
                         20,
-                        false);
+                        runtime_options);
         }
         let solver_duration = now.elapsed().as_millis();
         let average_duration = solver_duration as Float /runs as Float;
