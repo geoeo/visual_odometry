@@ -3,6 +3,8 @@ use crate::{Image, Float};
 use crate::image::types::ImageFilter;
 use crate::io::read_png_16bits_row_major;
 
+//TODO: Encapsulate intensity and gradients by making a vector containing both.
+// This will enable an image pyramid approach
 pub struct Frame {
     pub intensity : Image,
     pub depth : Image,

@@ -19,6 +19,7 @@ pub mod jacobians;
 pub mod gauss_newton_routines;
 pub mod io;
 pub mod frame;
+pub mod image_pyramid;
 
 pub type Float = f64;
 pub type Unsigned = i64;
