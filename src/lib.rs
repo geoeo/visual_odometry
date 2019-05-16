@@ -10,7 +10,7 @@ use crate::camera::Camera;
 use crate::jacobians::{perspective_jacobians, lie_jacobians};
 use crate::numerics::{isometry_from_parts, parts_from_isometry, lm_gamma};
 use crate::numerics::weighting::{t_dist_variance,generate_weights};
-use crate::frame::Frame;
+use crate::image_pyramid::Layer;
 
 pub mod image;
 pub mod numerics;
@@ -48,12 +48,15 @@ pub struct SolverParameters {
     pub var_eps: Float,
     pub var_min: Float,
     pub max_its_var: usize,
-    pub image_range_offset: usize
+    pub image_range_offset: usize,
+    pub layer_index: u32
 }
 
 #[allow(non_snake_case)]
-pub fn solve(reference: &Frame,
-             target: &Frame,
+pub fn solve(reference_layer: &Layer,
+             target_layer: &Layer,
+             reference_depth: &Image,
+             target_depth: &Image,
              camera: Camera,
              parameters: SolverParameters,
              runtime_options: SolverOptions)
@@ -67,6 +70,7 @@ pub fn solve(reference: &Frame,
     let var_min = parameters.var_min;
     let max_its_var = parameters.max_its_var;
     let image_range_offset = parameters.image_range_offset;
+    let layer_index = parameters.layer_index;
 
     let lm = runtime_options.lm;
     let weighting = runtime_options.weighting;
@@ -75,8 +79,8 @@ pub fn solve(reference: &Frame,
     let mut lie = parameters.lie_prior;
     let mut SE3 = parameters.SE3_prior;
 
-    let image_width = reference.intensity.buffer.ncols();
-    let image_height = reference.intensity.buffer.nrows();
+    let image_width = reference_layer.intensity.buffer.ncols();
+    let image_height = reference_layer.intensity.buffer.nrows();
     let N = image_width*image_height;
 
     fn gen_vec_zeros(size: usize) -> Vec<Float> { vec![0.0 as Float; size] };
@@ -104,11 +108,12 @@ pub fn solve(reference: &Frame,
         mut valid_measurements_reference,
         valid_measurements_target)
         = back_project(camera,
-                       &reference.depth.buffer,
-                       &target.depth.buffer,
+                       &reference_depth.buffer,
+                       &target_depth.buffer,
                        image_width,
                        image_height,
-                       max_depth);
+                       max_depth,
+                       layer_index);
 
     let Y_est_init: HomogeneousBackProjections = SE3*(&back_projections);
     let reference_projections = camera.apply_perspective_projection(&Y_est_init);
@@ -119,8 +124,8 @@ pub fn solve(reference: &Frame,
     compute_residuals(&mut residuals,
                       &mut valid_measurements_reference,
                       &valid_measurements_target,
-                      &reference.intensity.buffer,
-                      &target.intensity.buffer,
+                      &reference_layer.intensity.buffer,
+                      &target_layer.intensity.buffer,
                       reference_projections,
                       image_width, image_height,
                       image_range_offset);
@@ -134,8 +139,8 @@ pub fn solve(reference: &Frame,
         let H_initial
             = approximate_hessian(&valid_measurements_reference,
                                   &valid_measurements_target,
-                                  &target.gradient_x.buffer,
-                                  &target.gradient_y.buffer,
+                                  &target_layer.gradient_x.buffer,
+                                  &target_layer.gradient_y.buffer,
                                   &J_lie_vec,
                                   &J_pi_vec,
                                   &weights,
@@ -152,8 +157,8 @@ pub fn solve(reference: &Frame,
             = gauss_newton_step(&residuals,
                                 &valid_measurements_reference,
                                 &valid_measurements_target,
-                                &target.gradient_x.buffer,
-                                &target.gradient_y.buffer,
+                                &target_layer.gradient_x.buffer,
+                                &target_layer.gradient_y.buffer,
                                 &J_lie_vec,
                                 &J_pi_vec,
                                 &weights,
@@ -183,8 +188,8 @@ pub fn solve(reference: &Frame,
         compute_residuals(&mut residuals,
                           &mut valid_measurements_reference,
                           &valid_measurements_target,
-                          &reference.intensity.buffer,
-                          &target.intensity.buffer,
+                          &reference_layer.intensity.buffer,
+                          &target_layer.intensity.buffer,
                           target_projections,
                           image_width, image_height,
                           image_range_offset);

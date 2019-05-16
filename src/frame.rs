@@ -2,14 +2,20 @@ use std::path::PathBuf;
 use crate::{Image, Float};
 use crate::image::types::ImageFilter;
 use crate::io::read_png_16bits_row_major;
+use crate::image_pyramid::Layer;
 
-//TODO: Encapsulate intensity and gradients by making a vector containing both.
+//TODO: Encapsulate  (downsampled) intensity and gradients by making a Layer containing both.
 // This will enable an image pyramid approach
+//pub struct Frame {
+//    pub intensity : Image,
+//    pub depth : Image,
+//    pub gradient_x : Image,
+//    pub gradient_y : Image
+//}
+
 pub struct Frame {
-    pub intensity : Image,
-    pub depth : Image,
-    pub gradient_x : Image,
-    pub gradient_y : Image
+    pub image_pyramid: Vec<Layer>,
+    pub depth : Image
 }
 
 pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
@@ -18,7 +24,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
                    target_depth_paths: &Vec<PathBuf>,
                    depth_factor: Float,
                    filter_x: ImageFilter,
-                   filter_y: ImageFilter)
+                   filter_y: ImageFilter,
+                   pyraymid_layers: u32)
     -> (Vec<Frame>, Vec<Frame>, Vec<Float>) {
     assert_eq!(reference_image_paths.len(),target_image_paths.len());
     assert_eq!(reference_depth_paths.len(),target_depth_paths.len());
@@ -36,19 +43,18 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let target_image_path = &target_image_paths[i];
         let target_depth_path = &target_depth_paths[i];
 
-        //TODO: This will get refactored into a layer generation
-        // --
+        let mut pyramid_ref: Vec<Layer> = Vec::with_capacity(pyraymid_layers as usize);
+        let mut pyramid_target: Vec<Layer> = Vec::with_capacity(pyraymid_layers as usize);
+
         let image_ref = image::open(reference_image_path).unwrap().to_luma();
         let image_target = image::open(target_image_path).unwrap().to_luma();
 
-        let intensity_ref = Image::from_image(&image_ref, ImageFilter::None, true);
-        let gx_ref = Image::from_image(&image_ref, filter_x, true);
-        let gy_ref = Image::from_image(&image_ref, filter_y, true);
-
-        let intensity_target = Image::from_image(&image_target, ImageFilter::None, true);
-        let gx_target = Image::from_image(&image_target, filter_x, true);
-        let gy_target = Image::from_image(&image_target, filter_y, true);
-        // --
+        for layer_id in 0..pyraymid_layers {
+            let layer_ref = Layer::from_image(&image_ref,layer_id,1.0,filter_x,filter_y);
+            let layer_target = Layer::from_image(&image_target,layer_id,1.0,filter_x,filter_y);
+            pyramid_ref.push(layer_ref);
+            pyramid_target.push(layer_target);
+        }
 
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)
@@ -63,8 +69,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         depth_2.buffer /= depth_factor;
         let max_depth = depth_1.buffer.amax();
 
-        let reference_frame = Frame{intensity:intensity_ref, depth: depth_1, gradient_x: gx_ref, gradient_y: gy_ref};
-        let target_frame = Frame{intensity:intensity_target, depth: depth_2, gradient_x: gx_target, gradient_y: gy_target};
+        let reference_frame = Frame{image_pyramid: pyramid_ref, depth: depth_1};
+        let target_frame = Frame{image_pyramid: pyramid_target, depth: depth_2};
 
         reference_frames.push(reference_frame);
         target_frames.push(target_frame);

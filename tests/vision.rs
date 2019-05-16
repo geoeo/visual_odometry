@@ -31,8 +31,9 @@ fn back_project_then_project(){
                        &depth_reference,
                        &depth_target,
                        1,
-                       2
-                       , 100.0);
+                       2,
+                       100.0,
+                       0);
 
     let projections = camera.apply_perspective_projection(&back_projections);
     let u_1 = *projections.index((0,0));

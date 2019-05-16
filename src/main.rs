@@ -30,6 +30,7 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
+    let pyramid_levels = 4;
 
     let runtime_options = SolverOptions{
         lm: true,
@@ -74,7 +75,8 @@ fn main() {
                       &target_depth_paths,
                       depth_factor,
                       ImageFilter::SobelX,
-                      ImageFilter::SobelY);
+                      ImageFilter::SobelY,
+                      pyramid_levels);
 
     let number_of_frames = reference_frames.len();
 
@@ -94,7 +96,7 @@ fn main() {
             let max_depth = max_depths[i];
             let reference_frame = &reference_frames[i];
             let target_frame = &target_frames[i];
-            let solver_parameters = SolverParameters {
+            let mut solver_parameters = SolverParameters {
                 lie_prior: Vector6::<Float>::zeros(),
                 SE3_prior: Matrix4::<Float>::identity(),
                 max_its: 1000,
@@ -104,18 +106,46 @@ fn main() {
                 var_eps: 0.0001,
                 var_min: 1000.0,
                 max_its_var: 100,
-                image_range_offset: 0
+                image_range_offset: 0,
+                layer_index: pyramid_levels-1
             };
             let now = Instant::now();
-            let (SE3, lie)
-                = solve(&reference_frame,
-                        &target_frame,
-                        camera,
-                        solver_parameters,
-                        runtime_options);
+            for layer in (0..pyramid_levels).rev() {
+                let reference_layer = &reference_frame.image_pyramid[layer as usize];
+                let target_layer = &target_frame.image_pyramid[layer as usize];
+                let reference_depth = &reference_frame.depth;
+                let target_depth = &target_frame.depth;
+
+
+                let (SE3, lie)
+                    = solve(reference_layer,
+                            target_layer,
+                            reference_depth,
+                            target_depth,
+                            camera,
+                            solver_parameters,
+                            runtime_options);
+
+                solver_parameters = SolverParameters {
+                    lie_prior: lie,
+                    SE3_prior: SE3,
+                    max_its: 1000,
+                    eps: 0.0000005,
+                    alpha_step: 1.0,
+                    max_depth,
+                    var_eps: 0.0001,
+                    var_min: 1000.0,
+                    max_its_var: 100,
+                    image_range_offset: 0,
+                    layer_index: layer-1
+                };
+                if layer == 0 {
+                    SE3_buffer.push(SE3);
+                    lie_buffer.push(lie);
+                }
+            }
             let solver_duration = now.elapsed().as_millis();
-            SE3_buffer.push(SE3);
-            lie_buffer.push(lie);
+
             println!("{}) Solver duration: {} ms",i, solver_duration as Float);
         }
         write_lie_vectors_to_file(lie_results_file_path,lie_buffer);

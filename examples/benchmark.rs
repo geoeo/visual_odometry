@@ -23,6 +23,7 @@ fn main() {
     let frame_count = 1;
     let step_count = 1;
     let max_diff_milliseconds= 0.05;
+    let pyramid_levels = 1;
 
     let runtime_options = SolverOptions{
         lm: true,
@@ -50,7 +51,8 @@ fn main() {
                       &target_depth_paths,
                       depth_factor,
                       ImageFilter::SobelX,
-                      ImageFilter::SobelY);
+                      ImageFilter::SobelY,
+                      pyramid_levels);
 
     let number_of_frames = reference_frames.len();
 
@@ -80,12 +82,15 @@ fn main() {
                 var_eps: 0.0001,
                 var_min: 1000.0,
                 max_its_var: 100,
-                image_range_offset: 0
+                image_range_offset: 0,
+                layer_index: 0
             };
 
             let (_SE3, _lie)
-                = solve(&reference_frame,
-                        &target_frame,
+                = solve(&reference_frame.image_pyramid[0],
+                        &target_frame.image_pyramid[0],
+                        &reference_frame.depth,
+                        &target_frame.depth,
                         camera,
                         solver_parameters,
                         runtime_options);

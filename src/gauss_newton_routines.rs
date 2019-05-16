@@ -5,6 +5,7 @@ use crate::{Float, NormalizedImageCoordinates, HomogeneousBackProjections};
 use crate::camera::Camera;
 use crate::numerics::column_major_index;
 use crate::jacobians::*;
+use crate::image_pyramid::Layer;
 
 // @GPU
 // This is not used in the Gauss-Newton estimation loop
@@ -15,7 +16,8 @@ pub fn back_project(camera_reference: Camera,
                     depth_image_target: &DMatrix<Float>,
                     image_width: usize,
                     image_height: usize,
-                    max_depth: Float)
+                    max_depth: Float,
+                    layer_index: u32)
                     -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {
     let depth_direction =
         match camera_reference.intrinsics.fx().is_sign_positive() {
@@ -29,7 +31,8 @@ pub fn back_project(camera_reference: Camera,
 
     for x in 0..image_width {
         for y in 0..image_height {
-            let idx = (y, x);
+            let (x_high, y_high) = Layer::generate_depth_coordiantes(layer_index, x, y);
+            let idx = (y_high, x_high);
             let mut depth_reference = *depth_image_reference.index(idx);
             let depth_target = *depth_image_target.index(idx);
 
