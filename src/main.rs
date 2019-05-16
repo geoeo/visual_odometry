@@ -31,13 +31,13 @@ fn main() {
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
-    let pyramid_levels = 4;
+    let pyramid_levels = 3;
     let sigma: f32 = 1.0;
 
     let runtime_options = SolverOptions{
         lm: true,
         weighting: true,
-        print_runtime_info: true
+        print_runtime_info: false
     };
 
 
@@ -129,7 +129,8 @@ fn main() {
                             camera,
                             solver_parameters,
                             runtime_options);
-                let tau_new = tau_orig*(10.0 as Float).powi((pyramid_levels-layer) as i32);
+                //let tau_new = tau_orig*(10.0 as Float).powi((pyramid_levels-layer) as i32);
+                let tau_new = tau_orig;
                 solver_parameters = SolverParameters {
                     lie_prior: lie,
                     SE3_prior: SE3,

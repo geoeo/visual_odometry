@@ -47,12 +47,14 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let mut pyramid_ref: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
         let mut pyramid_target: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
 
-        let image_ref = image::open(reference_image_path).unwrap().to_luma();
-        let image_target = image::open(target_image_path).unwrap().to_luma();
+        let mut image_ref = image::open(reference_image_path).unwrap().to_luma();
+        let mut image_target = image::open(target_image_path).unwrap().to_luma();
 
         for layer_id in 0..pyramid_levels {
-            let layer_ref = Layer::from_image(&image_ref,layer_id,sigma,filter_x,filter_y);
-            let layer_target = Layer::from_image(&image_target,layer_id,sigma,filter_x,filter_y);
+            let (layer_image_new_ref,layer_ref) = Layer::from_image(image_ref,layer_id,sigma,filter_x,filter_y);
+            let (layer_image_new_target,layer_target) = Layer::from_image(image_target,layer_id,sigma,filter_x,filter_y);
+            image_ref = layer_image_new_ref;
+            image_target = layer_image_new_target;
             pyramid_ref.push(layer_ref);
             pyramid_target.push(layer_target);
         }
