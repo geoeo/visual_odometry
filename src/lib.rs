@@ -22,7 +22,7 @@ pub mod frame;
 pub mod image_pyramid;
 
 pub type Float = f64;
-pub type Unsigned = i64;
+pub type Integer = i64;
 // Image coordinates with a "depth" fixed at 1.0 i.e. (u, v, 1.0)
 pub type NormalizedImageCoordinates = Matrix<Float, U3, Dynamic, VecStorage<Float, U3, Dynamic>>;
 // Homogeneous 3D coordinates i.e. (X, Y, Z, 1.0)
@@ -195,9 +195,6 @@ pub fn solve(reference: &Frame,
 
         let variance
             = t_dist_variance(&residuals,
-                              &valid_measurements_reference,
-                              &valid_measurements_target,
-                              number_of_valid_measurements,
                               degrees_of_freedom,
                               var_min,
                               var_eps,
@@ -217,7 +214,8 @@ pub fn solve(reference: &Frame,
         }
 
         let res_squared_mean_prev = res_squared_mean;
-        res_squared_mean = res_sum_squared/number_of_valid_measurements as Float;
+        //res_squared_mean = res_sum_squared/number_of_valid_measurements as Float;
+        res_squared_mean = res_sum_squared/N as Float;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
         if residual_delta <= eps {

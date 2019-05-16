@@ -1,4 +1,4 @@
-use crate::{Image, Float};
+use crate::{Image, Float, Integer};
 
 pub struct Layer {
     pub intensity: Image,
@@ -10,7 +10,7 @@ pub struct Layer {
 impl Layer {
     //TODO: use the formulae from the paper to generate x,y coodinates for the full res depth image
     // (2^L){x,y} + 0.5(2^L - 1) -> probably floor the result
-    pub fn generate_depth_coordiantes(&self, x: usize, y: usize) -> (usize, usize) {
+    pub fn generate_depth_coordiantes(&self, x: usize, y: usize) -> (Integer, Integer) {
         (-1,-1)
     }
 }
