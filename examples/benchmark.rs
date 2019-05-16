@@ -1,5 +1,4 @@
 extern crate nalgebra as na;
-extern crate image;
 extern crate visual_odometry;
 
 use na::{Vector6, Matrix4};

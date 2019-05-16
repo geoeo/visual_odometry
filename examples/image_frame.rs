@@ -1,4 +1,4 @@
-extern crate image;
+extern crate image as image_rs;
 extern crate visual_odometry;
 
 use std::path::Path;
@@ -13,7 +13,7 @@ fn main() {
     let gray_image_path = format!("output/{}_gray_scale.{}",image_name,image_format);
     let converted_file_out_path = format!("output/{}_converted.{}",image_name,image_format);
 
-    let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
+    let image = image_rs::open(&Path::new(&image_path)).unwrap().to_luma();
     image.save(gray_image_path).unwrap();
 
 

@@ -1,9 +1,9 @@
-extern crate image;
+extern crate image as image_rs;
 
 use std::fs::File;
 use std::path::Path;
 
-use image::GenericImageView;
+use image_rs::GenericImageView;
 
 fn main() {
 

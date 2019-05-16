@@ -1,9 +1,9 @@
-extern crate image;
+extern crate image as image_rs;
 extern crate visual_odometry;
 
 use std::path::Path;
 
-use image::flat::NormalForm;
+use image_rs::flat::NormalForm;
 use visual_odometry::image::select_filter;
 use visual_odometry::image::types::{ImageFilter, ImageEncoding};
 use visual_odometry::image::Image;
@@ -13,7 +13,7 @@ fn image_is_row_major() {
 
     let image_path = "images/ferris.png";
 
-    let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
+    let image = image_rs::open(&Path::new(&image_path)).unwrap().to_luma();
 
     assert!(image.sample_layout().is_normal(NormalForm::RowMajorPacked));
     assert_eq!(image.sample_layout().is_normal(NormalForm::ColumnMajorPacked),false);
@@ -29,7 +29,7 @@ fn filter_for_no_gradient() {
 fn check_encodings() {
     let image_path = "images/ferris.png";
 
-    let image = image::open(&Path::new(&image_path)).unwrap().to_luma();
+    let image = image_rs::open(&Path::new(&image_path)).unwrap().to_luma();
     let frame = Image::from_image(&image, ImageFilter::None, false);
 
     let width = 2;

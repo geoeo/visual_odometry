@@ -1,15 +1,15 @@
-extern crate image;
+extern crate image as image_rs;
 extern crate nalgebra as na;
 
 pub mod filters;
 pub mod types;
 
-use image::{GrayImage,DynamicImage};
-use image::flat::NormalForm;
+use image_rs::{GrayImage, DynamicImage};
+use image_rs::flat::NormalForm;
 use na::{Matrix3,DMatrix};
 use crate::Float;
 use crate::numerics::{z_standardize, row_major_index,filter3x3};
-use self::types::{ImageFilter,ImageEncoding};
+use self::types::{ImageFilter, ImageEncoding};
 
 pub struct Image {
     pub buffer: DMatrix<Float>,

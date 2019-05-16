@@ -1,9 +1,9 @@
-extern crate image;
+extern crate image as image_rs;
 extern crate visual_odometry;
 
 use std::path::Path;
 
-use image::imageops::filter3x3;
+use image_rs::imageops::filter3x3;
 use visual_odometry::image::types::{ImageFilter, ImageEncoding};
 use visual_odometry::image::Image;
 use visual_odometry::image::filters::HORIZONTAL_SCHARR;
