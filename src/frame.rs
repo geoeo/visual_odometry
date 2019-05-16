@@ -36,6 +36,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let target_image_path = &target_image_paths[i];
         let target_depth_path = &target_depth_paths[i];
 
+        //TODO: This will get refactored into a layer generation
+        // --
         let image_ref = image::open(reference_image_path).unwrap().to_luma();
         let image_target = image::open(target_image_path).unwrap().to_luma();
 
@@ -46,6 +48,7 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let intensity_target = Image::from_image(&image_target, ImageFilter::None, true);
         let gx_target = Image::from_image(&image_target, filter_x, true);
         let gy_target = Image::from_image(&image_target, filter_y, true);
+        // --
 
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)

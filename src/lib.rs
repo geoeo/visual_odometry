@@ -110,9 +110,11 @@ pub fn solve(reference: &Frame,
                        image_height,
                        max_depth);
 
-    let J_pi_vec = perspective_jacobians(&camera.intrinsics, &back_projections);
-    let J_lie_vec = lie_jacobians(generator_x, generator_y, generator_z, generator_roll, generator_pitch, generator_yaw, &back_projections);
-    let reference_projections = camera.apply_perspective_projection(&back_projections);
+    let Y_est_init: HomogeneousBackProjections = SE3*(&back_projections);
+    let reference_projections = camera.apply_perspective_projection(&Y_est_init);
+
+    let J_pi_vec = perspective_jacobians(&camera.intrinsics, &Y_est_init);
+    let J_lie_vec = lie_jacobians(generator_x, generator_y, generator_z, generator_roll, generator_pitch, generator_yaw, &Y_est_init);
 
     compute_residuals(&mut residuals,
                       &mut valid_measurements_reference,
