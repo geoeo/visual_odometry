@@ -25,7 +25,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
                    depth_factor: Float,
                    filter_x: ImageFilter,
                    filter_y: ImageFilter,
-                   pyraymid_layers: u32)
+                   pyramid_levels: u32,
+                   sigma: f32)
     -> (Vec<Frame>, Vec<Frame>, Vec<Float>) {
     assert_eq!(reference_image_paths.len(),target_image_paths.len());
     assert_eq!(reference_depth_paths.len(),target_depth_paths.len());
@@ -43,15 +44,15 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let target_image_path = &target_image_paths[i];
         let target_depth_path = &target_depth_paths[i];
 
-        let mut pyramid_ref: Vec<Layer> = Vec::with_capacity(pyraymid_layers as usize);
-        let mut pyramid_target: Vec<Layer> = Vec::with_capacity(pyraymid_layers as usize);
+        let mut pyramid_ref: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
+        let mut pyramid_target: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
 
         let image_ref = image::open(reference_image_path).unwrap().to_luma();
         let image_target = image::open(target_image_path).unwrap().to_luma();
 
-        for layer_id in 0..pyraymid_layers {
-            let layer_ref = Layer::from_image(&image_ref,layer_id,1.0,filter_x,filter_y);
-            let layer_target = Layer::from_image(&image_target,layer_id,1.0,filter_x,filter_y);
+        for layer_id in 0..pyramid_levels {
+            let layer_ref = Layer::from_image(&image_ref,layer_id,sigma,filter_x,filter_y);
+            let layer_target = Layer::from_image(&image_target,layer_id,sigma,filter_x,filter_y);
             pyramid_ref.push(layer_ref);
             pyramid_target.push(layer_target);
         }

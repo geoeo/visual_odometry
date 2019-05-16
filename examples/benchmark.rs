@@ -24,6 +24,7 @@ fn main() {
     let step_count = 1;
     let max_diff_milliseconds= 0.05;
     let pyramid_levels = 1;
+    let sigma: f32 = 1.0;
 
     let runtime_options = SolverOptions{
         lm: true,
@@ -52,7 +53,8 @@ fn main() {
                       depth_factor,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
-                      pyramid_levels);
+                      pyramid_levels,
+                      sigma);
 
     let number_of_frames = reference_frames.len();
 
@@ -83,7 +85,8 @@ fn main() {
                 var_min: 1000.0,
                 max_its_var: 100,
                 image_range_offset: 0,
-                layer_index: 0
+                layer_index: 0,
+                tau: 0.000001
             };
 
             let (_SE3, _lie)

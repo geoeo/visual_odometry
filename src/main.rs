@@ -30,7 +30,9 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
+    let tau_orig = 0.000001;
     let pyramid_levels = 4;
+    let sigma: f32 = 1.0;
 
     let runtime_options = SolverOptions{
         lm: true,
@@ -76,7 +78,8 @@ fn main() {
                       depth_factor,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
-                      pyramid_levels);
+                      pyramid_levels,
+                      sigma);
 
     let number_of_frames = reference_frames.len();
 
@@ -107,7 +110,8 @@ fn main() {
                 var_min: 1000.0,
                 max_its_var: 100,
                 image_range_offset: 0,
-                layer_index: pyramid_levels-1
+                layer_index: pyramid_levels-1,
+                tau: tau_orig
             };
             let now = Instant::now();
             for layer in (0..pyramid_levels).rev() {
@@ -125,7 +129,7 @@ fn main() {
                             camera,
                             solver_parameters,
                             runtime_options);
-
+                let tau_new = tau_orig*(10.0 as Float).powi((pyramid_levels-layer) as i32);
                 solver_parameters = SolverParameters {
                     lie_prior: lie,
                     SE3_prior: SE3,
@@ -137,7 +141,8 @@ fn main() {
                     var_min: 1000.0,
                     max_its_var: 100,
                     image_range_offset: 0,
-                    layer_index: layer-1
+                    layer_index: layer-1,
+                    tau: tau_new
                 };
                 if layer == 0 {
                     SE3_buffer.push(SE3);

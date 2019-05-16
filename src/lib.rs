@@ -49,7 +49,8 @@ pub struct SolverParameters {
     pub var_min: Float,
     pub max_its_var: usize,
     pub image_range_offset: usize,
-    pub layer_index: u32
+    pub layer_index: u32,
+    pub tau: Float
 }
 
 #[allow(non_snake_case)]
@@ -71,6 +72,7 @@ pub fn solve(reference_layer: &Layer,
     let max_its_var = parameters.max_its_var;
     let image_range_offset = parameters.image_range_offset;
     let layer_index = parameters.layer_index;
+    let tau = parameters.tau;
 
     let lm = runtime_options.lm;
     let weighting = runtime_options.weighting;
@@ -134,7 +136,6 @@ pub fn solve(reference_layer: &Layer,
     if lm {
         //TODO: @Investigate -> This might change when using image pyramids
         // If the inital approximation to SE3 is good, tau can be bigger (0.001 - 1.0)
-        let tau = 0.000001 as Float;
         nu = 2.0 as Float;
         let H_initial
             = approximate_hessian(&valid_measurements_reference,
