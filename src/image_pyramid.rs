@@ -33,7 +33,6 @@ impl Layer {
         let gy = Image::from_image(&image_new, filter_y, true);
 
         Layer{intensity, gradient_x: gx, gradient_y: gy, layer_index: previous_layer + 1}
-
     }
 
     // (2^L){x,y} + 0.5(2^L - 1) -> probably floor the result

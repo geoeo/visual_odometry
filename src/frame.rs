@@ -37,31 +37,31 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let target_depth_path = &target_depth_paths[i];
 
         let image_ref = image::open(reference_image_path).unwrap().to_luma();
+        let image_target = image::open(target_image_path).unwrap().to_luma();
+
+        let intensity_ref = Image::from_image(&image_ref, ImageFilter::None, true);
+        let gx_ref = Image::from_image(&image_ref, filter_x, true);
+        let gy_ref = Image::from_image(&image_ref, filter_y, true);
+
+        let intensity_target = Image::from_image(&image_target, ImageFilter::None, true);
+        let gx_target = Image::from_image(&image_target, filter_x, true);
+        let gy_target = Image::from_image(&image_target, filter_y, true);
+
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)
             .unwrap_or_else(|_| panic!("Could not read image"));
-
-        let image_2 = image::open(target_image_path).unwrap().to_luma();
         let (_,_,target_depth)
             = read_png_16bits_row_major(target_depth_path)
             .unwrap_or_else(|_| panic!("Could not read image"));
 
-        let intensity_1 = Image::from_image(&image_ref, ImageFilter::None, true);
         let mut depth_1 = Image::from_vec_16(height,width,&depth_ref, false);
-        let gx = Image::from_image(&image_ref, filter_x, true);
-        let gy = Image::from_image(&image_ref, filter_y, true);
-
-        let intensity_2 = Image::from_image(&image_2, ImageFilter::None, true);
         let mut depth_2 = Image::from_vec_16(height,width,&target_depth, false);
-        let gx_2 = Image::from_image(&image_2, filter_x, true);
-        let gy_2 = Image::from_image(&image_2, filter_y, true);
-
         depth_1.buffer /= depth_factor;
         depth_2.buffer /= depth_factor;
         let max_depth = depth_1.buffer.amax();
 
-        let reference_frame = Frame{intensity:intensity_1, depth: depth_1, gradient_x: gx, gradient_y: gy};
-        let target_frame = Frame{intensity:intensity_2, depth: depth_2, gradient_x: gx_2, gradient_y: gy_2};
+        let reference_frame = Frame{intensity:intensity_ref, depth: depth_1, gradient_x: gx_ref, gradient_y: gy_ref};
+        let target_frame = Frame{intensity:intensity_target, depth: depth_2, gradient_x: gx_target, gradient_y: gy_target};
 
         reference_frames.push(reference_frame);
         target_frames.push(target_frame);
