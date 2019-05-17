@@ -241,10 +241,11 @@ pub fn solve(reference_layer: &Layer,
         if residual_delta <= eps {
             lie = lie_est;
             SE3 = SE3_est;
-            println!("done, squared mean error: {}, delta: {}, pixel ratio: {}",
+            println!("done, squared mean error: {}, delta: {}, pixel ratio: {}, iterations: {}",
                      res_squared_mean,
                      residual_delta,
-                     valid_pixel_ratio);
+                     valid_pixel_ratio,
+                     it);
             break;
         }
 

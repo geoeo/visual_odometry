@@ -27,18 +27,19 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 60;
+    let frame_count = 10;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
-    let alpha_orig = 1.0;
+    let alpha_orig = 2.0;
     let pyramid_levels = 1;
+    //TODO: @Investigate -> sigma value
     let sigma: f32 = 0.1;
-    let eps = 0.00000005;
+    let eps = 0.0000005;
     let image_range_offset = 0;
-    let max_its = 30;
+    let max_its = 1000;
 
     let runtime_options = SolverOptions{
         lm: false,
