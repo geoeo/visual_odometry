@@ -25,17 +25,18 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 150;
+    let frame_count = 60;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
+    let alpha_orig = 0.01;
     let pyramid_levels = 3;
-    let sigma: f32 = 1.0;
+    let sigma: f32 = 0.1;
 
     let runtime_options = SolverOptions{
-        lm: true,
+        lm: false,
         weighting: true,
         print_runtime_info: false
     };
@@ -104,7 +105,7 @@ fn main() {
                 SE3_prior: Matrix4::<Float>::identity(),
                 max_its: 1000,
                 eps: 0.0000005,
-                alpha_step: 1.0,
+                alpha_step: alpha_orig,
                 max_depth,
                 var_eps: 0.0001,
                 var_min: 1000.0,
@@ -129,14 +130,18 @@ fn main() {
                             camera,
                             solver_parameters,
                             runtime_options);
-                //let tau_new = tau_orig*(10.0 as Float).powi((pyramid_levels-layer) as i32);
+                let diff = pyramid_levels-layer;
+                //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
                 let tau_new = tau_orig;
+                //let alpha_new = alpha_orig / (diff as Float);
+                //let alpha_new = alpha_orig * layer as Float;
+                let alpha_new = alpha_orig;
                 solver_parameters = SolverParameters {
                     lie_prior: lie,
                     SE3_prior: SE3,
                     max_its: 1000,
                     eps: 0.0000005,
-                    alpha_step: 1.0,
+                    alpha_step: alpha_new,
                     max_depth,
                     var_eps: 0.0001,
                     var_min: 1000.0,

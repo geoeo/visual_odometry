@@ -3,6 +3,7 @@ use crate::{Image, Float};
 use crate::image::types::ImageFilter;
 use crate::io::read_png_16bits_row_major;
 use crate::image_pyramid::Layer;
+use image::GrayImage;
 
 //TODO: Encapsulate  (downsampled) intensity and gradients by making a Layer containing both.
 // This will enable an image pyramid approach
@@ -44,20 +45,30 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         let target_image_path = &target_image_paths[i];
         let target_depth_path = &target_depth_paths[i];
 
-        let mut pyramid_ref: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
-        let mut pyramid_target: Vec<Layer> = Vec::with_capacity(pyramid_levels as usize);
+        let image_ref = image::open(reference_image_path).unwrap().to_luma();
+        let image_target = image::open(target_image_path).unwrap().to_luma();
 
-        let mut image_ref = image::open(reference_image_path).unwrap().to_luma();
-        let mut image_target = image::open(target_image_path).unwrap().to_luma();
+        let mut image_pyramid_ref: Vec<GrayImage> = Vec::with_capacity(pyramid_levels as usize);
+        let mut image_pyramid_target: Vec<GrayImage> = Vec::with_capacity(pyramid_levels as usize);
 
-        for layer_id in 0..pyramid_levels {
-            let (layer_image_new_ref,layer_ref) = Layer::from_image(image_ref,layer_id,sigma,filter_x,filter_y);
-            let (layer_image_new_target,layer_target) = Layer::from_image(image_target,layer_id,sigma,filter_x,filter_y);
-            image_ref = layer_image_new_ref;
-            image_target = layer_image_new_target;
-            pyramid_ref.push(layer_ref);
-            pyramid_target.push(layer_target);
+        image_pyramid_ref.push(image_ref);
+        image_pyramid_target.push(image_target);
+
+        for layer_id in 1..pyramid_levels {
+            let idx = layer_id as usize-1;
+            let sampled_image_ref = Layer::blur_downsample(&image_pyramid_ref[idx],layer_id,sigma);
+            let sampled_image_target = Layer::blur_downsample(&image_pyramid_target[idx],layer_id,sigma);
+            image_pyramid_ref.push(sampled_image_ref);
+            image_pyramid_target.push(sampled_image_target);
         }
+
+        let layer_pyramid_ref = image_pyramid_ref
+            .iter().enumerate()
+            .map(|(i, x)| Layer::from_image(x, i as u32, true, filter_x, filter_y)).collect();
+
+        let layer_pyramid_target = image_pyramid_target
+            .iter().enumerate()
+            .map(|(i, x)| Layer::from_image(x, i as u32, true, filter_x, filter_y)).collect();
 
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)
@@ -72,8 +83,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         depth_2.buffer /= depth_factor;
         let max_depth = depth_1.buffer.amax();
 
-        let reference_frame = Frame{image_pyramid: pyramid_ref, depth: depth_1};
-        let target_frame = Frame{image_pyramid: pyramid_target, depth: depth_2};
+        let reference_frame = Frame{image_pyramid: layer_pyramid_ref, depth: depth_1};
+        let target_frame = Frame{image_pyramid: layer_pyramid_target, depth: depth_2};
 
         reference_frames.push(reference_frame);
         target_frames.push(target_frame);
