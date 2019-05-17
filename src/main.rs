@@ -20,8 +20,10 @@ fn main() {
     let mut root = PathBuf::from("/Volumes/Sandisk/Diplomarbeit_Resources/VO_Bench");
     root.push(data_set);
 
-    let reference_start_file_name = "1311868174.699578";
-    let target_start_file_name = "1311868174.731625";
+    //let reference_start_file_name = "1311868174.699578";
+    //let target_start_file_name = "1311868174.731625";
+    let reference_start_file_name = "1311868164.363181";
+    let target_start_file_name = "1311868164.399026";
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
@@ -30,14 +32,16 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let tau_orig = 0.0000001;
-    let alpha_orig = 0.1;
-    let pyramid_levels = 2;
+    let tau_orig = 0.000001;
+    let alpha_orig = 1.0;
+    let pyramid_levels = 1;
     let sigma: f32 = 0.1;
-    let eps = 0.0000005;
+    let eps = 0.00000005;
+    let image_range_offset = 0;
+    let max_its = 30;
 
     let runtime_options = SolverOptions{
-        lm: true,
+        lm: false,
         weighting: true,
         print_runtime_info: false
     };
@@ -101,17 +105,18 @@ fn main() {
             let max_depth = max_depths[i];
             let reference_frame = &reference_frames[i];
             let target_frame = &target_frames[i];
+            let image_offset_init = image_range_offset/(pyramid_levels as usize);
             let mut solver_parameters = SolverParameters {
                 lie_prior: Vector6::<Float>::zeros(),
                 SE3_prior: Matrix4::<Float>::identity(),
-                max_its: 1000,
+                max_its,
                 eps,
                 alpha_step: alpha_orig,
                 max_depth,
                 var_eps: 0.0001,
                 var_min: 1000.0,
                 max_its_var: 100,
-                image_range_offset: 0,
+                image_range_offset: image_offset_init,
                 layer_index: pyramid_levels-1,
                 tau: tau_orig
             };
@@ -131,27 +136,29 @@ fn main() {
                             camera,
                             solver_parameters,
                             runtime_options);
-                let diff = pyramid_levels-layer;
-                //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
-                let tau_new = tau_orig;
-                //let alpha_new = alpha_orig / (diff as Float);
-                //let alpha_new = alpha_orig * layer as Float;
-                let alpha_new = alpha_orig;
-                solver_parameters = SolverParameters {
-                    lie_prior: lie,
-                    SE3_prior: SE3,
-                    max_its: 1000,
-                    eps,
-                    alpha_step: alpha_new,
-                    max_depth,
-                    var_eps: 0.0001,
-                    var_min: 1000.0,
-                    max_its_var: 100,
-                    image_range_offset: 0,
-                    layer_index: layer-1,
-                    tau: tau_new
-                };
-                if layer == 0 {
+                if layer > 0 {
+                    let diff = pyramid_levels-layer;
+                    //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
+                    let tau_new = tau_orig;
+                    //let alpha_new = alpha_orig / (diff as Float);
+                    //let alpha_new = alpha_orig * layer as Float;
+                    let alpha_new = alpha_orig;
+                    let image_offset_new = image_range_offset/(layer as usize);
+                    solver_parameters = SolverParameters {
+                        lie_prior: lie,
+                        SE3_prior: SE3,
+                        max_its,
+                        eps,
+                        alpha_step: alpha_new,
+                        max_depth,
+                        var_eps: 0.0001,
+                        var_min: 1000.0,
+                        max_its_var: 100,
+                        image_range_offset: image_offset_new,
+                        layer_index: layer-1,
+                        tau: tau_new
+                    };
+                } else {
                     SE3_buffer.push(SE3);
                     lie_buffer.push(lie);
                 }

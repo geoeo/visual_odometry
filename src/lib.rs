@@ -8,7 +8,7 @@ use crate::image::Image;
 use crate::gauss_newton_routines::*;
 use crate::camera::Camera;
 use crate::jacobians::{perspective_jacobians, lie_jacobians};
-use crate::numerics::{isometry_from_parts, parts_from_isometry, lm_gamma};
+use crate::numerics::{isometry_from_parts, parts_from_isometry, lm_gamma, column_major_index};
 use crate::numerics::weighting::{t_dist_variance,generate_weights};
 use crate::image_pyramid::Layer;
 
@@ -94,15 +94,12 @@ pub fn solve(reference_layer: &Layer,
     let degrees_of_freedom = 5; // empirically derived: see paper Robust VO for RGBD
 
     // We want RHS coordiante system. As such, we invert Z and Pitch
-    // negate x as well? Maybe due to apparent motion
-    //let generator_x = generator_x();
-    let generator_x = generator_x_neg();
+    let generator_x = generator_x();
     let generator_y = generator_y();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
     let generator_pitch = generator_pitch_neg();
-    //let generator_yaw = generator_yaw();
-    let generator_yaw = generator_yaw_neg();
+    let generator_yaw = generator_yaw();
 
     // LM
     let mut mu = -1.0;
@@ -209,19 +206,31 @@ pub fn solve(reference_layer: &Layer,
                               degrees_of_freedom,
                               var_min,
                               var_eps,
-                              max_its_var);
+                              max_its_var,
+                              image_width,
+                              image_height,
+                              image_range_offset);
 
 
         if weighting && variance > 0.0 {
-            generate_weights(&residuals,&mut weights,variance,degrees_of_freedom);
+            generate_weights(&residuals,
+                             &mut weights,
+                             variance,
+                             degrees_of_freedom,
+                             image_width,
+                             image_height,
+                             image_range_offset);
         }
 
 
         let mut res_sum_squared = 0.0;
-        for i in 0..N {
-            let res = residuals[i];
-            let weight = weights[i];
-            res_sum_squared += weight*res*res;
+        for x in image_range_offset..(image_width-image_range_offset) {
+            for y in image_range_offset..(image_height-image_range_offset) {
+                let idx = column_major_index(y, x, image_height);
+                let res = residuals[idx];
+                let weight = weights[idx];
+                res_sum_squared += weight * res * res;
+            }
         }
 
         let res_squared_mean_prev = res_squared_mean;
