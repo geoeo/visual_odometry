@@ -30,13 +30,14 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let tau_orig = 0.000001;
-    let alpha_orig = 0.01;
-    let pyramid_levels = 3;
+    let tau_orig = 0.0000001;
+    let alpha_orig = 0.1;
+    let pyramid_levels = 2;
     let sigma: f32 = 0.1;
+    let eps = 0.0000005;
 
     let runtime_options = SolverOptions{
-        lm: false,
+        lm: true,
         weighting: true,
         print_runtime_info: false
     };
@@ -104,7 +105,7 @@ fn main() {
                 lie_prior: Vector6::<Float>::zeros(),
                 SE3_prior: Matrix4::<Float>::identity(),
                 max_its: 1000,
-                eps: 0.0000005,
+                eps,
                 alpha_step: alpha_orig,
                 max_depth,
                 var_eps: 0.0001,
@@ -140,7 +141,7 @@ fn main() {
                     lie_prior: lie,
                     SE3_prior: SE3,
                     max_its: 1000,
-                    eps: 0.0000005,
+                    eps,
                     alpha_step: alpha_new,
                     max_depth,
                     var_eps: 0.0001,

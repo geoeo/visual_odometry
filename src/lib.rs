@@ -94,12 +94,15 @@ pub fn solve(reference_layer: &Layer,
     let degrees_of_freedom = 5; // empirically derived: see paper Robust VO for RGBD
 
     // We want RHS coordiante system. As such, we invert Z and Pitch
-    let generator_x = generator_x();
+    // negate x as well? Maybe due to apparent motion
+    //let generator_x = generator_x();
+    let generator_x = generator_x_neg();
     let generator_y = generator_y();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
     let generator_pitch = generator_pitch_neg();
-    let generator_yaw = generator_yaw();
+    //let generator_yaw = generator_yaw();
+    let generator_yaw = generator_yaw_neg();
 
     // LM
     let mut mu = -1.0;

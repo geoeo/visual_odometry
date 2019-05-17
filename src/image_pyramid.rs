@@ -23,7 +23,8 @@ impl Layer {
                     let width_new = image_prev.width()/2;
                     let height_new = image_prev.height()/2;
                     let image_low_pass = blur(image_prev, sigma);
-                    resize(&image_low_pass,width_new, height_new, FilterType::Triangle) as GrayImage
+                    //TODO: experiment with filters
+                    resize(&image_low_pass,width_new, height_new, FilterType::Nearest) as GrayImage
                 }
             };
         image_current
@@ -48,8 +49,8 @@ impl Layer {
             if layer_index == 0 {
             (x, y)
         } else {
-            //let common = 0.5*((2.0 as Float).powi(layer_index as i32) - 1.0);
-            let common = 0.0;
+            let common = 0.5*((2.0 as Float).powi(layer_index as i32) - 1.0);
+            //let common = 0.0;
             let x_new = (2.0 as Float).powi(layer_index as i32)*(x as Float) + common;
             let y_new = (2.0 as Float).powi(layer_index as i32)*(y as Float) + common;
             (x_new.floor() as usize, y_new.floor() as usize)

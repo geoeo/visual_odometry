@@ -34,6 +34,7 @@ pub fn t_dist_variance(residuals: &Vec<Float>,
     variance
 }
 
+//TODO: @Investigate -> Weighting with image offset
 #[allow(non_snake_case)]
 fn t_dist_variance_step(residuals: &Vec<Float>,
                         degrees_of_freedom: usize,
