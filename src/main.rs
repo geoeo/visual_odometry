@@ -27,18 +27,19 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 10;
+    let frame_count = 30;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
-    let alpha_orig = 2.0;
+    let alpha_orig = 0.2;
+    let alphas = [2.0,0.25];
     let pyramid_levels = 1;
     //TODO: @Investigate -> sigma value
-    let sigma: f32 = 0.1;
+    let sigma: f32 = 2.0;
     let eps = 0.0000005;
-    let image_range_offset = 0;
+    let image_range_offset = 10;
     let max_its = 1000;
 
     let runtime_options = SolverOptions{
@@ -85,6 +86,7 @@ fn main() {
                       depth_factor,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
+                      true,
                       pyramid_levels,
                       sigma);
 
@@ -112,7 +114,7 @@ fn main() {
                 SE3_prior: Matrix4::<Float>::identity(),
                 max_its,
                 eps,
-                alpha_step: alpha_orig,
+                alpha_step: alphas[pyramid_levels as usize-1] as Float,
                 max_depth,
                 var_eps: 0.0001,
                 var_min: 1000.0,
@@ -141,16 +143,15 @@ fn main() {
                     let diff = pyramid_levels-layer;
                     //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
                     let tau_new = tau_orig;
-                    //let alpha_new = alpha_orig / (diff as Float);
-                    //let alpha_new = alpha_orig * layer as Float;
-                    let alpha_new = alpha_orig;
+                    //let alpha_new = alpha_orig;
                     let image_offset_new = image_range_offset/(layer as usize);
+                    let alpha_new = alphas[layer as usize] as Float;
                     solver_parameters = SolverParameters {
                         lie_prior: lie,
                         SE3_prior: SE3,
                         max_its,
                         eps,
-                        alpha_step: alpha_new,
+                        alpha_step:  alpha_new,
                         max_depth,
                         var_eps: 0.0001,
                         var_min: 1000.0,
@@ -159,7 +160,8 @@ fn main() {
                         layer_index: layer-1,
                         tau: tau_new
                     };
-                } else {
+                }
+                if layer == 0 {
                     SE3_buffer.push(SE3);
                     lie_buffer.push(lie);
                 }

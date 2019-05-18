@@ -26,6 +26,7 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
                    depth_factor: Float,
                    filter_x: ImageFilter,
                    filter_y: ImageFilter,
+                   standardize: bool,
                    pyramid_levels: u32,
                    sigma: f32)
     -> (Vec<Frame>, Vec<Frame>, Vec<Float>) {
@@ -64,11 +65,11 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
 
         let layer_pyramid_ref = image_pyramid_ref
             .iter().enumerate()
-            .map(|(i, x)| Layer::from_image(x, i as u32, true, filter_x, filter_y)).collect();
+            .map(|(i, x)| Layer::from_image(x, i as u32, standardize, filter_x, filter_y)).collect();
 
         let layer_pyramid_target = image_pyramid_target
             .iter().enumerate()
-            .map(|(i, x)| Layer::from_image(x, i as u32, true, filter_x, filter_y)).collect();
+            .map(|(i, x)| Layer::from_image(x, i as u32, standardize, filter_x, filter_y)).collect();
 
         let (width,height,depth_ref)
             = read_png_16bits_row_major(reference_depth_path)

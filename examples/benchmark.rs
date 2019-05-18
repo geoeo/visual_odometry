@@ -53,6 +53,7 @@ fn main() {
                       depth_factor,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
+                      true,
                       pyramid_levels,
                       sigma);
 

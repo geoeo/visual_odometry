@@ -16,6 +16,7 @@ pub fn back_project(camera_reference: Camera,
                     depth_image_target: &DMatrix<Float>,
                     image_width: usize,
                     image_height: usize,
+                    image_offset: usize,
                     max_depth: Float,
                     layer_index: u32)
                     -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {
@@ -24,7 +25,7 @@ pub fn back_project(camera_reference: Camera,
             true => 1.0,
             false => -1.0
         };
-    let N = image_width * image_height;
+    let N = image_width*image_height;
     let mut P_vec: Vec<Float> = Vec::with_capacity(4 * N);
     let mut valid_measurements_reference: Vec<bool> = Vec::with_capacity(N);
     let mut valid_measurements_target: Vec<bool> = Vec::with_capacity(N);

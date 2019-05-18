@@ -110,11 +110,13 @@ fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImag
     }
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
+    let max = matrix.max();
+    let min = matrix.min();
     for c in 0..cols {
         for r in 0..rows {
             let val = *matrix.index((r, c));
             let mut pixel = gray_image.get_pixel_mut(c as u32, r as u32);
-            pixel.data[0] = encoding.normalize_to_gray(val);
+            pixel.data[0] = encoding.normalize_to_gray(max,min,val);
         }
     }
     gray_image

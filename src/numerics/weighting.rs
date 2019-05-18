@@ -59,7 +59,7 @@ fn t_dist_variance_step(residuals: &Vec<Float>,
                         image_offset: usize) -> Float {
     let numerator = degrees_of_freedom as Float + 1.0;
     let mut variance = variance_prev;
-    let N = residuals.len();
+    let N = (width-2*image_offset)*(height-2*image_offset);
     for x in image_offset..(width-image_offset) {
         for y in image_offset..(height-image_offset){
             let idx = column_major_index(y,x,height);

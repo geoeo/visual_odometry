@@ -84,6 +84,7 @@ pub fn solve(reference_layer: &Layer,
     let image_width = reference_layer.intensity.buffer.ncols();
     let image_height = reference_layer.intensity.buffer.nrows();
     let N = image_width*image_height;
+    let N_adj_to_image_offset = (image_width-2*image_range_offset)*(image_height-2*image_range_offset);
 
     fn gen_vec_zeros(size: usize) -> Vec<Float> { vec![0.0 as Float; size] };
     fn gen_vec_ones(size: usize) -> Vec<Float> { vec![1.0 as Float; size] };
@@ -114,6 +115,7 @@ pub fn solve(reference_layer: &Layer,
                        &target_depth.buffer,
                        image_width,
                        image_height,
+                       image_range_offset,
                        max_depth,
                        layer_index);
 
@@ -148,7 +150,7 @@ pub fn solve(reference_layer: &Layer,
                                   image_width,
                                   image_height,
                                   image_range_offset);
-        let h_max = (H_initial.diagonal().max()) / N as Float;
+        let h_max = (H_initial.diagonal().max()) / N_adj_to_image_offset as Float;
         mu = tau*h_max;
     }
 
@@ -235,7 +237,7 @@ pub fn solve(reference_layer: &Layer,
 
         let res_squared_mean_prev = res_squared_mean;
         //res_squared_mean = res_sum_squared/number_of_valid_measurements as Float;
-        res_squared_mean = res_sum_squared/N as Float;
+        res_squared_mean = res_sum_squared/N_adj_to_image_offset as Float;
         let residual_delta = (res_squared_mean_prev-res_squared_mean).abs();
 
         if residual_delta <= eps {
@@ -268,7 +270,7 @@ pub fn solve(reference_layer: &Layer,
                 nu *= 2.0;
             }
 
-            mu /= N as Float;
+            mu /= N_adj_to_image_offset as Float;
         } else {
             lie = lie_est;
             SE3 = SE3_est;

@@ -24,7 +24,7 @@ impl Layer {
                     let height_new = image_prev.height()/2;
                     let image_low_pass = blur(image_prev, sigma);
                     //TODO: experiment with filters
-                    resize(&image_low_pass,width_new, height_new, FilterType::Nearest) as GrayImage
+                    resize(&image_low_pass,width_new, height_new, FilterType::Triangle) as GrayImage
                 }
             };
         image_current

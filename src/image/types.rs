@@ -22,22 +22,22 @@ pub enum ImageEncoding {
 impl ImageEncoding {
     // https://en.wikipedia.org/wiki/Normalization_(image_processing)
     //TODO: Make using f64 better
-    pub fn normalize_to_gray(&self, value: Float) -> u8 {
-        let max
-            = match self {
-            ImageEncoding::U8 => std::u8::MAX as Float,
-            ImageEncoding::U16 => std::u16::MAX as Float,
-            ImageEncoding::S16 => panic!("normalize_to_gray not implemented for S16"),
-            ImageEncoding::F64 => std::u8::MAX as Float,
-        } as Float;
-
-        let min
-            = match self {
-            ImageEncoding::U8 => std::u8::MIN as Float,
-            ImageEncoding::U16 => std::u16::MIN as Float,
-            ImageEncoding::S16 => panic!("normalize_to_gray not implemented for S16"),
-            ImageEncoding::F64 => std::u8::MIN as Float,
-        } as Float;
+    pub fn normalize_to_gray(&self, max: Float, min : Float, value: Float) -> u8 {
+//        let max
+//            = match self {
+//            ImageEncoding::U8 => std::u8::MAX as Float,
+//            ImageEncoding::U16 => std::u16::MAX as Float,
+//            ImageEncoding::S16 => panic!("normalize_to_gray not implemented for S16"),
+//            ImageEncoding::F64 => std::u8::MAX as Float,
+//        } as Float;
+//
+//        let min
+//            = match self {
+//            ImageEncoding::U8 => std::u8::MIN as Float,
+//            ImageEncoding::U16 => std::u16::MIN as Float,
+//            ImageEncoding::S16 => panic!("normalize_to_gray not implemented for S16"),
+//            ImageEncoding::F64 => std::u8::MIN as Float,
+//        } as Float;
 
         let v =
             match value < 0.0 {
