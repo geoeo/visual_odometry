@@ -27,25 +27,25 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 30;
+    let frame_count = 150;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
-    let alpha_orig = 0.2;
-    let alphas = [2.0,0.25];
-    let pyramid_levels = 1;
+    // alphas range form level 0 -> higher
+    let alphas = [0.2,0.4];
+    let pyramid_levels = 2;
     //TODO: @Investigate -> sigma value
     let sigma: f32 = 2.0;
-    let eps = 0.0000005;
+    let eps = 0.0005;
     let image_range_offset = 10;
-    let max_its = 1000;
+    let max_its = 50;
 
     let runtime_options = SolverOptions{
         lm: false,
         weighting: true,
-        print_runtime_info: false
+        print_runtime_info: true
     };
 
 
@@ -143,7 +143,6 @@ fn main() {
                     let diff = pyramid_levels-layer;
                     //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
                     let tau_new = tau_orig;
-                    //let alpha_new = alpha_orig;
                     let image_offset_new = image_range_offset/(layer as usize);
                     let alpha_new = alphas[layer as usize] as Float;
                     solver_parameters = SolverParameters {

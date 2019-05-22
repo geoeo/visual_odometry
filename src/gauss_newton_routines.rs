@@ -119,7 +119,7 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
         for y in image_range_offset..(image_height - image_range_offset) {
             let flat_index = column_major_index(y, x, image_height);
             let idx_reference = (y, x);
-            residuals[flat_index] = 0.0;
+            residuals[flat_index] = 10.0;
             if !valid_measurements_reference[flat_index] || !valid_measurements_target[flat_index] {
                 continue;
             }
