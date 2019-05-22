@@ -16,7 +16,6 @@ pub fn back_project(camera_reference: Camera,
                     depth_image_target: &DMatrix<Float>,
                     image_width: usize,
                     image_height: usize,
-                    image_offset: usize,
                     max_depth: Float,
                     layer_index: u32)
                     -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {

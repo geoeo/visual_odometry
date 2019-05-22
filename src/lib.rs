@@ -115,7 +115,6 @@ pub fn solve(reference_layer: &Layer,
                        &target_depth.buffer,
                        image_width,
                        image_height,
-                       image_range_offset,
                        max_depth,
                        layer_index);
 

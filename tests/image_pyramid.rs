@@ -17,15 +17,15 @@ fn depth_coordiantes(){
     let mid_x_mid = width_mid/2;
     let mid_y_mid = height_mid/2;
 
-    let x_sample = 15;
-    let y_sample = 35;
+    let _x_sample = 15;
+    let _y_sample = 35;
 
     let (x_high, y_high) = Layer::generate_depth_coordiantes(2,mid_x_small,mid_y_small);
     let (x_high_2, y_high_2) = Layer::generate_depth_coordiantes(3,mid_x_mid,mid_y_mid);
     //let (x_high_3, y_high_3) = Layer::generate_depth_coordiantes(3,x_sample,y_sample);
 
-    assert_eq!(x_high,width_mid_x);
-    assert_eq!(y_high,width_mid_y);
-    assert_eq!(x_high_2,width_mid_x);
-    assert_eq!(y_high_2,width_mid_y);
+    assert_eq!(x_high,width_mid_x + 1);
+    assert_eq!(y_high,width_mid_y + 1);
+    assert_eq!(x_high_2,width_mid_x + 3);
+    assert_eq!(y_high_2,width_mid_y + 3);
 }
