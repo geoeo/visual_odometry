@@ -19,7 +19,6 @@ impl Layer {
             match layer {
                 0 => panic!("Layer 0 image should be added explicitly"),
                 _ => {
-                    //TODO: Write unit test for this
                     let width_new = image_prev.width()/2;
                     let height_new = image_prev.height()/2;
                     let image_low_pass = blur(image_prev, sigma);

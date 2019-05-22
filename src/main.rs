@@ -34,11 +34,11 @@ fn main() {
     let max_diff_milliseconds = 0.03;
     let tau_orig = 0.000001;
     // alphas range form level 0 -> higher
-    let alphas = [0.2,0.4];
+    let alphas = [0.2,0.3];
     let pyramid_levels = 2;
     //TODO: @Investigate -> sigma value
     let sigma: f32 = 2.0;
-    let eps = 0.0005;
+    let eps = 0.001;
     let image_range_offset = 10;
     let max_its = 50;
 
@@ -140,11 +140,12 @@ fn main() {
                             solver_parameters,
                             runtime_options);
                 if layer > 0 {
-                    let diff = pyramid_levels-layer;
+                    //let diff = pyramid_levels-layer;
                     //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
+                    let next_idx = layer - 1;
                     let tau_new = tau_orig;
                     let image_offset_new = image_range_offset/(layer as usize);
-                    let alpha_new = alphas[layer as usize] as Float;
+                    let alpha_new = alphas[next_idx as usize] as Float;
                     solver_parameters = SolverParameters {
                         lie_prior: lie,
                         SE3_prior: SE3,
@@ -156,7 +157,7 @@ fn main() {
                         var_min: 1000.0,
                         max_its_var: 100,
                         image_range_offset: image_offset_new,
-                        layer_index: layer-1,
+                        layer_index: next_idx,
                         tau: tau_new
                     };
                 }
