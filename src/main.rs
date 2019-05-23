@@ -32,17 +32,15 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let tau_orig = 0.000001;
+    let taus = [0.000001,0.000001,0.000001];
     // alphas range form level 0 -> higher
-    let alphas = [0.9,0.2, 0.2];
+    let alphas = [0.5,0.2, 0.1];
     let pyramid_levels = 3;
     //TODO: @Investigate -> sigma value
     let sigma: f32 = 1.0;
-    //let eps = 0.005;
-    let eps = [0.005,0.0005, 0.0005];
-    //let image_range_offset = 10;
-    let image_range_offset = [10,5,2];
-    let max_its = 50;
+    let eps = [0.01,0.01, 0.0005];
+    let image_range_offset = [10, 5, 2];
+    let max_its = [100,40,100];
 
     let runtime_options = SolverOptions{
         lm: false,
@@ -114,7 +112,7 @@ fn main() {
             let mut solver_parameters = SolverParameters {
                 lie_prior: Vector6::<Float>::zeros(),
                 SE3_prior: Matrix4::<Float>::identity(),
-                max_its,
+                max_its: max_its[idx_init],
                 eps: eps[idx_init],
                 alpha_step: alphas[idx_init] as Float,
                 max_depth,
@@ -123,7 +121,7 @@ fn main() {
                 max_its_var: 100,
                 image_range_offset: image_range_offset[idx_init],
                 layer_index: pyramid_levels-1,
-                tau: tau_orig
+                tau: taus[idx_init]
             };
             let now = Instant::now();
             for layer in (0..pyramid_levels).rev() {
@@ -145,14 +143,15 @@ fn main() {
                     //let diff = pyramid_levels-layer;
                     //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
                     let next_idx = layer - 1;
-                    let tau_new = tau_orig;
                     let image_offset_new = image_range_offset[next_idx as usize];
                     let alpha_new = alphas[next_idx as usize] as Float;
                     let eps_new = eps[next_idx as usize];
+                    let tau_new = taus[next_idx as usize];
+                    let max_its_new = max_its[next_idx as usize];
                     solver_parameters = SolverParameters {
                         lie_prior: lie,
                         SE3_prior: SE3,
-                        max_its,
+                        max_its: max_its_new,
                         eps: eps_new,
                         alpha_step:  alpha_new,
                         max_depth,
