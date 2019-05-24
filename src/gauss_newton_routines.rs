@@ -114,8 +114,8 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                          image_height: usize,
                          image_range_offset: usize )
                          -> () {
-    for x in image_range_offset..(image_width - image_range_offset) {
-        for y in image_range_offset..(image_height - image_range_offset) {
+    for x in 0..image_width {
+        for y in 0..image_height {
             let flat_index = column_major_index(y, x, image_height);
             let idx_reference = (y, x);
             residuals[flat_index] = 10.0;
@@ -125,10 +125,9 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
             let x_idx_target = (*projection_onto_target.index((0, flat_index))).floor() as usize;
             let y_idx_target = (*projection_onto_target.index((1, flat_index))).floor() as usize;
             let idx_target = (y_idx_target, x_idx_target);
-            if !((image_range_offset < y) && (y < image_height - image_range_offset) &&
-                (image_range_offset < x) && (x < image_width - image_range_offset)) ||
-                !((image_range_offset < y_idx_target) && (y_idx_target < image_height - image_range_offset) &&
-                    (image_range_offset < x_idx_target) && (x_idx_target < image_width - image_range_offset)) {
+            if !((0 < y) && (y < image_height) && (0 < x) && (x < image_width)) ||
+                !((0 < y_idx_target) && (y_idx_target < image_height) &&
+                    (0 < x_idx_target) && (x_idx_target < image_width)) {
                 continue;
             }
             let r = *image_reference.index(idx_reference) - *image_target.index(idx_target);
