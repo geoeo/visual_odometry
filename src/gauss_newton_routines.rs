@@ -111,8 +111,7 @@ pub fn compute_residuals(residuals: &mut Vec<Float>,
                          image_target:  &DMatrix<Float>,
                          projection_onto_target: NormalizedImageCoordinates,
                          image_width: usize,
-                         image_height: usize,
-                         image_range_offset: usize )
+                         image_height: usize)
                          -> () {
     for x in 0..image_width {
         for y in 0..image_height {

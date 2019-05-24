@@ -130,8 +130,7 @@ pub fn solve(reference_layer: &Layer,
                       &reference_layer.intensity.buffer,
                       &target_layer.intensity.buffer,
                       reference_projections,
-                      image_width, image_height,
-                      image_range_offset);
+                      image_width, image_height);
 
     // Leuvenberg-Marquart Specific
     if lm {
@@ -193,8 +192,7 @@ pub fn solve(reference_layer: &Layer,
                           &reference_layer.intensity.buffer,
                           &target_layer.intensity.buffer,
                           target_projections,
-                          image_width, image_height,
-                          image_range_offset);
+                          image_width, image_height);
 
         let number_of_valid_measurements = valid_measurements_reference.iter().fold(0, |acc,x| acc + *x as usize);
         let valid_pixel_ratio =  number_of_valid_measurements as Float / N as Float;

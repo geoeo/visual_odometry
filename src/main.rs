@@ -27,7 +27,7 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 150;
+    let frame_count = 1;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
@@ -35,11 +35,11 @@ fn main() {
     let taus = [0.001,0.000001,0.000000001];
     // alphas range form level 0 -> higher
     let alphas = [1.2,0.42, 0.25];
-    let pyramid_levels = 3;
+    let pyramid_levels = 1;
     //TODO: @Investigate -> sigma value
     let sigma: f32 = 3.0;
     let eps = [0.07,0.05, 0.01];
-    let image_range_offset = [10, 5, 2];
+    let image_range_offsets = [10, 5, 2];
     let max_its = [40,60,100];
 
     let runtime_options = SolverOptions{
@@ -51,7 +51,7 @@ fn main() {
 
     let project_root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
     let out_dir = "output";
-    let file_name = format!("{}_{}.txt",data_set,reference_start_file_name);
+    let file_name = format!("{}_{}",data_set,reference_start_file_name);
     let mut lie_results_path = project_root;
     lie_results_path.push(out_dir);
     lie_results_path.push(file_name);
@@ -119,7 +119,7 @@ fn main() {
                 var_eps: 0.0001,
                 var_min: 1000.0,
                 max_its_var: 100,
-                image_range_offset: image_range_offset[idx_init],
+                image_range_offset: image_range_offsets[idx_init],
                 layer_index: pyramid_levels-1,
                 tau: taus[idx_init]
             };
@@ -143,7 +143,7 @@ fn main() {
                     //let diff = pyramid_levels-layer;
                     //let tau_new = tau_orig*(10.0 as Float).powi(diff as i32);
                     let next_idx = layer - 1;
-                    let image_offset_new = image_range_offset[next_idx as usize];
+                    let image_offset_new = image_range_offsets[next_idx as usize];
                     let alpha_new = alphas[next_idx as usize] as Float;
                     let eps_new = eps[next_idx as usize];
                     let tau_new = taus[next_idx as usize];
@@ -172,7 +172,16 @@ fn main() {
 
             println!("{}) Solver duration: {} ms",i, solver_duration as Float);
         }
-        write_lie_vectors_to_file(lie_results_file_path,lie_buffer);
+
+        write_lie_vectors_to_file(lie_results_file_path,
+                                  lie_buffer,
+                                  &alphas,
+                                  &eps,
+                                  &image_range_offsets,
+                                  &max_its,
+                                  pyramid_levels,
+                                  sigma,
+                                  runtime_options.lm);
     }
 
 

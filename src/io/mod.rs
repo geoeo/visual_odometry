@@ -151,16 +151,49 @@ pub fn generate_runtime_paths(intensity_folder_path: PathBuf,
 }
 
 //TODO: investigate Cursor trait
-pub fn write_lie_vectors_to_file(file_path: &str, data_vec: Vec<Vector6<Float>>) -> () {
+pub fn write_lie_vectors_to_file(file_path: &str,
+                                 data_vec: Vec<Vector6<Float>>,
+                                 alphas: &[f64],
+                                 eps: &[f64],
+                                 image_rang_offsets: &[usize],
+                                 max_its: &[usize],
+                                 pyramid_levels: u32,
+                                 sigma: f32,
+                                 lm_used: bool) -> () {
 
-    if Path::new(file_path).exists() {
-        std::fs::remove_file(file_path).expect("Failed to remove file");
+    let mut file_path_full = String::from(file_path);
+    for alpha in alphas {
+        let s = format!("_{}",alpha);
+        file_path_full.push_str(&s);
+    }
+
+    for ep in eps {
+        let s = format!("_{}",ep);
+        file_path_full.push_str(&s);
+    }
+
+    for image_rang_offset in image_rang_offsets {
+        let s = format!("_{}",image_rang_offset);
+        file_path_full.push_str(&s);
+    }
+    for max_it in max_its {
+        let s = format!("_{}",max_it);
+        file_path_full.push_str(&s);
+    }
+
+    let rest = format!("_{}_{}_{}",pyramid_levels, sigma, lm_used);
+    file_path_full.push_str(&rest);
+
+
+    file_path_full.push_str(".txt");
+    if Path::new(&file_path_full).exists() {
+        std::fs::remove_file(&file_path_full).expect("Failed to remove file");
     }
 
     let mut file = OpenOptions::new()
         .create(true)
         .write(true)
-        .open(file_path)
+        .open(&file_path_full)
         .unwrap();
     for data in data_vec {
         let mut data_as_string = String::new();
