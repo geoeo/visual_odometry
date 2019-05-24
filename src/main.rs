@@ -32,15 +32,15 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let taus = [0.000001,0.000001,0.000001];
+    let taus = [0.001,0.000001,0.000000001];
     // alphas range form level 0 -> higher
-    let alphas = [0.5,0.2, 0.1];
+    let alphas = [1.2,0.42, 0.25];
     let pyramid_levels = 3;
     //TODO: @Investigate -> sigma value
-    let sigma: f32 = 1.0;
-    let eps = [0.01,0.01, 0.0005];
+    let sigma: f32 = 3.0;
+    let eps = [0.07,0.05, 0.01];
     let image_range_offset = [10, 5, 2];
-    let max_its = [100,40,100];
+    let max_its = [40,60,100];
 
     let runtime_options = SolverOptions{
         lm: false,
