@@ -94,12 +94,13 @@ pub fn solve(reference_layer: &Layer,
     let mut res_squared_mean = std::f32::MAX as Float;
     let degrees_of_freedom = 5; // empirically derived: see paper Robust VO for RGBD
 
-    // We want RHS coordiante system. As such, we invert Z and Pitch
+    // We want RHS coordiante system.
+    // As such, we invert Z. Pitch is fine since Rodruiguez assumes RHS
     let generator_x = generator_x();
     let generator_y = generator_y();
     let generator_z = generator_z_neg();
     let generator_roll = generator_roll();
-    let generator_pitch = generator_pitch_neg();
+    let generator_pitch = generator_pitch();
     let generator_yaw = generator_yaw();
 
     // LM

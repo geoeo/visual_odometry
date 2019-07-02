@@ -27,24 +27,27 @@ fn main() {
     let intensity_folder = "rgb";
     let depth_folder = "depth";
     let extension = "png";
-    let frame_count = 1;
+    let frame_count = 150;
     let step_count = 1;
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
     let taus = [0.001,0.000001,0.000000001];
     // alphas range form level 0 -> higher
-    let alphas = [1.2,0.42, 0.25];
+    //let alphas = [1.2,0.42, 0.25];
+    let alphas = [1.0];
     let pyramid_levels = 1;
     //TODO: @Investigate -> sigma value
     let sigma: f32 = 3.0;
-    let eps = [0.07,0.05, 0.01];
+    //et eps = [0.07,0.05, 0.01];
+    //let eps = [0.001]; //weighting
+    let eps = [0.00001]; //lm
     let image_range_offsets = [10, 5, 2];
     let max_its = [40,60,100];
 
     let runtime_options = SolverOptions{
-        lm: false,
-        weighting: true,
+        lm: true,
+        weighting: false,
         print_runtime_info: true
     };
 
