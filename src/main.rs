@@ -32,18 +32,19 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let taus = [0.001,0.000001,0.000000001];
+    let taus = [0.01,0.001];
     // alphas range form level 0 -> higher
-    //let alphas = [1.2,0.42, 0.25];
-    let alphas = [1.0];
-    let pyramid_levels = 1;
+    let alphas = [0.5,0.8];
+    //let alphas = [1.0];
+    let pyramid_levels = 2;
     //TODO: @Investigate -> sigma value
-    let sigma: f32 = 3.0;
-    //et eps = [0.07,0.05, 0.01];
+    //TODO: Make this a list as well
+    let sigma: f32 = 1.1;
+    let eps = [0.00000001,0.0001];
     //let eps = [0.001]; //weighting
-    let eps = [0.00001]; //lm
-    let image_range_offsets = [10, 5, 2];
-    let max_its = [40,60,100];
+    //let eps = [0.00001]; //lm
+    let image_range_offsets = [0, 0];
+    let max_its = [10,10];
 
     let runtime_options = SolverOptions{
         lm: true,
@@ -80,6 +81,7 @@ fn main() {
         = generate_runtime_paths(intensity_folder_path, depth_folder_path,reference_intensity_files, reference_depth_files, target_intensity_files,target_depth_files);
 
     let depth_factor = 5000.0;
+    let dir = -1.0;
 
     let (reference_frames, target_frames, max_depths)
         = load_frames(&reference_intensity_paths,
@@ -87,6 +89,7 @@ fn main() {
                       &target_intensity_paths,
                       &target_depth_paths,
                       depth_factor,
+                      dir,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
                       true,
@@ -95,8 +98,8 @@ fn main() {
 
     let number_of_frames = reference_frames.len();
 
-    let fx = 520.9;
-    let fy = 521.0;
+    let fx = -520.9;
+    let fy = -521.0;
     let ox = 321.5;
     let oy = 249.7;
     let intrinsics = Intrinsics::new(fx, fy, ox, oy);

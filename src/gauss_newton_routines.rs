@@ -19,11 +19,7 @@ pub fn back_project(camera_reference: Camera,
                     max_depth: Float,
                     layer_index: u32)
                     -> (HomogeneousBackProjections, Vec<bool>, Vec<bool>) {
-    let depth_direction =
-        match camera_reference.intrinsics.fx().is_sign_positive() {
-            true => 1.0,
-            false => -1.0
-        };
+
     let N = image_width*image_height;
     let mut P_vec: Vec<Float> = Vec::with_capacity(4 * N);
     let mut valid_measurements_reference: Vec<bool> = Vec::with_capacity(N);
@@ -37,7 +33,7 @@ pub fn back_project(camera_reference: Camera,
             let depth_target = *depth_image_target.index(idx);
 
             if depth_reference == 0.0 {
-                depth_reference = depth_direction * max_depth;
+                depth_reference = max_depth;
                 valid_measurements_reference.push(false);
             } else {
                 valid_measurements_reference.push(true);

@@ -24,6 +24,7 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
                    target_image_paths: &Vec<PathBuf>,
                    target_depth_paths: &Vec<PathBuf>,
                    depth_factor: Float,
+                   direction: Float,
                    filter_x: ImageFilter,
                    filter_y: ImageFilter,
                    standardize: bool,
@@ -80,9 +81,9 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
 
         let mut depth_1 = Image::from_vec_16(height,width,&depth_ref, false);
         let mut depth_2 = Image::from_vec_16(height,width,&target_depth, false);
-        depth_1.buffer /= depth_factor;
-        depth_2.buffer /= depth_factor;
-        let max_depth = depth_1.buffer.amax();
+        depth_1.buffer /= depth_factor*direction;
+        depth_2.buffer /= depth_factor*direction;
+        let max_depth = depth_1.buffer.amax() * direction;
 
         let reference_frame = Frame{image_pyramid: layer_pyramid_ref, depth: depth_1};
         let target_frame = Frame{image_pyramid: layer_pyramid_target, depth: depth_2};
