@@ -5,8 +5,8 @@
 
 # Results
 ## TUM Freiburg 2 Desk 1
-### 1311868164.363181 - Line Search / Image Pyramid (3 levels) (investigating parameters...)
-![image_pyramid](docs/363_12_042_025_3_007_005_001.png)
+### 1311868164.363181 - Line Search / Image Pyramid (2 levels) (investigating parameters...)
+![image_pyramid](docs/363_2_levels_10_5_off_001_0000001.png)
 ### 1311868164.363181 - Line Search / No Image Pyramid
 ![image_pyramid](docs/f2d2__0.9_005_363181.png)
 ### 1311868164.399026 - Leuvenberg-Marquart / No Image Pyramid

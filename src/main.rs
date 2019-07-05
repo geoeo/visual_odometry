@@ -32,7 +32,7 @@ fn main() {
     let debug = false;
     let run_vo = true;
     let max_diff_milliseconds = 0.03;
-    let taus = [0.01,0.001];
+    let taus = [0.001,0.0000001];
     // alphas range form level 0 -> higher
     let alphas = [0.5,0.8];
     //let alphas = [1.0];
@@ -43,8 +43,8 @@ fn main() {
     let eps = [0.00000001,0.0001];
     //let eps = [0.001]; //weighting
     //let eps = [0.00001]; //lm
-    let image_range_offsets = [0, 0];
-    let max_its = [10,10];
+    let image_range_offsets = [10, 5];
+    let max_its = [10, 10];
 
     let runtime_options = SolverOptions{
         lm: true,
