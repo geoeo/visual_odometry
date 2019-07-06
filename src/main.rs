@@ -39,12 +39,12 @@ fn main() {
     let pyramid_levels = 2;
     //TODO: @Investigate -> sigma value
     //TODO: Make this a list as well
-    let sigma: f32 = 1.1;
+    let sigma: f32 = 3.0;
     let eps = [0.00000001,0.0001];
     //let eps = [0.001]; //weighting
     //let eps = [0.00001]; //lm
     let image_range_offsets = [10, 5];
-    let max_its = [10, 10];
+    let max_its = [15, 15];
 
     let runtime_options = SolverOptions{
         lm: true,
