@@ -11,6 +11,7 @@ use crate::Float;
 use crate::numerics::{z_standardize, row_major_index,filter3x3};
 use self::types::{ImageFilter, ImageEncoding};
 
+#[derive(Debug,Clone)]
 pub struct Image {
     pub buffer: DMatrix<Float>,
     pub filter: ImageFilter,
@@ -21,15 +22,16 @@ impl Image {
     pub fn from_matrix(matrix: &DMatrix<Float>, filter: ImageFilter, standardize : bool, original_encoding: ImageEncoding) -> Image {
         let mut buffer = matrix.clone();
         let filter_type = select_filter(filter);
+
         if standardize {
             z_standardize(&mut buffer);
         }
+
         let filtered_buffer =
             match filter_type {
                 None => buffer,
                 Some(filter) => filter3x3(&filter,&buffer)
             };
-
 
         Image{ buffer: filtered_buffer, filter, is_standardized : standardize, original_encoding }
     }
@@ -40,11 +42,13 @@ impl Image {
         if standardize {
             z_standardize(&mut buffer);
         }
+
         let filtered_buffer =
             match filter_type {
                 None => buffer,
                 Some(filter) => filter3x3(&filter,&buffer)
             };
+
 
         let encoding =
             match standardize {
@@ -105,9 +109,6 @@ fn vec_16_to_matrix(height: usize, width: usize, vec_16: &Vec<u16>) -> DMatrix<F
 
 fn matrix_to_image(matrix: &DMatrix<Float>, encoding: ImageEncoding) -> GrayImage {
     let (rows, cols) = matrix.shape();
-    if encoding == ImageEncoding::F64 {
-        println!("WARNING normalize_to_gray: Floating point values will be clamped to 0 if less than 0")
-    }
 
     let mut gray_image = DynamicImage::new_luma8(cols as u32, rows as u32).to_luma();
     let max = matrix.max();

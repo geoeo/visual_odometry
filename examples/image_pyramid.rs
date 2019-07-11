@@ -47,6 +47,7 @@ fn main() {
                       &target_intensity_paths,
                       &target_depth_paths,
                       depth_factor,
+                      -1.0,
                       ImageFilter::SobelX,
                       ImageFilter::SobelY,
                       true,

@@ -46,12 +46,11 @@ fn main() {
     let image_range_offsets = [10, 5];
     let max_its = [15, 15];
 
-    let runtime_options = SolverOptions{
+    let runtime_options = SolverOptions {
         lm: true,
         weighting: false,
         print_runtime_info: true
     };
-
 
     let project_root = std::env::current_dir().unwrap_or_else(|_| panic!("No current dir"));
     let out_dir = "output";

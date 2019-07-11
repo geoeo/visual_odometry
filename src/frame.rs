@@ -56,6 +56,8 @@ pub fn load_frames(reference_image_paths: &Vec<PathBuf>,
         image_pyramid_ref.push(image_ref);
         image_pyramid_target.push(image_target);
 
+
+        //TODO: @investigate first filtering then downsampling each image separetely
         for layer_id in 1..pyramid_levels {
             let idx = layer_id as usize-1;
             let sampled_image_ref = Layer::blur_downsample(&image_pyramid_ref[idx],layer_id,sigma);

@@ -12,6 +12,7 @@ pub struct Layer {
     pub layer_index: u32
 }
 
+//TODO:
 impl Layer {
 
     pub fn blur_downsample(image_prev: &GrayImage,layer: u32, sigma: f32) -> GrayImage {
@@ -23,6 +24,7 @@ impl Layer {
                     let height_new = image_prev.height()/2;
                     let image_low_pass = blur(image_prev, sigma);
                     //TODO: experiment with filters
+
                     resize(&image_low_pass,width_new, height_new, FilterType::Triangle) as GrayImage
                 }
             };
@@ -40,6 +42,14 @@ impl Layer {
         let gy = Image::from_image(image, filter_y, standardize);
 
         Layer{intensity, gradient_x: gx, gradient_y: gy, layer_index: layer}
+    }
+
+    pub fn from_images(image: &Image,
+                      gx: &Image,
+                      gy: &Image,
+                      layer: u32) -> Layer {
+
+        Layer{intensity: image.clone(), gradient_x: gx.clone(), gradient_y: gy.clone(), layer_index: layer}
     }
 
     // (2^L){x,y} + 0.5(2^L - 1) -> probably floor the result

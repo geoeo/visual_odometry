@@ -92,6 +92,6 @@ fn write_to_file(){
 
     let test_vec: Vec<Vector6<Float>> = vec![Vector6::new(1.0,2.0,3.0,4.0,5.0,6.0),Vector6::new(11.0,22.0,33.0,44.0,55.0,66.0)];
 
-    write_lie_vectors_to_file(path_as_string,test_vec);
+    write_lie_vectors_to_file(path_as_string,test_vec, &[1.0], &[1.0], &[0], &[1], 1, 1.0, false );
 
 }
