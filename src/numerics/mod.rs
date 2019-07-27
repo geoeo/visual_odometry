@@ -69,7 +69,7 @@ pub fn filter3x3(kernel: &Matrix3<Float>, matrix: &DMatrix<Float>) -> DMatrix<Fl
     let height = matrix.nrows();
     let size = width*height;
     let kernel_size = 3;
-    let kernel_min = (kernel_size-1)/2;
+    let kernel_min = kernel_size/2;
     let mut vec_column_major: Vec<Float> = Vec::with_capacity(size);
     let width_i32 = width as Integer;
     let height_i32 = height as Integer;

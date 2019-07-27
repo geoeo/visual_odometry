@@ -1,8 +1,11 @@
+extern crate nalgebra as na;
 extern crate image as image_rs;
 extern crate visual_odometry;
 
 use std::path::Path;
 
+use na::{Vector1,Vector6,DMatrix, Matrix3, Matrix1};
+use na::linalg;
 use image_rs::imageops::filter3x3;
 use visual_odometry::image::types::{ImageFilter, ImageEncoding};
 use visual_odometry::image::Image;
@@ -25,29 +28,17 @@ fn main() {
     let gradient_image = filter3x3(&image,&kernel);
     let gradient_image_conv = Image::from_image(&gradient_image,ImageFilter::None, false);
 
-    let max = gradient_image_conv.buffer.max();
-    let min = gradient_image_conv.buffer.min();
 
-    println!("min: {}, max: {}", min, max);
+    let vec = Vector6::new(1.0,2.0,3.0,4.0,5.0,6.0);
+    let filter = Vector1::new(1.0);
+    vec.convolve_full(filter);
 
-    let image_mat = Image::from_image(&image,ImageFilter::None, false);
+    let mat = Matrix3::new(1.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,1.0);
+    let filter_mat = Matrix1::new(1.0);
+    mat.convolve_full(filter_mat);
 
-    let mat_gradient_image = Image::from_matrix(&image_mat.buffer, ImageFilter::SobelX, false, ImageEncoding::F64);
-
-    let my_max = mat_gradient_image.buffer.max();
-    let my_min = mat_gradient_image.buffer.min();
-
-
-    println!("my min: {}, my max: {}", my_min, my_max);
-
-    let mat_gradient_image_rs = mat_gradient_image.to_image();
-
-    //let my_max_2 = mat_gradient_image.buffer.max();
-    //let my_min_2 = mat_gradient_image.buffer.min();
-
-    //println!("my min 2: {}, my max 2: {}", my_min_2, my_max_2);
-
-    gradient_image.save(file_out_path).unwrap();
-    mat_gradient_image_rs.save(file_mat_out_path).unwrap();
+    //let d_mat = DMatrix::from_diagonal_element(3,3,1.0);
+    //let filter_d_mat = DMatrix::from_diagonal_element(1,1,1.0);
+    //d_mat.convolve_full(filter_d_mat);
 
 }

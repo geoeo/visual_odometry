@@ -36,7 +36,7 @@ pub fn read_png_16bits_row_major<P: AsRef<Path>>(
     Ok((info.width as usize, info.height as usize, Box::new(buffer_u16)))
 }
 
-
+//TODO: change to vec of f64
 pub fn get_file_list_in_dir<P: AsRef<Path>>(image_folder_path: P) -> io::Result<Vec<String>> {
 
     let mut file_vec: Vec<String> = Vec::new();
@@ -63,6 +63,7 @@ pub fn file_name_to_float(filename: &str) -> f64 {
     float_str.parse().unwrap_or_else(|_| panic!("unable to convert filename to float"))
 }
 
+//TODO: change to result of type f64
 pub fn associate_file_name<P: AsRef<Path>>(image_folder_path: P, time_stamp: f64, max_diff_milliseconds: f64)-> String {
     let file_name_list = get_file_list_in_dir(image_folder_path).unwrap_or_else(|_|panic!("file association failed with: {}",time_stamp));
     let time_stamp_differences: Vec<f64>
@@ -92,6 +93,7 @@ pub fn generate_folder_path(root: PathBuf, folder_path_relative_to_project: &str
     image_folder_path
 }
 
+//TODO: change to result of type Vec<f64>
 pub fn generate_runtime_intensity_depth_lists<P: AsRef<Path>>(intensity_folder_path: P, depth_folder_path: P, start_file_name: &str, extension: &str,step_count: usize, frame_count: usize, max_diff_milliseconds: f64)
                                               -> (Vec<String>, Vec<String>) {
 
