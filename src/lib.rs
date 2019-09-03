@@ -229,7 +229,7 @@ pub fn solve(reference_layer: &Layer,
                 let idx = column_major_index(y, x, image_height);
                 let res = residuals[idx];
                 let weight = weights[idx];
-                res_sum_squared += weight * res * res;
+                res_sum_squared += weight*weight * res * res;
             }
         }
 
