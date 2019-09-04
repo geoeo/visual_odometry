@@ -179,8 +179,8 @@ pub fn solve(reference_layer: &Layer,
         //let (R_current, t_current) = exp(lie);
         let (R_new, t_new) = exp(lie_new);
 
-        let R_est = R_current*R_new;
-        let t_est = R_current*t_new + t_current;
+        let R_est = R_new*R_current;
+        let t_est = R_new*t_current + t_new;
         let lie_est = ln(R_est,t_est);
         let SE3_est = isometry_from_parts(R_est,t_est);
 
